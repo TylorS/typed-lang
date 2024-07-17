@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "composite": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "paths": {
+      "@typed/parser": [
+        "./packages/parser/src/index.ts"
+      ],
+      "@typed/parser/*": [
+        "./packages/parser/src/*"
+      ]
+    },
+    "strict": true,
+    "target": "ES2022"
+  }
+}

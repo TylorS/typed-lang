@@ -1,0 +1,20 @@
+{
+  "name": "typed-lang",
+  "version": "1.0.0",
+  "description": "TypeScript extension language for web applications",
+  "scripts": {
+    "test": "pnpm -r run test"
+  },
+  "keywords": [],
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^9.7.0",
+    "eslint": "9.x",
+    "globals": "^15.8.0",
+    "typescript": "^5.5.3",
+    "typescript-eslint": "^7.16.1",
+    "vite-plugin-tsconfig-paths": "^1.4.1",
+    "vitest": "^2.0.3"
+  }
+}
