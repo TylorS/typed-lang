@@ -5,7 +5,6 @@ import {
   RecordType,
   TupleConstructor,
   TypeAlias,
-  TypeField,
   TypeParameter,
   TypeReference,
   VoidConstructor,
@@ -18,7 +17,7 @@ import { describe, expect, it } from "vitest";
 describe("Parser", () => {
   it("parses data types", () => {
     const tokens = tokenize(
-      `data Maybe<A> = Nothing | Just(A) | Some { value: A }`
+      `data Maybe<A> = Nothing | Just(value: A) | Some { value: A }`
     );
     const { statements } = parse(tokens);
 
@@ -31,26 +30,27 @@ describe("Parser", () => {
           new TupleConstructor(
             `Just`,
             [
-              new TypeField(
-                new TypeReference(`A`, [], new Span(31, 32)),
-                new Span(31, 32)
+              new NamedField(
+                `value`,
+                new TypeReference(`A`, [], new Span(38, 39)),
+                new Span(31, 39)
               ),
             ],
-            new Span(26, 33)
+            new Span(26, 40)
           ),
           new RecordConstructor(
             `Some`,
             [
               new NamedField(
                 `value`,
-                new TypeReference(`A`, [], new Span(50, 51)),
-                new Span(43, 51)
+                new TypeReference(`A`, [], new Span(57, 58)),
+                new Span(50, 58)
               ),
             ],
-            new Span(36, 53)
+            new Span(43, 60)
           ),
         ],
-        new Span(0, 53)
+        new Span(0, 60)
       ),
     ]);
   });

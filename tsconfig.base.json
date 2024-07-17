@@ -8,13 +8,18 @@
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "paths": {
-      "@typed/parser": [
-        "./packages/parser/src/index.ts"
-      ],
-      "@typed/parser/*": [
-        "./packages/parser/src/*"
-      ]
+      "@typed/core-data": ["./packages/core-data/src/index.ts"],
+      "@typed/core-data/*": ["./packages/core-data/src/*"],
+      "@typed/parser": ["./packages/parser/src/index.ts"],
+      "@typed/parser/*": ["./packages/parser/src/*"],
+      "@typed/std": ["./packages/std/src/index.ts"],
+      "@typed/std/*": ["./packages/std/src/*"]
     },
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ],
     "strict": true,
     "target": "ES2022"
   }

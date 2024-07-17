@@ -1,0 +1,13 @@
+{
+  "name": "@typed/core-data",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "vitest --dir test"
+  },
+  "keywords": [],
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "hkt-ts": "^2.1.5"
+  }
+}
