@@ -3,23 +3,30 @@
   "compilerOptions": {
     "baseUrl": ".",
     "composite": true,
+    "declaration": true,
+    "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
     "incremental": true,
-    "module": "ES2022",
-    "moduleResolution": "Bundler",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "paths": {
-      "@typed/core-data": ["./packages/core-data/src/index.ts"],
-      "@typed/core-data/*": ["./packages/core-data/src/*"],
-      "@typed/parser": ["./packages/parser/src/index.ts"],
-      "@typed/parser/*": ["./packages/parser/src/*"],
-      "@typed/std": ["./packages/std/src/index.ts"],
-      "@typed/std/*": ["./packages/std/src/*"]
+      "@typed-lang/compiler": ["./packages/compiler/src/index.ts"],
+      "@typed-lang/compiler/*": ["./packages/compiler/src/*.js"],
+      "@typed-lang/core-data": ["./packages/core-data/src/index.ts"],
+      "@typed-lang/core-data/*": ["./packages/core-data/src/*.js"],
+      "@typed-lang/parser": ["./packages/parser/src/index.ts"],
+      "@typed-lang/parser/*": ["./packages/parser/src/*.js"],
+      "@typed-lang/std": ["./packages/std/src/index.ts"],
+      "@typed-lang/std/*": ["./packages/std/src/*.js"],
+      "@typed-lang/vite-plugin": ["./packages/vite-plugin/src/index.ts"],
+      "@typed-lang/vite-plugin/*": ["./packages/vite-plugin/src/*.js"]
     },
     "plugins": [
       {
         "name": "@effect/language-service"
       }
     ],
+    "resolvePackageJsonExports": true,
     "strict": true,
     "target": "ES2022"
   }

@@ -1,4 +1,4 @@
-import { Span, Token, TokenKind } from "./Token";
+import { Span, Token, TokenKind } from "./Token.js";
 
 const WHITESPACE_REGEX = /\s/;
 const ALPHA_REGEX = /[a-zA-Z]/;

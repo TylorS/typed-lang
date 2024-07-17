@@ -1,4 +1,4 @@
-import { Span } from "./Token";
+import { Span } from "./Token.js";
 
 export class SourceFile {
   readonly _tag = "SourceFile";

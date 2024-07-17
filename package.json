@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "TypeScript extension language for web applications",
   "scripts": {
+    "build": "pnpm -r run build",
     "test": "pnpm -r run test"
   },
   "keywords": [],

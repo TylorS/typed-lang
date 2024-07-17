@@ -6,4 +6,15 @@
     "outDir": "dist"
   },
   "include": ["src"],
+  "references": [
+    {
+      "path": "../compiler/tsconfig.json"
+    },
+    {
+      "path": "../core-data/tsconfig.json"
+    },
+    {
+      "path": "../parser/tsconfig.json"
+    }
+  ]
 }

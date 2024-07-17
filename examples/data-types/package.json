@@ -1,0 +1,23 @@
+{
+  "name": "@typed-lang/example-data-types",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@typed-lang/compiler": "workspace:*",
+    "@typed-lang/core-data": "workspace:*",
+    "@typed-lang/parser": "workspace:*",
+    "@typed-lang/std": "workspace:*",
+    "@typed-lang/vite-plugin": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^5.3.4",
+    "vite-plugin-tsconfig-paths": "^1.4.1"
+  }
+}

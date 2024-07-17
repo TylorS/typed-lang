@@ -1,6 +1,9 @@
 {
-  "name": "@typed/parser",
+  "name": "@typed-lang/std",
   "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "test": "vitest --dir test"
   },
@@ -8,7 +11,13 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@typed/core-data": "workspace:*",
+    "@typed-lang/core-data": "workspace:*",
     "hkt-ts": "^2.1.5"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   }
 }

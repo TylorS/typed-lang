@@ -1,6 +1,6 @@
-import { parse, tokenize } from '@typed/parser'
+import { parse, tokenize } from '@typed-lang/parser'
 import { describe, expect, it } from 'vitest'
-import { compileDts } from '../src/compile-dts'
+import { compileDts } from '../src/compile-dts.js'
 
 describe('DTS', () => {
   it("compiles data declarations with record constructors", () => { 

@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "dist"
-  },
-  "include": ["src"],
+  "references": [
+    {
+      "path": "../../packages/vite-plugin/tsconfig.json"
+    }
+  ]
 }

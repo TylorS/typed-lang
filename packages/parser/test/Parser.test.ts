@@ -8,10 +8,10 @@ import {
   TypeParameter,
   TypeReference,
   VoidConstructor,
-} from "@typed/parser/AST";
-import { parse } from "@typed/parser/Parser";
-import { Span } from "@typed/parser/Token";
-import { tokenize } from "@typed/parser/Tokenizer";
+} from "@typed-lang/parser/AST";
+import { parse } from "@typed-lang/parser/Parser";
+import { Span } from "@typed-lang/parser/Token";
+import { tokenize } from "@typed-lang/parser/Tokenizer";
 import { describe, expect, it } from "vitest";
 
 describe("Parser", () => {

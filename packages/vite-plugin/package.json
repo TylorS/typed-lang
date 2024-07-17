@@ -1,9 +1,9 @@
 {
-  "name": "@typed-lang/compiler",
+  "name": "@typed-lang/vite-plugin",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "typed": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b tsconfig.json",
     "test": "vitest --dir test"
@@ -12,19 +12,22 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@typed-lang/compiler": "workspace:*",
     "@typed-lang/core-data": "workspace:*",
     "@typed-lang/parser": "workspace:*"
   },
   "peerDependencies": {
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11"
+    "@types/node": "^20.14.11",
+    "vite": "^5.3.4"
   },
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     }
   }
 }

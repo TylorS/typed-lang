@@ -33,14 +33,39 @@ importers:
         specifier: ^2.0.3
         version: 2.0.3(@types/node@20.14.11)
 
+  examples/data-types:
+    dependencies:
+      '@typed-lang/compiler':
+        specifier: workspace:*
+        version: link:../../packages/compiler
+      '@typed-lang/core-data':
+        specifier: workspace:*
+        version: link:../../packages/core-data
+      '@typed-lang/parser':
+        specifier: workspace:*
+        version: link:../../packages/parser
+      '@typed-lang/std':
+        specifier: workspace:*
+        version: link:../../packages/std
+      '@typed-lang/vite-plugin':
+        specifier: workspace:*
+        version: link:../../packages/vite-plugin
+    devDependencies:
+      vite:
+        specifier: ^5.3.4
+        version: 5.3.4(@types/node@20.14.11)
+      vite-plugin-tsconfig-paths:
+        specifier: ^1.4.1
+        version: 1.4.1(typescript@5.5.3)(vite@5.3.4(@types/node@20.14.11))
+
   packages/compiler:
     dependencies:
-      '@typed/core-data':
+      '@typed-lang/core-data':
         specifier: workspace:*
         version: link:../core-data
-      '@typed/parser':
+      '@typed-lang/parser':
         specifier: workspace:*
-        version: link:../std
+        version: link:../parser
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
@@ -59,12 +84,34 @@ importers:
 
   packages/std:
     dependencies:
-      '@typed/core-data':
+      '@typed-lang/core-data':
         specifier: workspace:*
         version: link:../core-data
       hkt-ts:
         specifier: ^2.1.5
         version: 2.1.5(tslib@2.6.3)
+
+  packages/vite-plugin:
+    dependencies:
+      '@typed-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@typed-lang/core-data':
+        specifier: workspace:*
+        version: link:../core-data
+      '@typed-lang/parser':
+        specifier: workspace:*
+        version: link:../parser
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20.14.11
+        version: 20.14.11
+      vite:
+        specifier: ^5.3.4
+        version: 5.3.4(@types/node@20.14.11)
 
 packages:
 

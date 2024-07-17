@@ -1,7 +1,22 @@
-import { DataConstructor, DataDeclaration, Field, NamedField, RecordConstructor, RecordType, TupleConstructor, TupleType, Type, TypeParameter, TypeReference, VoidConstructor } from "@typed/parser";
-import { ident } from "./utils";
+import {
+  DataConstructor,
+  DataDeclaration,
+  Field,
+  NamedField,
+  RecordConstructor,
+  RecordType,
+  TupleConstructor,
+  TupleType,
+  Type,
+  TypeParameter,
+  TypeReference,
+  VoidConstructor,
+} from "@typed-lang/parser";
+import { ident } from "./utils.js";
 
-export function compileDataDeclarationType(declaration: DataDeclaration): string {
+export function compileDataDeclarationType(
+  declaration: DataDeclaration
+): string {
   let str = `export type ${declaration.name}`;
 
   str += compileTypeParameters(declaration.typeParameters);
@@ -32,8 +47,9 @@ export function compileTypeParameters(
   return `<${typeParameters.map((p) => p.name).join(", ")}>`;
 }
 
-
-export function compileDataConstructorTypeReference(constructor: DataConstructor) {
+export function compileDataConstructorTypeReference(
+  constructor: DataConstructor
+) {
   switch (constructor._tag) {
     case "VoidConstructor":
       return compileVoidConstructorTypeReference(constructor);
@@ -90,7 +106,9 @@ export function compileRecordConstructorTypeReference(
   return str;
 }
 
-export function compileDataConstructorInterface(constructor: DataConstructor): string {
+export function compileDataConstructorInterface(
+  constructor: DataConstructor
+): string {
   switch (constructor._tag) {
     case "VoidConstructor":
       return compileVoidConstructorInterface(constructor);
@@ -101,7 +119,9 @@ export function compileDataConstructorInterface(constructor: DataConstructor): s
   }
 }
 
-export function compileVoidConstructorInterface(constructor: VoidConstructor): string {
+export function compileVoidConstructorInterface(
+  constructor: VoidConstructor
+): string {
   let str = `export interface ${constructor.name} {\n`;
   str += `  readonly _tag: '${constructor.name}'\n`;
   str += `}\n`;
@@ -137,7 +157,9 @@ export function compileRecordConstructorInterface(
   return str;
 }
 
-export function compileConstructorTypeParameters(fields: readonly Field[]): string {
+export function compileConstructorTypeParameters(
+  fields: readonly Field[]
+): string {
   const str = fields
     .flatMap((f) => (f.type._tag === "TypeReference" ? [f.type.name] : []))
     .join(", ");
@@ -156,7 +178,10 @@ export function compileReadonlyFieldsTypeReference(
   return `readonly ${compileFieldsTypeReference(field, index)}`;
 }
 
-export function compileFieldsTypeReference(field: Field, index: number): string {
+export function compileFieldsTypeReference(
+  field: Field,
+  index: number
+): string {
   switch (field._tag) {
     case "TypeField":
       return `arg${index}: ${compileType(field.type)}`;
@@ -164,7 +189,6 @@ export function compileFieldsTypeReference(field: Field, index: number): string 
       return `${field.name}: ${compileType(field.type)}`;
   }
 }
-
 
 export function compileType(type: Type): string {
   switch (type._tag) {

@@ -5,7 +5,7 @@ import {
   Statement,
   TupleConstructor,
   TypeAlias,
-} from "@typed/parser";
+} from "@typed-lang/parser";
 import * as ts from "typescript";
 import {
   compileConstructorTypeParameters,
@@ -18,7 +18,7 @@ import {
   getFieldName,
 } from "./compile-shared.js";
 import { ident } from "./utils.js";
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative } from "node:path";
 
 export type CompileOutput = {
   readonly root: ts.SourceFile;
@@ -33,7 +33,7 @@ type CompiledModule = {
 export function compileTs(file: SourceFile): CompileOutput {
   const modules = file.statements.map(compileStatementToModule(file.fileName));
   const root = ts.createSourceFile(
-    file.fileName + '.ts',
+    file.fileName,
     modules.map(compileModuleRexport(file.fileName)).join("\n"),
     ts.ScriptTarget.ES2022
   );
@@ -41,13 +41,15 @@ export function compileTs(file: SourceFile): CompileOutput {
   return { root, modules: modules.map((m) => m.source) };
 }
 
-function compileModuleRexport(rootFileName: string) { 
+function compileModuleRexport(rootFileName: string) {
   return (module: CompiledModule) => {
-    const relativePath = relative(dirname(rootFileName), module.source.fileName)
-    const moduleName = join('.', relativePath).replace(/\.ts$/, '')
-    return `export * as ${module.name} from "./${moduleName}.js"`
-  }
-
+    const relativePath = relative(
+      dirname(rootFileName),
+      module.source.fileName
+    );
+    const moduleName = join(".", relativePath).replace(/\.ts$/, "");
+    return `export * as ${module.name} from "./${moduleName}.js"`;
+  };
 }
 
 function compileStatementToModule(rootFileName: string) {
@@ -58,7 +60,7 @@ function compileStatementToModule(rootFileName: string) {
       case "TypeAlias":
         return compileTypeAliasStatement(statement);
     }
-  }
+  };
 }
 function compileDataDeclarationStatement(
   rootFileName: string,
@@ -71,7 +73,6 @@ function compileDataDeclarationStatement(
   const constructors = declaration.constructors.map(
     compileDataConstructorConstructor
   );
-
   const source = ts.createSourceFile(
     `${rootFileName}.${declaration.name}.ts`,
     `${type}\n${interfaces.join("\n")}\n${constructors.join("\n")}`,
@@ -102,13 +103,9 @@ function compileDataConstructorConstructor(
     case "VoidConstructor":
       return `export const ${constructor.name}: ${constructor.name} = { _tag: "${constructor.name}" }`;
     case "TupleConstructor":
-      return compileTupleConstructorConstructor(
-        constructor
-      )
+      return compileTupleConstructorConstructor(constructor);
     case "RecordConstructor":
-      return compileRecordConstructorConstructor(
-        constructor
-      )
+      return compileRecordConstructorConstructor(constructor);
   }
 }
 
@@ -122,10 +119,12 @@ function compileTupleConstructorConstructor(
   );
   const functionParamNames = constructor.fields.map(getFieldName);
 
-  return `export const ${constructor.name} = ${typeParams}(${functionParams}): ${returnType} => ({
+  return `export const ${
+    constructor.name
+  } = ${typeParams}(${functionParams}): ${returnType} => ({
   _tag: "${constructor.name}",
 ${ident(functionParamNames.join(",\n"))}
-})`
+})`;
 }
 
 function compileRecordConstructorConstructor(
@@ -140,5 +139,5 @@ function compileRecordConstructorConstructor(
   return `export const ${constructor.name} = ${typeParams}(${functionParams}): ${returnType} => ({
   _tag: "${constructor.name}",
   ...params,
-})`
+})`;
 }

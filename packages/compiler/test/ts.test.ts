@@ -1,6 +1,6 @@
-import { parse, tokenize } from '@typed/parser'
+import { parse, tokenize } from '@typed-lang/parser'
 import { describe, expect, it } from 'vitest'
-import { compileTs } from '../src/compile-ts'
+import { compileTs } from '../src/compile-ts.js'
 
 describe('TS', () => {
   it("compiles data declarations with record constructors", () => { 

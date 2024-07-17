@@ -1,5 +1,5 @@
-import { Span, Token, TokenKind } from '@typed/parser/Token';
-import { tokenize } from '@typed/parser/Tokenizer';
+import { Span, Token, TokenKind } from '@typed-lang/parser/Token';
+import { tokenize } from '@typed-lang/parser/Tokenizer';
 import { describe, expect, it } from 'vitest';
 
 describe('Tokenizer', () => {

@@ -8,7 +8,7 @@ import {
   TupleConstructor,
   TypeAlias,
   VoidConstructor,
-} from "@typed/parser";
+} from "@typed-lang/parser";
 import { ident } from "./utils.js";
 import {
   compileDataConstructorInterface,

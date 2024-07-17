@@ -14,8 +14,8 @@ import {
   TypeParameter,
   TypeReference,
   VoidConstructor,
-} from "./AST";
-import { Span, Token, TokenKind } from "./Token";
+} from "./AST.js";
+import { Span, Token, TokenKind } from "./Token.js";
 
 class Parser {
   private pos = 0;
@@ -333,16 +333,6 @@ class Parser {
     while (this.current()?.kind === TokenKind.Whitespace) {
       this.pos++;
     }
-  }
-
-  private takeUntil(kind: TokenKind): Token[] {
-    const tokens: Token[] = [];
-
-    while (this.current()?.kind !== kind) {
-      tokens.push(this.consumeToken());
-    }
-
-    return tokens;
   }
 }
 
