@@ -2,7 +2,10 @@ import { Span } from "./Token";
 
 export class SourceFile {
   readonly _tag = "SourceFile";
-  constructor(readonly statements: ReadonlyArray<Statement>) {}
+  constructor(
+    readonly fileName: string,
+    readonly statements: ReadonlyArray<Statement>
+  ) { }
 }
 
 export type Statement = DataDeclaration | TypeAlias;

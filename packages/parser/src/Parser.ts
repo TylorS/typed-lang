@@ -20,10 +20,13 @@ import { Span, Token, TokenKind } from "./Token";
 class Parser {
   private pos = 0;
 
-  constructor(readonly tokens: ReadonlyArray<Token>) {}
+  constructor(
+    readonly fileName: string,
+    readonly tokens: ReadonlyArray<Token>
+  ) {}
 
   parse() {
-    return new SourceFile(this.parseStatements());
+    return new SourceFile(this.fileName, this.parseStatements());
   }
 
   private parseStatements(): ReadonlyArray<Statement> {
@@ -253,7 +256,7 @@ class Parser {
       fields.push(new NamedField(name, type, new Span(start, type.span.end)));
       current = this.current();
     }
- 
+
     this.skipWhitespace();
 
     return fields;
@@ -280,7 +283,6 @@ class Parser {
       const fields = this.parseNamedFields();
       this.skipWhitespace();
 
-      
       const end = this.consumeToken(TokenKind.CloseBrace).span.end;
 
       return new RecordType(fields, new Span(start, end));
@@ -344,6 +346,6 @@ class Parser {
   }
 }
 
-export function parse(tokens: ReadonlyArray<Token>): SourceFile {
-  return new Parser(tokens).parse();
+export function parse(fileName: string, tokens: ReadonlyArray<Token>): SourceFile {
+  return new Parser(fileName, tokens).parse();
 }

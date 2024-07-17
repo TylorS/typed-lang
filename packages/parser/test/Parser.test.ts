@@ -19,7 +19,7 @@ describe("Parser", () => {
     const tokens = tokenize(
       `data Maybe<A> = Nothing | Just(value: A) | Some { value: A }`
     );
-    const { statements } = parse(tokens);
+    const { statements } = parse("test.typed", tokens);
 
     expect(statements).toEqual([
       new DataDeclaration(
@@ -61,7 +61,7 @@ describe("Parser", () => {
   text: string
   completed: boolean
 }`);
-    const { statements } = parse(tokens);
+    const { statements } = parse("test.typed", tokens);
 
     expect(statements).toEqual([
       new TypeAlias(

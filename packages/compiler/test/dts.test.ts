@@ -20,8 +20,8 @@ describe('DTS', () => {
     readonly value: A
   }
   
-  export declare const Nothing: Nothing
-  export declare const Just: <A>(params: { readonly value: A }) => Just<A>
+  export const Nothing: Nothing
+  export const Just: <A>(params: { readonly value: A }) => Just<A>
 }`)
   })
 
@@ -42,12 +42,12 @@ describe('DTS', () => {
     readonly value: A
   }
   
-  export declare const Nothing: Nothing
-  export declare const Just: <A>(value: A) => Just<A>
+  export const Nothing: Nothing
+  export const Just: <A>(value: A) => Just<A>
 }`)
   })
 })
 
 function compileDtsFromString(code: string) {
-  return compileDts(parse(tokenize(code)))
+  return compileDts(parse("test.typed", tokenize(code)))
 }
