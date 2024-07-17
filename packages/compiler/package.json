@@ -6,5 +6,9 @@
   },
   "keywords": [],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@typed/core-data": "workspace:*",
+    "@typed/parser": "workspace:*"
+  }
 }

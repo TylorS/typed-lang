@@ -193,8 +193,6 @@ class Parser {
     let current = this.current();
 
     while (current.kind !== TokenKind.CloseParen) {
-      console.log(current.kind);
-
       if (current.kind === TokenKind.Whitespace) {
         this.consumeToken();
         current = this.current();
@@ -282,10 +280,6 @@ class Parser {
       const fields = this.parseNamedFields();
       this.skipWhitespace();
 
-      console.log({
-        fields,
-        current: this.current(),
-      })
       
       const end = this.consumeToken(TokenKind.CloseBrace).span.end;
 
