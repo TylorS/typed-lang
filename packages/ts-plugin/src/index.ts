@@ -54,15 +54,12 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
           const typedModules = typedModuleNames.map((identifier) => {
             const text = removeQuotes(identifier.getText());
             const moduleName = resolve(dirname(containingFile), text);
-            const newModuleName = moduleName + ".d.ts";
-
-            logger.log(`Resolving ${moduleName} to ${newModuleName}`);
 
             return {
               resolvedModule: {
                 extension: ts.Extension.Dts,
-                isExternalLibraryImport: true,
-                resolvedFileName: newModuleName,
+                isExternalLibraryImport: false,
+                resolvedFileName: moduleName,
                 failedLookupLocations: [],
                 isDeclarationFile: true,
               },
@@ -198,34 +195,33 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
           return typescript.ScriptSnapshot.fromString(
             typedCache.get(fileName)!
           );
-        } else if (isTypedModuleDts(fileName)) { 
-          if (!typedCache.has(fileName)) {
-            const contents = ts.sys.readFile(fileName.replace('.d.ts', ''), "utf-8")!;
-            const source = parse(fileName, tokenize(contents));
-            const dts = compileDts(source);
-            const normalizedPath = ts.server.asNormalizedPath(fileName);
-            typedCache.set(fileName, dts);
-            incrementVersion(fileName);
+        } else if (isTypedModuleName(fileName)) {
+          const contents = ts.sys.readFile(fileName, "utf-8")!;
+          const source = parse(fileName, tokenize(contents));
+          const dts = compileDts(source);
+          const normalizedPath = ts.server.asNormalizedPath(fileName);
+          typedCache.set(fileName, dts);
+          incrementVersion(fileName);
 
-            const scriptInfo =
-              info.project.projectService.getOrCreateScriptInfoForNormalizedPath(
-                normalizedPath,
-                true,
-                dts,
-                ts.ScriptKind.TS,
-                false,
-                {
-                  fileExists: (path) =>
-                    path === fileName ||
-                    path === normalizedPath ||
-                    ts.sys.fileExists(path),
-                }
-              );
-            scriptInfo?.attachToProject(info.project);
-          }
+          const scriptInfo =
+            info.project.projectService.getOrCreateScriptInfoForNormalizedPath(
+              normalizedPath,
+              true,
+              dts,
+              ts.ScriptKind.TS,
+              false,
+              {
+                fileExists: (path) =>
+                  path === fileName ||
+                  path === normalizedPath ||
+                  ts.sys.fileExists(path),
+              }
+            )!;
+
+          scriptInfo.attachToProject(info.project);
+
+          return scriptInfo.getSnapshot();
         }
-
-        
 
         return getScriptSnapshot(fileName);
       };
