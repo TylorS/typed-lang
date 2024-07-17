@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node10",
+    "resolvePackageJsonExports": false,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../compiler/tsconfig.json"
+    },
+    {
+      "path": "../core-data/tsconfig.json"
+    },
+    {
+      "path": "../parser/tsconfig.json"
+    }
+  ]
+}

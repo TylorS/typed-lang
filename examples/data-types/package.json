@@ -14,6 +14,7 @@
     "@typed-lang/core-data": "workspace:*",
     "@typed-lang/parser": "workspace:*",
     "@typed-lang/std": "workspace:*",
+    "@typed-lang/ts-plugin": "workspace:*",
     "@typed-lang/vite-plugin": "workspace:*"
   },
   "devDependencies": {

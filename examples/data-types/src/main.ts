@@ -1,5 +1,4 @@
-import { Maybe } from './Maybe.typed'
+import { Maybe } from "./Maybe.typed";
 
-console.log(Maybe)
-console.log(Maybe.Nothing)
-console.log(Maybe.Just(1))
+console.log(Maybe.Nothing);
+console.log(Maybe.Just(1));

@@ -4,7 +4,8 @@
   "description": "TypeScript extension language for web applications",
   "scripts": {
     "build": "pnpm -r run build",
-    "test": "pnpm -r run test"
+    "test": "pnpm -r run test",
+    "test-local-ts-plugin": "pnpm build && rm -rf ./node_modules/@typed-lang && mkdir ./node_modules/@typed-lang && cp -r packages/ ./node_modules/@typed-lang"
   },
   "keywords": [],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",

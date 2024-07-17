@@ -47,6 +47,9 @@ importers:
       '@typed-lang/std':
         specifier: workspace:*
         version: link:../../packages/std
+      '@typed-lang/ts-plugin':
+        specifier: workspace:*
+        version: link:../../packages/ts-plugin
       '@typed-lang/vite-plugin':
         specifier: workspace:*
         version: link:../../packages/vite-plugin
@@ -90,6 +93,25 @@ importers:
       hkt-ts:
         specifier: ^2.1.5
         version: 2.1.5(tslib@2.6.3)
+
+  packages/ts-plugin:
+    dependencies:
+      '@typed-lang/compiler':
+        specifier: workspace:*
+        version: link:../compiler
+      '@typed-lang/core-data':
+        specifier: workspace:*
+        version: link:../core-data
+      '@typed-lang/parser':
+        specifier: workspace:*
+        version: link:../parser
+      typescript:
+        specifier: ^5.5.3
+        version: 5.5.3
+    devDependencies:
+      '@types/node':
+        specifier: ^20.14.11
+        version: 20.14.11
 
   packages/vite-plugin:
     dependencies:

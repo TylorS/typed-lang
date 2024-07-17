@@ -1,8 +1,8 @@
 {
-  "name": "@typed-lang/compiler",
+  "name": "@typed-lang/ts-plugin",
   "version": "1.0.0",
-  "main": "dist/cjs/index.js",
-  "types": "dist/cjs/index.d.ts",
+  "main": "dist/index.js",
+  "typed": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -b tsconfig.json",
     "test": "vitest --dir test"
@@ -11,6 +11,7 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@typed-lang/compiler": "workspace:*",
     "@typed-lang/core-data": "workspace:*",
     "@typed-lang/parser": "workspace:*"
   },
@@ -22,14 +23,8 @@
   },
   "exports": {
     ".": {
-      "import": {
-        "default": "./dist/esm/index.js",
-        "types": "./dist/esm/index.d.ts"
-      },
-      "require": {
-        "default": "./dist/cjs/index.js",
-        "types": "./dist/cjs/index.d.ts"
-      }
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     }
   }
 }
