@@ -16,9 +16,12 @@ describe("DtsCompilerService", () => {
 
     expect(snapshot.fileName).toEqual(fileName);
     expect(snapshot.source).toEqual(code);
-    expect(snapshot.getText()).toEqual(`export type Maybe<A> = 
-  | Nothing
-  | Just<A>;`);
+    console.log(snapshot.getText())
+    expect(snapshot.getText()).toEqual(`export declare namespace Maybe {
+  export type Maybe<A> = 
+    | Nothing
+    | Just<A>;
+}`);
     
     const tsPath = join(`/Users/tylor/Desktop`, fileName + '.ts')
     const mapPath = tsPath + '.map'

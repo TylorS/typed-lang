@@ -17,6 +17,7 @@ import {
   RecordConstructor,
   TypeParameter,
 } from "@typed-lang/parser";
+import { ident } from "./utils.js";
 
 export interface DtsCompilerOutput {
   readonly code: string;
@@ -34,6 +35,7 @@ export class DtsCompiler {
   private pos: number = 0;
   private line: number = 1;
   private column: number = 0;
+  private identationLevel: number = 0;
 
   constructor(readonly sourceFile: SourceFile, readonly source: string) {
     this.map = new GenMapping({ file: sourceFile.fileName });
@@ -48,7 +50,6 @@ export class DtsCompiler {
       map: toDecodedMap(this.map),
     };
   };
-
 
   private compileDts() {
     this.sourceFile.statements.forEach((statement) =>
@@ -66,7 +67,21 @@ export class DtsCompiler {
   }
 
   private compileDataDeclarationStatement(data: DataDeclaration) {
+    this.addStartLocationCode(`export declare namespace ${data.name} {`, data.span.start, data.name, data.name);
+    this.addCode(`\n  `);
+    this.increaseIdentation();
     this.compileDataTypeDeclaration(data);
+    this.decreaseIdentation();
+    this.addCode(`\n`);
+    this.addEndLocationCode(`}`, data.span.end);
+    // TODO: Compile constructor interfaces
+    // TODO: Compile constructor functions
+    // TODO: Compile constructor guards
+    // TODO: Compile refinement from unknown
+    // TODO: Compile equivalence
+    // TODO: Compile fast-check arbitraries
+    // TODO: Compile encoders
+    // TODO: Compile decoders
   }
 
   private compileDataTypeDeclaration(data: DataDeclaration) {
@@ -74,7 +89,9 @@ export class DtsCompiler {
     this.addStartLocationCode(`${data.name}`, data.nameSpan.start, data.name, data.name);
     this.compileTypeParameters(data.typeParameters);
     this.compileEqualsSign(data.equalsSpan)
+    this.increaseIdentation()
     this.compileDataDeclarationConstructorTypeReferences(data);
+    this.decreaseIdentation()
     this.addEndLocationCode(`;`, data.span.end);
   }
 
@@ -94,7 +111,7 @@ export class DtsCompiler {
   }
 
   private compileEqualsSign(span: Span) {
-    this.addCode(` `)
+    this.addStartLocationCode(` `, span.start)
     this.addStartLocationCode(`=`, span.start);
     this.addEndLocationCode(` `, span.end);
   }
@@ -171,17 +188,18 @@ export class DtsCompiler {
 
   private addCode(code: string): Span {
     const start = this.location;
-    this.code += code;
-    this.pos += code.length;
+    const identedCode = ident(code, this.identationLevel);
+    this.code += identedCode;
+    this.pos += identedCode.length;
 
-    const lines = code.split(/\n/g);
+    const lines = identedCode.split(/\n/g);
     const newLines = lines.length - 1;
 
     if (newLines > 0) {
       this.line += newLines;
       this.column = getNextColumnPosition(lines[lines.length - 1]);
     } else {
-      this.column += code.length;
+      this.column += identedCode.length;
     }
 
     const end = this.location;
@@ -204,6 +222,14 @@ export class DtsCompiler {
     }
 
     addMapping(this.map, options);
+  }
+
+  private increaseIdentation() {
+    this.identationLevel++;
+  }
+
+  private decreaseIdentation() {
+    this.identationLevel--;
   }
 
   get location(): SpanLocation {
