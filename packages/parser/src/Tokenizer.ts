@@ -1,30 +1,32 @@
-import { Span, Token, TokenKind } from "./Token.js";
+import { Span, SpanLocation, Token, TokenKind } from "./Token.js";
 
 const WHITESPACE_REGEX = /\s/;
 const ALPHA_REGEX = /[a-zA-Z]/;
 const NUMERIC_REGEX = /[0-9]/;
 const ALPHANUMERIC_REGEX = /[a-zA-Z0-9]/;
+const NEWLINE_REGEX = /\n/;
 
 class Tokenizer {
-  private _pos: number;
+  private _location: SpanLocation;
+
   private _tokens: Token[];
 
   constructor(readonly text: string) {
     this.text = text;
-    this._pos = 0;
+    this._location = new SpanLocation(0, 1, 0);
     this._tokens = [];
   }
 
-  get pos(): number {
-    return this._pos;
+  get location(): SpanLocation {
+    return this._location.clone()
   }
 
   getChar(): string {
-    return this.text[this._pos];
+    return this.text[this._location.position];
   }
 
   get isEOF(): boolean {
-    return this._pos >= this.text.length;
+    return this._location.position >= this.text.length;
   }
 
   get tokens(): Token[] {
@@ -32,36 +34,44 @@ class Tokenizer {
   }
 
   nextChar(offset = 1): string {
-    return this.text[this._pos + offset];
+    return this.text[this._location.position + offset];
   }
 
   slice(length: number): string {
-    return this.text.slice(this._pos, this._pos + length);
+    return this.text.slice(this._location.position, this._location.position + length);
   }
 
   move(offset = 1): void {
-    this._pos += offset;
+    this._location.position += offset;
+    this._location.column += offset;
   }
 
   addToken(token: Token): void {
     this._tokens.push(token);
-    this._pos = token.span.end;
+    this._location = token.span.end.clone();
   }
 
   takeWhitespace() {
-    const start = this._pos;
+    const start = this._location.clone();
     let text = "";
     let char = this.getChar();
 
     while (!this.isEOF && WHITESPACE_REGEX.test(char)) {
       text += char;
-      this.move();
+      if (NEWLINE_REGEX.test(char)) { 
+        this._location.position += 1;
+        this._location.line += 1;
+        this._location.column = 0;
+      } else {
+        this.move();
+      }
+
       char = this.getChar();
     }
 
     if (text.length > 0) {
       this.addToken(
-        new Token(TokenKind.Whitespace, text, new Span(start, this._pos))
+        new Token(TokenKind.Whitespace, text, new Span(start, this.location))
       );
     }
   }
@@ -74,6 +84,7 @@ export function tokenize(text: string): Array<Token> {
 
   while (!tokenizer.isEOF) {
     const char = tokenizer.getChar();
+    const loc = tokenizer.location;
 
     switch (char) {
       case "{": {
@@ -81,7 +92,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.OpenBrace,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -91,7 +102,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.CloseBrace,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -101,7 +112,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.OpenBracket,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -111,7 +122,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.CloseBracket,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -121,7 +132,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.OpenParen,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -131,7 +142,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.CloseParen,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -141,7 +152,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.Comma,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -151,7 +162,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.EqualSign,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -161,7 +172,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.Period,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -171,7 +182,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.GreaterThan,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -181,7 +192,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.LessThan,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -191,7 +202,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.Pipe,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -201,7 +212,7 @@ export function tokenize(text: string): Array<Token> {
           new Token(
             TokenKind.Colon,
             char,
-            new Span(tokenizer.pos, tokenizer.pos + 1)
+            new Span(loc, loc.offset(1))
           )
         );
         continue;
@@ -223,7 +234,7 @@ export function tokenize(text: string): Array<Token> {
             new Token(
               TokenKind.TypeKeyword,
               nextFourChars,
-              new Span(tokenizer.pos, tokenizer.pos + 4)
+              new Span(loc, loc.offset(4))
             )
           );
           tokenizer.takeWhitespace();
@@ -233,7 +244,7 @@ export function tokenize(text: string): Array<Token> {
             new Token(
               TokenKind.DataKeyword,
               nextFourChars,
-              new Span(tokenizer.pos, tokenizer.pos + 4)
+              new Span(loc, loc.offset(4))
             )
           );
           tokenizer.takeWhitespace();
@@ -243,7 +254,7 @@ export function tokenize(text: string): Array<Token> {
             new Token(
               TokenKind.BooleanLiteral,
               nextFourChars,
-              new Span(tokenizer.pos, tokenizer.pos + 4)
+              new Span(loc, loc.offset(4))
             )
           );
           tokenizer.takeWhitespace();
@@ -257,7 +268,7 @@ export function tokenize(text: string): Array<Token> {
             new Token(
               TokenKind.BooleanLiteral,
               nextFiveChars,
-              new Span(tokenizer.pos, tokenizer.pos + 5)
+              new Span(loc, loc.offset(5))
             )
           );
           tokenizer.takeWhitespace();
@@ -278,7 +289,7 @@ export function tokenize(text: string): Array<Token> {
 function tokenizeStringLiteral(tokenizer: Tokenizer): void {
   const quote = tokenizer.getChar();
   let text = quote;
-  const start = tokenizer.pos;
+  const start = tokenizer.location;
 
   tokenizer.move();
 
@@ -294,14 +305,14 @@ function tokenizeStringLiteral(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.StringLiteral, text, new Span(start, tokenizer.pos))
+    new Token(TokenKind.StringLiteral, text, new Span(start, tokenizer.location))
   );
   tokenizer.takeWhitespace();
 }
 
 function tokenizeIdentifier(tokenizer: Tokenizer): void {
   let text = "";
-  const start = tokenizer.pos;
+  const start = tokenizer.location;
 
   while (!tokenizer.isEOF && ALPHANUMERIC_REGEX.test(tokenizer.getChar())) {
     text += tokenizer.getChar();
@@ -309,14 +320,14 @@ function tokenizeIdentifier(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.Identifier, text, new Span(start, tokenizer.pos))
+    new Token(TokenKind.Identifier, text, new Span(start, tokenizer.location))
   );
   tokenizer.takeWhitespace();
 }
 
 function tokenizeNumberLiteral(tokenizer: Tokenizer): void {
   let text = "";
-  const start = tokenizer.pos;
+  const start = tokenizer.location;
 
   while (!tokenizer.isEOF && NUMERIC_REGEX.test(tokenizer.getChar())) {
     text += tokenizer.getChar();
@@ -324,14 +335,14 @@ function tokenizeNumberLiteral(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.NumberLiteral, text, new Span(start, tokenizer.pos))
+    new Token(TokenKind.NumberLiteral, text, new Span(start, tokenizer.location))
   );
   tokenizer.takeWhitespace();
 }
 
 function tokenizeComment(tokenizer: Tokenizer): void {
   let text = "//";
-  const start = tokenizer.pos;
+  const start = tokenizer.location;
 
   tokenizer.move(2);
 
@@ -341,7 +352,7 @@ function tokenizeComment(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.Comment, text, new Span(start, tokenizer.pos))
+    new Token(TokenKind.Comment, text, new Span(start, tokenizer.location))
   );
   tokenizer.takeWhitespace();
 }

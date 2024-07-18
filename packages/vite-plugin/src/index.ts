@@ -1,4 +1,4 @@
-import { parse, tokenize } from "@typed-lang/parser";
+import { parse } from "@typed-lang/parser";
 import { compileTs } from "@typed-lang/compiler";
 import { Plugin } from "vite";
 import * as ts from "typescript";
@@ -14,8 +14,7 @@ export function makeTypedLangPlugin(): Plugin {
   }
 
   function compileToJs(code: string, id: string) {
-    const tokens = tokenize(code);
-    const source = parse(id + ".ts", tokens);
+    const source = parse(id + ".ts", code);
     const output = compileTs(source);
 
     // Transpile with sourcemaps

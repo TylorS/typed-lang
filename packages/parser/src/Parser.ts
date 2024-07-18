@@ -16,17 +16,19 @@ import {
   VoidConstructor,
 } from "./AST.js";
 import { Span, Token, TokenKind } from "./Token.js";
+import { tokenize } from "./Tokenizer.js";
 
 class Parser {
   private pos = 0;
 
   constructor(
     readonly fileName: string,
+    readonly source: string,
     readonly tokens: ReadonlyArray<Token>
   ) {}
 
   parse() {
-    return new SourceFile(this.fileName, this.parseStatements());
+    return new SourceFile(this.fileName, this.source, this.parseStatements());
   }
 
   private parseStatements(): ReadonlyArray<Statement> {
@@ -62,11 +64,11 @@ class Parser {
   private parseDataDeclaration(): DataDeclaration {
     const start = this.consumeToken(TokenKind.DataKeyword).span.start;
     this.skipWhitespace();
-    const name = this.consumeToken(TokenKind.Identifier).text;
+    const name = this.consumeToken(TokenKind.Identifier);
     const typeParameters = this.parseTypeParameters();
 
     this.skipWhitespace();
-    this.consumeToken(TokenKind.EqualSign);
+    const equals = this.consumeToken(TokenKind.EqualSign);
     this.skipWhitespace();
 
     const constructors = this.parseDataConstructors();
@@ -74,10 +76,12 @@ class Parser {
     this.skipWhitespace();
 
     return new DataDeclaration(
-      name,
+      name.text,
       typeParameters,
       constructors,
-      new Span(start, end)
+      new Span(start, end),
+      name.span,
+      equals.span,
     );
   }
 
@@ -207,12 +211,12 @@ class Parser {
         const next = this.peek();
 
         if (next?.kind === TokenKind.Colon) {
-          const name = this.consumeToken().text;
+          const name = this.consumeToken();
           this.consumeToken(TokenKind.Colon);
           const type = this.parseType();
 
           fields.push(
-            new NamedField(name, type, new Span(start, type.span.end))
+            new NamedField(name.text, type, new Span(start, type.span.end), name.span)
           );
 
           current = this.current();
@@ -246,14 +250,14 @@ class Parser {
       }
 
       const start = current.span.start;
-      const name = this.consumeToken(TokenKind.Identifier).text;
+      const name = this.consumeToken(TokenKind.Identifier);
       this.skipWhitespace();
       this.consumeToken(TokenKind.Colon);
       this.skipWhitespace();
       const type = this.parseType();
       this.skipWhitespace();
 
-      fields.push(new NamedField(name, type, new Span(start, type.span.end)));
+      fields.push(new NamedField(name.text, type, new Span(start, type.span.end), name.span));
       current = this.current();
     }
 
@@ -336,6 +340,10 @@ class Parser {
   }
 }
 
-export function parse(fileName: string, tokens: ReadonlyArray<Token>): SourceFile {
-  return new Parser(fileName, tokens).parse();
+export function parse(
+  fileName: string,
+  source: string,
+): SourceFile {
+  const tokens = tokenize(source);
+  return new Parser(fileName, source, tokens).parse();
 }

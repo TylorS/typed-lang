@@ -1,5 +1,5 @@
 import { compileDts } from "@typed-lang/compiler";
-import { parse, tokenize } from "@typed-lang/parser";
+import { parse } from "@typed-lang/parser";
 import { dirname, resolve } from "path";
 import * as ts from "typescript";
 
@@ -7,7 +7,8 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
   return {
     create(info: ts.server.PluginCreateInfo) {
       const logger = createLogger(info);
-      const typedCache = new Map<string, string>();
+      const typedCache = new Map<string, ReturnType<typeof compileDts>['dts']>();
+      const typedMapCache = new Map<string, ReturnType<typeof compileDts>['map']>();
       const typedVersions = new Map<string, number>();
 
       function incrementVersion(fileName: string) {
@@ -185,7 +186,7 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
       };
 
       const getScriptSnapshot =
-        info.languageServiceHost.getScriptSnapshot?.bind(
+        info.languageServiceHost.getScriptSnapshot.bind(
           info.languageServiceHost
         );
 
@@ -197,10 +198,11 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
           );
         } else if (isTypedModuleName(fileName)) {
           const contents = ts.sys.readFile(fileName, "utf-8")!;
-          const source = parse(fileName, tokenize(contents));
-          const dts = compileDts(source);
+          const source = parse(fileName, contents);
+          const { dts, map } = compileDts(source);
           const normalizedPath = ts.server.asNormalizedPath(fileName);
           typedCache.set(fileName, dts);
+          typedMapCache.set(fileName, map);
           incrementVersion(fileName);
 
           const scriptInfo =

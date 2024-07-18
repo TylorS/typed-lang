@@ -6,7 +6,9 @@
     "module": "CommonJS",
     "moduleResolution": "Node",
     "resolvePackageJsonExports": false,
-    "outDir": "dist/cjs"
+    "outDir": "dist/cjs",
+    "types": [],
+    "typeRoots": []
   },
-  "include": ["src"]
+  "include": ["./src"]
 }

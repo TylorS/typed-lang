@@ -4,6 +4,7 @@ export class SourceFile {
   readonly _tag = "SourceFile";
   constructor(
     readonly fileName: string,
+    readonly source: string,
     readonly statements: ReadonlyArray<Statement>
   ) { }
 }
@@ -17,7 +18,9 @@ export class DataDeclaration {
     readonly name: string,
     readonly typeParameters: ReadonlyArray<TypeParameter>,
     readonly constructors: ReadonlyArray<DataConstructor>,
-    readonly span: Span
+    readonly span: Span,
+    readonly nameSpan: Span,
+    readonly equalsSpan: Span
   ) {}
 }
 
@@ -72,7 +75,7 @@ export class TypeReference {
   constructor(
     readonly name: string,
     readonly typeArguments: ReadonlyArray<Type>,
-    readonly span: Span
+    readonly span: Span,
   ) {}
 }
 
@@ -102,7 +105,8 @@ export class NamedField {
   constructor(
     readonly name: string,
     readonly type: Type,
-    readonly span: Span
+    readonly span: Span,
+    readonly nameSpan: Span,
   ) {}
 }
 

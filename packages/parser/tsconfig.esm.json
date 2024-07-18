@@ -3,7 +3,9 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist/esm"
+    "outDir": "dist/esm",
+    "types": [],
+    "typeRoots": []
   },
-  "include": ["src"]
+  "include": ["./src"]
 }

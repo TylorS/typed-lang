@@ -18,9 +18,23 @@ import {
   compileType,
   compileTypeParameters,
 } from "./compile-shared.js";
+import { EncodedSourceMap, GenMapping, setSourceContent, toEncodedMap } from "@jridgewell/gen-mapping";
 
-export function compileDts(file: SourceFile): string {
-  return file.statements.map(compileStatement).join("\n");
+export type CompileDtsOutput = {
+  readonly dts: string;
+  readonly map: EncodedSourceMap;
+}
+
+export function compileDts(file: SourceFile): CompileDtsOutput {
+  const mapper = new GenMapping({ file: file.fileName })
+  
+  setSourceContent(mapper, file.fileName, file.source)
+  const dts = file.statements.map(compileStatement).join("\n");
+
+  return {
+    dts,
+    map: toEncodedMap(mapper)
+  }
 }
 
 function compileStatement(statement: Statement): string {

@@ -10,58 +10,63 @@ import {
   VoidConstructor,
 } from "@typed-lang/parser/AST";
 import { parse } from "@typed-lang/parser/Parser";
-import { Span } from "@typed-lang/parser/Token";
-import { tokenize } from "@typed-lang/parser/Tokenizer";
+import { Span, SpanLocation } from "@typed-lang/parser/Token";
 import { describe, expect, it } from "vitest";
 
 describe("Parser", () => {
   it("parses data types", () => {
-    const tokens = tokenize(
+    const { statements } = parse(
+      "test.typed",
       `data Maybe<A> = Nothing | Just(value: A) | Some { value: A }`
     );
-    const { statements } = parse("test.typed", tokens);
+
+    const singleLineLocation = (pos: number) => new SpanLocation(pos, 1, pos);
 
     expect(statements).toEqual([
       new DataDeclaration(
         `Maybe`,
-        [new TypeParameter(`A`, new Span(11, 12))],
+        [new TypeParameter(`A`, new Span(singleLineLocation(11), singleLineLocation(12)))],
         [
-          new VoidConstructor(`Nothing`, new Span(16, 23)),
+          new VoidConstructor(`Nothing`, new Span(singleLineLocation(16), singleLineLocation(23))),
           new TupleConstructor(
             `Just`,
             [
               new NamedField(
                 `value`,
-                new TypeReference(`A`, [], new Span(38, 39)),
-                new Span(31, 39)
+                new TypeReference(`A`, [], new Span(singleLineLocation(38), singleLineLocation(39))),
+                new Span(singleLineLocation(31), singleLineLocation(39))
               ),
             ],
-            new Span(26, 40)
+            new Span(singleLineLocation(26), singleLineLocation(40))
           ),
           new RecordConstructor(
             `Some`,
             [
               new NamedField(
                 `value`,
-                new TypeReference(`A`, [], new Span(57, 58)),
-                new Span(50, 58)
+                new TypeReference(`A`, [], new Span(singleLineLocation(57), singleLineLocation(58))),
+                new Span(singleLineLocation(50), singleLineLocation(58))
               ),
             ],
-            new Span(43, 60)
+            new Span(singleLineLocation(43), singleLineLocation(60))
           ),
         ],
-        new Span(0, 60)
+        new Span(singleLineLocation(0), singleLineLocation(60)),
       ),
     ]);
   });
 
-  it("parses type aliases for records", () => { 
-    const tokens = tokenize(`type Todo = {
+  it("parses type aliases for records", () => {
+    const { statements } = parse(
+      `test.typed`,
+      `type Todo = {
   id: number
   text: string
   completed: boolean
-}`);
-    const { statements } = parse("test.typed", tokens);
+}`
+    );
+
+    const singleLineLocation = (pos: number) => new SpanLocation(pos, 1, pos);
 
     expect(statements).toEqual([
       new TypeAlias(
@@ -71,24 +76,24 @@ describe("Parser", () => {
           [
             new NamedField(
               `id`,
-              new TypeReference(`number`, [], new Span(20, 26)),
-              new Span(16, 26)
+              new TypeReference(`number`, [], new Span(new SpanLocation(20, 2, 6), new SpanLocation(26, 2, 12))),
+              new Span(new SpanLocation(16, 2, 2), new SpanLocation(26, 2, 12))
             ),
             new NamedField(
               `text`,
-              new TypeReference(`string`, [], new Span(35, 41)),
-              new Span(29, 41)
+              new TypeReference(`string`, [], new Span(new SpanLocation(35, 3, 8), new SpanLocation(41, 3, 14))),
+              new Span(new SpanLocation(29, 3, 2), new SpanLocation(41, 3, 14))
             ),
             new NamedField(
               `completed`,
-              new TypeReference(`boolean`, [], new Span(55, 62)),
-              new Span(44, 62)
+              new TypeReference(`boolean`, [], new Span(new SpanLocation(55, 4, 13), new SpanLocation(62, 4, 20))),
+              new Span(new SpanLocation(44, 4, 2), new SpanLocation(62, 4, 20))
             ),
           ],
-          new Span(12, 64)
+          new Span(singleLineLocation(12), new SpanLocation(64, 5, 1))
         ),
-        new Span(0, 64)
+        new Span(singleLineLocation(0), new SpanLocation(64, 5, 1))
       ),
     ]);
-  })
+  });
 });

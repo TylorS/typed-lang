@@ -1,4 +1,4 @@
-import { parse, tokenize } from '@typed-lang/parser'
+import { parse } from '@typed-lang/parser'
 import { describe, expect, it } from 'vitest'
 import { compileTs } from '../src/compile-ts.js'
 
@@ -6,7 +6,7 @@ describe('TS', () => {
   it("compiles data declarations with record constructors", () => { 
     const output = compileTsFromString(`data Maybe<A> = Nothing | Just{value: A}`)
 
-    expect(output.root.fileName).toEqual(testFileName("test.typed.ts"))
+    expect(output.root.fileName).toEqual(testFileName("test.typed"))
     expect(output.root.getFullText()).toEqual(`export * as Maybe from "./test.typed.Maybe.js"`)
 
     expect(output.modules.length).toEqual(1)
@@ -37,7 +37,7 @@ export const Just = <A>(params: { readonly value: A }): Just<A> => ({
   it("compiles data declarations with tuple constructors", () => {
     const output = compileTsFromString(`data Maybe<A> = Nothing | Just(value: A)`)
 
-    expect(output.root.fileName).toEqual(testFileName("test.typed.ts"))
+    expect(output.root.fileName).toEqual(testFileName("test.typed"))
     expect(output.root.getFullText()).toEqual(`export * as Maybe from "./test.typed.Maybe.js"`)
 
     expect(output.modules.length).toEqual(1)
@@ -71,5 +71,5 @@ function testFileName(name: string) {
 }
 
 function compileTsFromString(code: string) {
-  return compileTs(parse(testFileName("test.typed"), tokenize(code)))
+  return compileTs(parse(testFileName("test.typed"), code))
 }
