@@ -15,6 +15,7 @@
     "@jridgewell/trace-mapping": "^0.3.25",
     "@typed-lang/core-data": "workspace:*",
     "@typed-lang/parser": "workspace:*",
+    "@volar/language-core": "~2.3.4",
     "merge-source-map": "^1.1.0",
     "ts-toolbelt": "^9.6.0"
   },

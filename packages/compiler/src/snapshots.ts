@@ -6,11 +6,15 @@ import {
   allGeneratedPositionsFor,
 } from "@jridgewell/trace-mapping";
 import { EncodedSourceMap } from "@jridgewell/gen-mapping";
+import { CodeMapping } from "@volar/language-core";
 
 export class TypedSnapshots {
   private snapshots: Map<string, TypedSnapshot> = new Map();
 
-  constructor(readonly project?: ts.server.Project) {}
+  constructor(
+    readonly extension: string,
+    readonly project?: ts.server.Project
+  ) {}
 
   getAll(): Iterable<TypedSnapshot> {
     return this.snapshots.values();
@@ -28,7 +32,8 @@ export class TypedSnapshots {
     fileName: string,
     source: string,
     snapshot: ts.IScriptSnapshot,
-    map: EncodedSourceMap
+    map: EncodedSourceMap,
+    mappings: CodeMapping[],
   ): TypedSnapshot {
     const existing = this.snapshots.get(fileName);
     if (existing) {
@@ -36,7 +41,14 @@ export class TypedSnapshots {
       return existing;
     }
 
-    const typed = new TypedSnapshot(fileName, source, snapshot, map);
+    const typed = new TypedSnapshot(
+      fileName,
+      this.extension,
+      source,
+      snapshot,
+      map,
+      mappings
+    );
     this.snapshots.set(fileName, typed);
 
     if (this.project) {
@@ -55,20 +67,18 @@ export class TypedSnapshot {
 
   constructor(
     public fileName: string,
+    public extension: string,
     public source: string,
     public snapshot: ts.IScriptSnapshot,
-    public map: EncodedSourceMap
+    public map: EncodedSourceMap,
+    public mappings: CodeMapping[]
   ) {}
 
   get version(): number {
     return this._version;
   }
 
-  update(
-    source: string,
-    snapshot: ts.IScriptSnapshot,
-    map: EncodedSourceMap
-  ) {
+  update(source: string, snapshot: ts.IScriptSnapshot, map: EncodedSourceMap) {
     if (this.source === source) return;
 
     this.source = source;
@@ -106,12 +116,14 @@ export class TypedSnapshot {
       return this._scriptInfo;
     }
 
-    const normalizedPath = ts.server.asNormalizedPath(this.fileName);
+    const normalizedPath = ts.server.asNormalizedPath(
+      this.fileName + this.extension
+    );
     this._scriptInfo =
       project.projectService.getOrCreateScriptInfoForNormalizedPath(
         normalizedPath,
         true,
-        this.source,
+        this.getText(),
         ts.ScriptKind.TS,
         false,
         {
@@ -123,6 +135,23 @@ export class TypedSnapshot {
       )!;
 
     this._scriptInfo.attachToProject(project);
+
+    const sourceMapScriptInfo =
+      project.projectService.getOrCreateScriptInfoForNormalizedPath(
+        ts.server.asNormalizedPath(normalizedPath + ".map"),
+        true,
+        JSON.stringify(this.map),
+        ts.ScriptKind.JSON,
+        false,
+        {
+          fileExists: (path) =>
+            path === this.fileName + ".map" ||
+            path === normalizedPath + ".map" ||
+            ts.sys.fileExists(path),
+        }
+      )!;
+
+    sourceMapScriptInfo.attachToProject(project);
 
     return this._scriptInfo;
   }

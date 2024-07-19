@@ -1,11 +1,11 @@
-import { CompilerService, TS, TypedSnapshot } from "@typed-lang/compiler";
+import { TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
 import { Plugin } from "vite";
 import * as ts from "typescript";
 import { dirname, resolve } from "path";
 import remapping from "@ampproject/remapping";
 
 export function makeTypedLangPlugin(): Plugin {
-  const service = new CompilerService(TS, ".ts");
+  const service = new TsCompiler();
   function compileToJs(code: string, id: string) {
     const snapshot = service.compile(id, code);
     return transpile(snapshot, id);

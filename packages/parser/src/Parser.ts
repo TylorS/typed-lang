@@ -170,7 +170,8 @@ class Parser {
       const constructor = new RecordConstructor(
         name,
         fields,
-        new Span(start, end)
+        new Span(start, end),
+        identifier.span,
       );
 
       this.skipWhitespace();
@@ -184,7 +185,8 @@ class Parser {
       const constructor = new TupleConstructor(
         name,
         fields,
-        new Span(start, end)
+        new Span(start, end),
+        identifier.span,
       );
 
       this.skipWhitespace();

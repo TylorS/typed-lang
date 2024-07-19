@@ -64,7 +64,8 @@ export class TupleConstructor {
   constructor(
     readonly name: string,
     readonly fields: ReadonlyArray<Field>,
-    readonly span: Span
+    readonly span: Span,
+    readonly nameSpan: Span
   ) {}
 }
 
@@ -73,7 +74,8 @@ export class RecordConstructor {
   constructor(
     readonly name: string,
     readonly fields: ReadonlyArray<NamedField>,
-    readonly span: Span
+    readonly span: Span,
+    readonly nameSpan: Span
   ) {}
 }
 

@@ -1,10 +1,14 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
+  "files": [
+    "src/Maybe.typed"
+  ],
   "include": [
-    "src"
+    "src",
   ],
   "compilerOptions": {
+    "rootDir": "src",
     "plugins": [
       {
         "name": "@typed-lang/ts-plugin"

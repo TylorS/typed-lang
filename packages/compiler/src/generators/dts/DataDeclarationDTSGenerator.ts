@@ -1,43 +1,232 @@
-import { codeGen, CodeGeneratorContext } from "../../CodeGenerator.js";
 import {
+  DataConstructor,
   DataDeclaration,
-  isDataDeclaration,
+  Field,
+  NamedField,
+  RecordConstructor,
+  RecordType,
+  Span,
+  TupleConstructor,
+  TypeParameter,
+  VoidConstructor,
 } from "@typed-lang/parser";
-import { DataDeclarationTypeAliasGenerator } from "../shared/DataDeclarationTypeAliasGenerator.js";
-import { DataDeclarationInterfaceGenerator } from "../shared/DataDeclarationInterfaceGenerators.js";
-import { DataDeclarationConstructorGenerator } from "./DataDeclarationConstructorGenerator.js";
-import { DataDeclarationGuardGenerator } from "./DataDeclarationGuardGenerator.js";
+import {
+  MappedDocumentGenerator,
+  Module,
+} from "../../MappedDocumentGenerator.js";
+import { addDataDeclarationTypeAlias } from "../shared/addDataDeclarationTypeAlias.js";
+import { addTypeParameters } from "../shared/addTypeParameters.js";
+import { getTypeParametersFromFields } from "../shared/getTypeParametersFromFields.js";
+import { addField } from "../shared/addFields.js";
+import { forEachNodeNewLine, forEachNodeSeparator } from "../shared/utils.js";
+import { addType } from "../shared/addType.js";
 
-export class DataDeclarationDTSGenerator extends codeGen(
-  isDataDeclaration,
-  (ctx, decl) => {
-    openNamespace(ctx, decl);
-    ctx.identation.with(() => {
-      ctx.modules.run(DataDeclarationTypeAliasGenerator, decl);
-      ctx.modules.addNewLine(2);
-      ctx.modules.run(DataDeclarationInterfaceGenerator, decl);
-      ctx.modules.addNewLine(2);
-      ctx.modules.run(DataDeclarationConstructorGenerator, decl);
-      ctx.modules.addNewLine(2);
-      ctx.modules.run(DataDeclarationGuardGenerator, decl);
-    });
-    closeNamespace(ctx, decl);
+
+export function dataDeclarationDtsGenerator(module: Module, decl: DataDeclaration) {
+  module.addText(`export declare namespace `);
+  module.addText(decl.name, { span: decl.nameSpan, name: decl.name });
+  module.addText(` {`);
+  module.addNewLine();
+
+  module.withIdent(() => {
+    addDataDeclarationTypeAlias(module, decl);
+    module.addNewLine();
+    forEachNodeNewLine(module, decl.constructors, 2, (constructor) =>
+      dataConstructorDtsGenerator(module, constructor)
+    );
+    module.addNewLine(2);
+    addDataDeclarationGuards(module, decl);
+  });
+
+  module.addText(`}`);
+  module.addNewLine();
+}
+
+function dataConstructorDtsGenerator(
+  module: Module,
+  constructor: DataConstructor
+) {
+  switch (constructor._tag) {
+    case "VoidConstructor":
+      return addVoidConstructorDtsConstructor(module, constructor);
+    case "TupleConstructor":
+    case "RecordConstructor":
+      return addFieldsConstructorDtsConstructor(module, constructor);
   }
-) {}
+}
 
-const openNamespace = (ctx: CodeGeneratorContext, decl: DataDeclaration) => {
-  ctx.modules.addSegment(`export declare namespace `, decl.span.start);
-  ctx.modules.addSegment(
-    decl.name,
-    decl.nameSpan.start,
-    decl.name,
-    ctx.content(decl.nameSpan)
+function addVoidConstructorDtsConstructor(
+  module: Module,
+  constructor: DataConstructor
+) {
+  module.addText(
+    `export declare const ${constructor.name}: ${constructor.name}`,
+    {
+      span: constructor.span,
+      name: constructor.name,
+    }
   );
-  ctx.modules.addSegment(` {`);
-  ctx.modules.addNewLine();
-};
+}
 
-const closeNamespace = (ctx: CodeGeneratorContext, decl: DataDeclaration) => {
-  ctx.modules.addSegment(`}`, decl.span.end);
-  ctx.modules.addNewLine();
-};
+function addFieldsConstructorDtsConstructor(
+  module: Module,
+  constructor: TupleConstructor | RecordConstructor
+) {
+  module.withSpan(
+    {
+      span: constructor.span,
+    },
+    (gen) => {
+      gen.addText(`export declare const `);
+      gen.addText(constructor.name, {
+        span: constructor.nameSpan,
+        name: constructor.name,
+      });
+      gen.addText(`: `);
+      const typeParams = getTypeParametersFromFields(constructor.fields);
+      addTypeParameters(gen, typeParams);
+      gen.addText(`(`);
+
+      if (constructor._tag === "TupleConstructor") {
+        addFieldsTupleFunctionParameters(gen, constructor.fields);
+      } else {
+        addFieldsRecordFunctionParameters(gen, constructor.fields);
+      }
+
+      gen.addText(`) => ${constructor.name}`);
+      addTypeParameters(gen, typeParams);
+    }
+  );
+}
+
+function addFieldsTupleFunctionParameters(
+  ctx: MappedDocumentGenerator,
+  fields: ReadonlyArray<Field>
+) {
+  forEachNodeSeparator(ctx, fields, `, `, (f, i) => addField(ctx, f, i, false));
+}
+
+function addFieldsRecordFunctionParameters(
+  ctx: MappedDocumentGenerator,
+  fields: ReadonlyArray<NamedField>
+) {
+  ctx.addText(`params: `);
+
+  addType(
+    ctx,
+    new RecordType(
+      fields,
+      new Span(fields[0].span.start, fields[fields.length - 1].span.end)
+    )
+  );
+}
+
+function addDataDeclarationGuards(module: Module, decl: DataDeclaration) {
+  addDataConstructorGuards(module, decl);
+  module.addNewLine(2);
+  addDataDeclarationGuard(module, decl);
+  module.addNewLine();
+}
+
+function addDataConstructorGuards(module: Module, decl: DataDeclaration) {
+  forEachNodeNewLine(module, decl.constructors, 2, (c) => {
+    addDataConstructorGuard(module, c, decl);
+  });
+}
+
+function addDataConstructorGuard(
+  module: Module,
+  constructor: DataConstructor,
+  decl: DataDeclaration
+) {
+  switch (constructor._tag) {
+    case "VoidConstructor":
+      return addVoidConstructorGuard(module, constructor, decl);
+    case "TupleConstructor":
+    case "RecordConstructor":
+      return addParameterizedConstructorGuard(module, constructor, decl);
+  }
+}
+
+function addVoidConstructorGuard(
+  module: Module,
+  constructor: VoidConstructor,
+  decl: DataDeclaration
+) {
+  const valueName = uncapitalize(decl.name);
+
+  module.withSpan({ span: decl.span }, (gen) => {
+    gen.addText(`export declare const `);
+    gen.addText(`is${constructor.name}`, {
+      span: constructor.span,
+      name: `is${constructor.name}`,
+    });
+    gen.addText(`: `);
+    addTypeParameters(gen, decl.typeParameters);
+    gen.addText(`(`);
+    gen.addText(`${valueName}`, {
+      span: constructor.span,
+      name: valueName,
+    });
+    gen.addText(`: `);
+    gen.addText(`${decl.name}`, {
+      span: decl.nameSpan,
+      name: decl.name,
+    });
+    addTypeParameters(gen, decl.typeParameters);
+    gen.addText(`) => `);
+    gen.addText(`${valueName} is ${constructor.name}`);
+  });
+}
+
+const uncapitalize = (str: string) =>
+  str.charAt(0).toLowerCase() + str.slice(1);
+
+function addParameterizedConstructorGuard(
+  module: Module,
+  constructor: TupleConstructor | RecordConstructor,
+  decl: DataDeclaration
+) {
+  const valueName = uncapitalize(decl.name);
+
+  module.withSpan({ span: constructor.span }, (gen) => {
+    gen.addText(`export declare const `);
+    gen.addText(`is${constructor.name}`, {
+      span: constructor.span,
+      name: `is${constructor.name}`,
+    });
+    gen.addText(`: `);
+    addTypeParameters(gen, decl.typeParameters);
+    gen.addText(`(`);
+    gen.addText(`${valueName}: `);
+    gen.addText(decl.name, {
+      span: decl.nameSpan,
+      name: decl.name,
+    })
+    addTypeParameters(gen, decl.typeParameters);
+    gen.addText(`) => `);
+    gen.addText(`${valueName} is ${constructor.name}`);
+    addTypeParameters(gen, getTypeParametersFromFields(constructor.fields));
+  });
+}
+
+function addDataDeclarationGuard(module: Module, decl: DataDeclaration) {
+  const valueName = `u`;
+
+  module.withSpan({ span: decl.span }, (gen) => { 
+    gen.addText(`export declare const `);
+    gen.addText(`is${decl.name}`, {
+      span: decl.nameSpan,
+      name: `is${decl.name}`,
+    });
+    gen.addText(`: `);
+    gen.addText(`(`);
+    gen.addText(`${valueName}: unknown`);
+    gen.addText(`) => ${valueName} is `);
+    gen.addText(`${decl.name}`, { span: decl.nameSpan });
+    addTypeParameters(
+      gen,
+      decl.typeParameters.map((tp) => new TypeParameter(`unknown`, tp.span))
+    );
+  })
+}

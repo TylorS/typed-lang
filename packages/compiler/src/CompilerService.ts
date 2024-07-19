@@ -1,11 +1,8 @@
 import * as ts from "typescript";
 import { TypedSnapshot, TypedSnapshots } from "./snapshots.js";
-import { parse } from "@typed-lang/parser";
-import {
-  StatementGenerators,
-  buildModule,
-  compileModule,
-} from "./CodeGenerator.js";
+import { parse, SourceFile } from "@typed-lang/parser";
+import { Module, generateModule } from "./MappedDocumentGenerator.js";
+import { compileModule } from "./ModuleCompiler.js";
 
 // TODO: Manage file-watchers for .typed files
 
@@ -15,11 +12,11 @@ export class CompilerService {
   private dependencies = new Map<string, Set<string>>();
 
   constructor(
-    readonly generators: ReadonlyArray<StatementGenerators>,
+    readonly generator: (module: Module, file: SourceFile) => void,
     readonly extension: ".ts" | ".d.ts",
     readonly project?: ts.server.Project
   ) {
-    this.snapshots = new TypedSnapshots(project);
+    this.snapshots = new TypedSnapshots(extension, project);
   }
 
   getSnapshot(fileName: string): TypedSnapshot | undefined {
@@ -47,35 +44,45 @@ export class CompilerService {
     return this.dependencies.get(fileName) ?? [];
   }
 
-  compile(fileName: string, source: string): TypedSnapshot {
+  compile = (fileName: string, source: string): TypedSnapshot => {
     const existing = this.snapshots.get(fileName);
     if (existing && existing.source === source) return existing;
 
     const sourceFile = parse(fileName, source);
-    const module = buildModule(sourceFile, this.generators, this.extension);
-    const outputs = compileModule(module, this.extension);
-    const compiled = outputs[fileName];
+    const module = generateModule(sourceFile, this.extension);
+
+    this.generator(module, sourceFile);
+
+    const outputs = compileModule(module);
+    const compiled = outputs[module.fileName];
     const output = this.snapshots.set(
-      fileName,
+      module.fileName,
       source,
       ts.ScriptSnapshot.fromString(compiled.code),
-      compiled.map
+      compiled.map,
+      compiled.mappings
     );
 
     // Add all modules to the snapshots
     for (const name in outputs) {
-      if (name === fileName) continue;
+      if (name === module.fileName) continue;
 
-      const { code, map } = outputs[name];
-      this.snapshots.set(name, source, ts.ScriptSnapshot.fromString(code), map);
+      const { code, map, mappings } = outputs[name];
+      this.snapshots.set(
+        name,
+        source,
+        ts.ScriptSnapshot.fromString(code),
+        map,
+        mappings
+      );
       this.addDependency(fileName, name);
     }
 
     // Return the compiled module
     return output;
-  }
+  };
 
-  private addDependency(fileName: string, dependency: string) { 
+  private addDependency(fileName: string, dependency: string) {
     const deps = this.dependencies.get(fileName) ?? new Set();
     deps.add(dependency);
     this.dependencies.set(fileName, deps);

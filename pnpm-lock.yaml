@@ -75,6 +75,9 @@ importers:
       '@typed-lang/parser':
         specifier: workspace:*
         version: link:../parser
+      '@volar/language-core':
+        specifier: ~2.3.4
+        version: 2.3.4
       merge-source-map:
         specifier: ^1.1.0
         version: 1.1.0
@@ -112,6 +115,9 @@ importers:
 
   packages/ts-plugin:
     dependencies:
+      '@jridgewell/sourcemap-codec':
+        specifier: ^1.5.0
+        version: 1.5.0
       '@typed-lang/compiler':
         specifier: workspace:*
         version: link:../compiler
@@ -121,6 +127,12 @@ importers:
       '@typed-lang/parser':
         specifier: workspace:*
         version: link:../parser
+      '@volar/language-core':
+        specifier: ~2.3.4
+        version: 2.3.4
+      '@volar/typescript':
+        specifier: ~2.3.4
+        version: 2.3.4
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
@@ -533,6 +545,15 @@ packages:
   '@vitest/utils@2.0.3':
     resolution: {integrity: sha512-c/UdELMuHitQbbc/EVctlBaxoYAwQPQdSNwv7z/vHyBKy2edYZaFgptE27BRueZB7eW8po+cllotMNTDpL3HWg==}
 
+  '@volar/language-core@2.3.4':
+    resolution: {integrity: sha512-wXBhY11qG6pCDAqDnbBRFIDSIwbqkWI7no+lj5+L7IlA7HRIjRP7YQLGzT0LF4lS6eHkMSsclXqy9DwYJasZTQ==}
+
+  '@volar/source-map@2.3.4':
+    resolution: {integrity: sha512-C+t63nwcblqLIVTYXaVi/+gC8NukDaDIQI72J3R7aXGvtgaVB16c+J8Iz7/VfOy7kjYv7lf5GhBny6ACw9fTGQ==}
+
+  '@volar/typescript@2.3.4':
+    resolution: {integrity: sha512-acCvt7dZECyKcvO5geNybmrqOsu9u8n5XP1rfiYsOLYGPxvHRav9BVmEdRyZ3vvY6mNyQ1wLL5Hday4IShe17w==}
+
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -896,6 +917,9 @@ packages:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
     engines: {node: '>=6'}
 
+  path-browserify@1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
+
   path-exists@4.0.0:
     resolution: {integrity: sha512-ak9Qy5Q7jYb2Wwcey5Fpvg2KoAc/ZIhLSLOSBmRmygPsGwkVVt0fZa0qrtMz+m6tJTAHfZQ8FnmB4MG4LWy7/w==}
     engines: {node: '>=8'}
@@ -1137,6 +1161,9 @@ packages:
         optional: true
       jsdom:
         optional: true
+
+  vscode-uri@3.0.8:
+    resolution: {integrity: sha512-AyFQ0EVmsOZOlAnxoFOGOq1SQDWAB7C6aqMGS23svWAllfOaxbuFvcT8D1i8z3Gyn8fraVeZNNmN6e9bxxXkKw==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -1467,6 +1494,18 @@ snapshots:
       estree-walker: 3.0.3
       loupe: 3.1.1
       tinyrainbow: 1.2.0
+
+  '@volar/language-core@2.3.4':
+    dependencies:
+      '@volar/source-map': 2.3.4
+
+  '@volar/source-map@2.3.4': {}
+
+  '@volar/typescript@2.3.4':
+    dependencies:
+      '@volar/language-core': 2.3.4
+      path-browserify: 1.0.1
+      vscode-uri: 3.0.8
 
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
@@ -1855,6 +1894,8 @@ snapshots:
     dependencies:
       callsites: 3.1.0
 
+  path-browserify@1.0.1: {}
+
   path-exists@4.0.0: {}
 
   path-key@3.1.1: {}
@@ -2060,6 +2101,8 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  vscode-uri@3.0.8: {}
 
   which@2.0.2:
     dependencies:
