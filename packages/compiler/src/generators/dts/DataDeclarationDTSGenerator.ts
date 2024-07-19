@@ -21,7 +21,6 @@ import { addField } from "../shared/addFields.js";
 import { forEachNodeNewLine, forEachNodeSeparator } from "../shared/utils.js";
 import { addType } from "../shared/addType.js";
 
-
 export function dataDeclarationDtsGenerator(module: Module, decl: DataDeclaration) {
   module.addText(`export declare namespace `);
   module.addText(decl.name, { span: decl.nameSpan, name: decl.name });

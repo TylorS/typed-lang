@@ -3,7 +3,22 @@
   "extends": "./tsconfig.base.json",
   "references": [
     {
+      "path": "./packages/compiler/tsconfig.json"
+    },
+    {
+      "path": "./packages/core-data/tsconfig.json"
+    },
+    {
       "path": "./packages/parser/tsconfig.json"
+    },
+    {
+      "path": "./packages/std/tsconfig.json"
+    },
+    {
+      "path": "./packages/ts-plugin/tsconfig.json"
+    },
+    {
+      "path": "./packages/vite-plugin/tsconfig.json"
     }
   ]
 }

@@ -186,6 +186,7 @@ class ModuleCompiler {
       generatedOffsets: [targetLocation.start.position],
       sourceOffsets: [sourceLoction.start.position],
       lengths: [sourceLoction.end.position - sourceLoction.start.position],
+      generatedLengths: [targetLocation.end.position - targetLocation.start.position],
       data: {
         verification: true,
         completion: !!name,

@@ -1,7 +1,7 @@
 import { SourceFile } from "@typed-lang/parser";
 import { Module } from "../../MappedDocumentGenerator.js";
 
-import { dataDeclarationTsGenerator } from "./dataDeclarationTsGenerator.js";
+import { dataDeclarationTsGenerator } from "./dataDeclarationTSGenerator.js";
 import { forEachNodeNewLine } from "../shared/utils.js";
 
 export function tsSourceFileGenerator(
