@@ -15,7 +15,7 @@ import {
   TypeReference,
   VoidConstructor,
 } from "./AST.js";
-import { Span, Token, TokenKind } from "./Token.js";
+import { Span, SpanLocation, Token, TokenKind } from "./Token.js";
 import { tokenize } from "./Tokenizer.js";
 
 class Parser {
@@ -28,7 +28,17 @@ class Parser {
   ) {}
 
   parse() {
-    return new SourceFile(this.fileName, this.source, this.parseStatements());
+    return new SourceFile(
+      this.fileName,
+      this.source,
+      this.parseStatements(),
+      new Span(
+        new SpanLocation(0, 1, 0),
+        this.tokens.length === 0
+          ? new SpanLocation(0, 1, 0)
+          : this.tokens[this.tokens.length - 1].span.end
+      )
+    );
   }
 
   private parseStatements(): ReadonlyArray<Statement> {
@@ -81,7 +91,7 @@ class Parser {
       constructors,
       new Span(start, end),
       name.span,
-      equals.span,
+      equals.span
     );
   }
 
@@ -216,7 +226,12 @@ class Parser {
           const type = this.parseType();
 
           fields.push(
-            new NamedField(name.text, type, new Span(start, type.span.end), name.span)
+            new NamedField(
+              name.text,
+              type,
+              new Span(start, type.span.end),
+              name.span
+            )
           );
 
           current = this.current();
@@ -257,7 +272,14 @@ class Parser {
       const type = this.parseType();
       this.skipWhitespace();
 
-      fields.push(new NamedField(name.text, type, new Span(start, type.span.end), name.span));
+      fields.push(
+        new NamedField(
+          name.text,
+          type,
+          new Span(start, type.span.end),
+          name.span
+        )
+      );
       current = this.current();
     }
 
@@ -340,10 +362,7 @@ class Parser {
   }
 }
 
-export function parse(
-  fileName: string,
-  source: string,
-): SourceFile {
+export function parse(fileName: string, source: string): SourceFile {
   const tokens = tokenize(source);
   return new Parser(fileName, source, tokens).parse();
 }

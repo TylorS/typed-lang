@@ -1,5 +1,4 @@
-import { compileDts } from "@typed-lang/compiler";
-import { parse } from "@typed-lang/parser";
+import { CompilerService, DTS } from "@typed-lang/compiler";
 import { dirname, resolve } from "path";
 import * as ts from "typescript";
 
@@ -7,14 +6,7 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
   return {
     create(info: ts.server.PluginCreateInfo) {
       const logger = createLogger(info);
-      const typedCache = new Map<string, ReturnType<typeof compileDts>['dts']>();
-      const typedMapCache = new Map<string, ReturnType<typeof compileDts>['map']>();
-      const typedVersions = new Map<string, number>();
-
-      function incrementVersion(fileName: string) {
-        const version = typedVersions.get(fileName) ?? 0;
-        typedVersions.set(fileName, version + 1);
-      }
+      const service = new CompilerService(DTS, ".d.ts", info.project);
 
       const resolveModuleNameLiterals =
         info.languageServiceHost.resolveModuleNameLiterals?.bind(
@@ -168,7 +160,7 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
       info.languageServiceHost.getScriptFileNames = () => {
         logger.log("Getting script file names");
         const fileNames = getScriptFileNames();
-        return [...fileNames, ...typedCache.keys()];
+        return [...fileNames, ...service.getScriptFileNames()];
       };
 
       const getScriptVersion = info.languageServiceHost.getScriptVersion?.bind(
@@ -178,51 +170,26 @@ function languageServicePlugin({ typescript }: { typescript: typeof ts }) {
       info.languageServiceHost.getScriptVersion = (fileName) => {
         logger.log("Getting script version for " + fileName);
 
-        if (typedVersions.has(fileName)) {
-          return typedVersions.get(fileName)!.toString();
+        if (service.has(fileName)) {
+          return service.getScriptVersion(fileName);
         }
 
         return getScriptVersion(fileName);
       };
 
-      const getScriptSnapshot =
-        info.languageServiceHost.getScriptSnapshot.bind(
-          info.languageServiceHost
-        );
+      const getScriptSnapshot = info.languageServiceHost.getScriptSnapshot.bind(
+        info.languageServiceHost
+      );
 
       info.languageServiceHost.getScriptSnapshot = (fileName) => {
-        if (typedCache.has(fileName)) {
+        if (service.has(fileName)) {
           logger.log(`Getting script snapshot for ${fileName}`);
-          return typescript.ScriptSnapshot.fromString(
-            typedCache.get(fileName)!
-          );
+          return service.getSnapshot(fileName)!.snapshot;
         } else if (isTypedModuleName(fileName)) {
           const contents = ts.sys.readFile(fileName, "utf-8")!;
-          const source = parse(fileName, contents);
-          const { dts, map } = compileDts(source);
-          const normalizedPath = ts.server.asNormalizedPath(fileName);
-          typedCache.set(fileName, dts);
-          typedMapCache.set(fileName, map);
-          incrementVersion(fileName);
+          const { snapshot } = service.compile(fileName, contents);
 
-          const scriptInfo =
-            info.project.projectService.getOrCreateScriptInfoForNormalizedPath(
-              normalizedPath,
-              true,
-              dts,
-              ts.ScriptKind.TS,
-              false,
-              {
-                fileExists: (path) =>
-                  path === fileName ||
-                  path === normalizedPath ||
-                  ts.sys.fileExists(path),
-              }
-            )!;
-
-          scriptInfo.attachToProject(info.project);
-
-          return scriptInfo.getSnapshot();
+          return snapshot;
         }
 
         return getScriptSnapshot(fileName);

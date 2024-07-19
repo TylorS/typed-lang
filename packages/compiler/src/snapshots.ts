@@ -3,8 +3,9 @@ import {
   TraceMap,
   SourceMapInput,
   originalPositionFor,
+  allGeneratedPositionsFor,
 } from "@jridgewell/trace-mapping";
-import { DecodedSourceMap, EncodedSourceMap } from "@jridgewell/gen-mapping";
+import { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
 export class TypedSnapshots {
   private snapshots: Map<string, TypedSnapshot> = new Map();
@@ -27,7 +28,7 @@ export class TypedSnapshots {
     fileName: string,
     source: string,
     snapshot: ts.IScriptSnapshot,
-    map: DecodedSourceMap | EncodedSourceMap
+    map: EncodedSourceMap
   ): TypedSnapshot {
     const existing = this.snapshots.get(fileName);
     if (existing) {
@@ -37,9 +38,11 @@ export class TypedSnapshots {
 
     const typed = new TypedSnapshot(fileName, source, snapshot, map);
     this.snapshots.set(fileName, typed);
-    
-    if (this.project) { typed.getOrCreateScriptInfo(this.project); }
-    
+
+    if (this.project) {
+      typed.getOrCreateScriptInfo(this.project);
+    }
+
     return typed;
   }
 }
@@ -54,7 +57,7 @@ export class TypedSnapshot {
     public fileName: string,
     public source: string,
     public snapshot: ts.IScriptSnapshot,
-    public map: DecodedSourceMap | EncodedSourceMap
+    public map: EncodedSourceMap
   ) {}
 
   get version(): number {
@@ -64,7 +67,7 @@ export class TypedSnapshot {
   update(
     source: string,
     snapshot: ts.IScriptSnapshot,
-    map: DecodedSourceMap | EncodedSourceMap
+    map: EncodedSourceMap
   ) {
     if (this.source === source) return;
 
@@ -86,9 +89,21 @@ export class TypedSnapshot {
     return originalPositionFor(traceMap, { line, column });
   }
 
+  getGeneratedPositions(line: number, column: number) {
+    const traceMap = (this._traceMap ??= new TraceMap(
+      this.map as SourceMapInput
+    ));
+
+    return allGeneratedPositionsFor(traceMap, {
+      line,
+      column,
+      source: this.fileName,
+    });
+  }
+
   getOrCreateScriptInfo(project: ts.server.Project): ts.server.ScriptInfo {
-    if (this._scriptInfo) { 
-      return this._scriptInfo
+    if (this._scriptInfo) {
+      return this._scriptInfo;
     }
 
     const normalizedPath = ts.server.asNormalizedPath(this.fileName);
@@ -106,7 +121,7 @@ export class TypedSnapshot {
             ts.sys.fileExists(path),
         }
       )!;
-    
+
     this._scriptInfo.attachToProject(project);
 
     return this._scriptInfo;

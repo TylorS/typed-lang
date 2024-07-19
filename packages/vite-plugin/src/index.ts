@@ -1,52 +1,36 @@
-import { parse } from "@typed-lang/parser";
-import { compileTs } from "@typed-lang/compiler";
+import { CompilerService, TS, TypedSnapshot } from "@typed-lang/compiler";
 import { Plugin } from "vite";
 import * as ts from "typescript";
 import { dirname, resolve } from "path";
+import remapping from "@ampproject/remapping";
 
 export function makeTypedLangPlugin(): Plugin {
-  const outputs = new Map<string, Map<string, ts.TranspileOutput>>();
-
-  function addModules(id: string, modules: Array<readonly [string, ts.TranspileOutput]>) { 
-    const map = outputs.get(id) ?? new Map();
-    modules.forEach(([name, output]) => map.set(name, output));
-    outputs.set(id, map);
+  const service = new CompilerService(TS, ".ts");
+  function compileToJs(code: string, id: string) {
+    const snapshot = service.compile(id, code);
+    return transpile(snapshot, id);
   }
 
-  function compileToJs(code: string, id: string) {
-    const source = parse(id + ".ts", code);
-    const output = compileTs(source);
-
-    // Transpile with sourcemaps
-    const root = ts.transpileModule(output.root.getFullText(), {
+  function transpile(snapshot: TypedSnapshot, id: string) {
+    const content = snapshot.getText();
+    const root = ts.transpileModule(content, {
+      fileName: id + ".ts",
       compilerOptions: {
         module: ts.ModuleKind.ESNext,
         sourceMap: true,
       },
     });
-    const modules = output.modules.map((m) =>
-      ts.transpileModule(m.getFullText(), {
-        compilerOptions: {
-          module: ts.ModuleKind.ESNext,
-          sourceMap: true,
-        },
-      })
-    );
 
-    addModules(id, output.modules.map((m, i) => [m.fileName, modules[i]]));
+    const oldMap = snapshot.map;
+    const newMap = JSON.parse(root.sourceMapText!);
+    newMap.sourcesContent = [content];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const remapped = (remapping as any)([newMap, oldMap], () => null);
 
     return {
       code: root.outputText,
-      map: root.sourceMapText,
+      map: JSON.stringify(remapped),
     };
-  }
-
-  function getModuleId(id: string) {
-    const parts = id.split(".").filter(Boolean);
-    parts.pop()
-    parts.pop()
-    parts.pop()
-    return parts.join(".")
   }
 
   function transform(code: string, id: string) {
@@ -56,8 +40,12 @@ export function makeTypedLangPlugin(): Plugin {
   }
 
   function resolveId(id: string, importer: string | undefined) {
-    if (id.endsWith(".typed") || (importer && importer.endsWith(".typed"))) {
+    if (id.endsWith(".typed")) {
       return resolve(dirname(importer!), id);
+    }
+
+    if (importer && importer.endsWith(".typed")) {
+      return resolve(dirname(importer!), id).replace(".js", ".ts");
     }
   }
 
@@ -66,19 +54,9 @@ export function makeTypedLangPlugin(): Plugin {
     enforce: "pre",
     resolveId,
     transform,
-    load(id) { 
-      if (/\.typed\.ts\..*\.js$/.test(id)) { 
-        const modId = getModuleId(id)
-        const map = outputs.get(modId);
-        const output = map?.get(id.replace('.js', '.ts'));
-
-        if (output) {
-          return {
-            code: output.outputText,
-            map: output.sourceMapText,
-          };
-        }
-      }
+    load(id) {
+      const snapshot = service.getSnapshot(id);
+      if (snapshot) return transpile(snapshot, id.replace(".ts", ""));
     },
   };
 }
