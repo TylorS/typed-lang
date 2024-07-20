@@ -49,7 +49,7 @@ export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
 }
 
 export class TypedVirtualCode implements VirtualCode {
-  id = "root";
+  id: string;
   languageId = typedLanguageId;
   mappings!: CodeMapping[];
   embeddedCodes!: VirtualCode[];
@@ -57,11 +57,20 @@ export class TypedVirtualCode implements VirtualCode {
   typed: TypedSnapshot;
 
   constructor(public fileName: string, public snapshot: ts.IScriptSnapshot) {
+
+    this.typed = compiler.compile(
+      this.fileName,
+      this.snapshot.getText(0, this.snapshot.getLength())
+    );
+    this.id = fileName
+    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
+
     this.mappings = [
       {
         sourceOffsets: [0],
         generatedOffsets: [0],
         lengths: [this.snapshot.getLength()],
+        generatedLengths: [this.typed.getText().length],
         data: {
           verification: true,
           completion: true,
@@ -72,19 +81,12 @@ export class TypedVirtualCode implements VirtualCode {
         },
       },
     ];
-
-    this.typed = compiler.compile(
-      this.fileName,
-      this.snapshot.getText(0, this.snapshot.getLength())
-    );
-
-    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
   }
 }
 
 function typedSnapshotToVirtualCode(snapshot: TypedSnapshot): VirtualCode {
   return {
-    id: "ts",
+    id: snapshot.fileName,
     languageId: "typescript",
     snapshot: {
       getText: (start, end) => snapshot.getText().slice(start, end),
