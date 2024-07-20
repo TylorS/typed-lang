@@ -61,8 +61,8 @@ class ModuleCompiler {
     readonly module: Module,
     readonly onModule: (mod: Module) => void
   ) {
-    this.map = new GenMapping({ file: relative(dirname(fileName), module.fileName) });
-    setSourceContent(this.map, basename(fileName), module.source);
+    this.map = new GenMapping({ file: module.fileName });
+    setSourceContent(this.map, fileName, module.source);
   }
 
   compile(): CompiledModule {
