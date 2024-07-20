@@ -1,0 +1,106 @@
+{
+  "name": "typed-vscode",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "typed": "dist/index.d.ts",
+  "description": "Language Server for Typed Language",
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "test": "vitest --dir test"
+  },
+  "keywords": [],
+  "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@jridgewell/sourcemap-codec": "^1.5.0",
+    "@typed-lang/compiler": "workspace:*",
+    "@typed-lang/parser": "workspace:*",
+    "@typed-lang/ts-plugin": "workspace:*",
+    "@volar/language-core": "~2.3.4",
+    "@volar/language-server": "^2.3.4",
+    "@volar/typescript": "~2.3.4",
+    "@volar/vscode": "^2.3.4",
+    "vscode": "^1.1.37",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.11"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    }
+  },
+  "engines": {
+    "vscode": "^1.91.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "publisher": "tylors",
+  "activationEvents": [
+    "workspaceContains:typed.config.*"
+  ],
+  "contributes": {
+    "typescriptServerPlugins": [
+      {
+        "name": "@typed-lang/ts-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
+      }
+    ],
+    "languages": [
+      {
+        "id": "typed",
+        "aliases": [
+          "Typed"
+        ],
+        "extensions": [
+          ".typed"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "typed",
+        "scopeName": "source.typed",
+        "path": "./syntaxes/typed.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.ts": "typescript"
+        }
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Typed configuration",
+      "properties": {
+        "typed.language-server.ls-path": {
+          "type": "string",
+          "title": "Language Server: Path",
+          "description": "Path to the language server executable. You won't need this in most cases, set this only when needing a specific version of the language server"
+        },
+        "typed.language-server.runtime": {
+          "scope": "application",
+          "type": "string",
+          "title": "Language Server: Runtime",
+          "description": "Path to the node executable used to execute the language server. You won't need this in most cases"
+        },
+        "typed.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    }
+  }
+}
