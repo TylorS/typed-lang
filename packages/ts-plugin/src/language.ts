@@ -7,11 +7,11 @@ import {
   forEachEmbeddedCode,
 } from "@volar/language-core";
 import * as ts from "typescript";
-import { DtsCompiler, TypedSnapshot } from "@typed-lang/compiler";
+import { TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new DtsCompiler();
+const compiler = new TsCompiler();
 
 export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
   return {
@@ -31,10 +31,10 @@ export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
       ],
       getServiceScript(astroCode) {
         for (const code of forEachEmbeddedCode(astroCode)) {
-          if (code.id === "dts") {
+          if (code.id === "ts") {
             return {
               code,
-              extension: ".d.ts",
+              extension: ".ts",
               scriptKind: ts.ScriptKind.TS,
             };
           }
@@ -73,14 +73,14 @@ export class TypedVirtualCode implements VirtualCode {
       this.fileName,
       this.snapshot.getText(0, this.snapshot.getLength())
     );
-
+    
     this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)]
   }
 }
 
 function typedSnapshotToVirtualCode(snapshot: TypedSnapshot): VirtualCode {
   return {
-    id: "dts",
+    id: "ts",
     languageId: "typescript",
     snapshot: {
       getText: (start, end) => snapshot.getText().slice(start, end),
