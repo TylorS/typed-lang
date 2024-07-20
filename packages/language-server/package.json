@@ -15,7 +15,10 @@
     "@typed-lang/compiler": "workspace:*",
     "@typed-lang/parser": "workspace:*",
     "@volar/language-core": "~2.3.4",
-    "@volar/typescript": "~2.3.4"
+    "@volar/language-server": "~2.3.4",
+    "@volar/typescript": "~2.3.4",
+    "volar-service-typescript": "^0.0.54",
+    "vscode-uri": "^3.0.8"
   },
   "peerDependencies": {
     "typescript": "^5.5.3"

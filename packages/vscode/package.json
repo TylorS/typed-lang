@@ -4,9 +4,10 @@
   "main": "dist/index.js",
   "description": "Language Server for Typed Language",
   "scripts": {
-    "build": "pnpm run esbuild --minify",
+    "build": "pnpm run pre-build --minify && pnpm run esbuild --minify",
     "test": "vitest --dir test",
     "esbuild": "esbuild ./src/index.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node",
+    "pre-build": "esbuild ../language-server/src/server.ts --bundle --outfile=dist/server.js --external:vscode --format=cjs --platform=node",
     "vscode:prepublish": "pnpm run build",
     "package": "pnpm vsce package --no-dependencies",
     "publish": "pnpm vsce publish --no-dependencies"

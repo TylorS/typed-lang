@@ -143,12 +143,21 @@ importers:
       '@volar/language-core':
         specifier: ~2.3.4
         version: 2.3.4
+      '@volar/language-server':
+        specifier: ~2.3.4
+        version: 2.3.4
       '@volar/typescript':
         specifier: ~2.3.4
         version: 2.3.4
       typescript:
         specifier: ^5.5.3
         version: 5.5.3
+      volar-service-typescript:
+        specifier: ^0.0.54
+        version: 0.0.54(@volar/language-service@2.3.4)
+      vscode-uri:
+        specifier: ^3.0.8
+        version: 3.0.8
     devDependencies:
       '@types/node':
         specifier: ^20.14.11
@@ -1944,6 +1953,9 @@ packages:
   typed-rest-client@1.8.11:
     resolution: {integrity: sha512-5UvfMpd1oelmUPRbbaVnq+rHP7ng2cE4qoQkQeAqxRL6PklkxsM0g32/HL0yfvruK6ojQ5x8EE+HF4YV6DtuCA==}
 
+  typescript-auto-import-cache@0.3.3:
+    resolution: {integrity: sha512-ojEC7+Ci1ij9eE6hp8Jl9VUNnsEKzztktP5gtYNRMrTmfXVwA1PITYYAkpxCvvupdSYa/Re51B6KMcv1CTZEUA==}
+
   typescript-eslint@7.16.1:
     resolution: {integrity: sha512-889oE5qELj65q/tGeOSvlreNKhimitFwZqQ0o7PcWC7/lgRkAMknznsCsV8J8mZGTP/Z+cIbX8accf2DE33hrA==}
     engines: {node: ^18.18.0 || >=20.0.0}
@@ -2047,6 +2059,14 @@ packages:
       happy-dom:
         optional: true
       jsdom:
+        optional: true
+
+  volar-service-typescript@0.0.54:
+    resolution: {integrity: sha512-kwYsfliESC+NK+iqfL0UqM5etEtERXxvtnrpVpAKHN3+dUexrPvGJWmHTNI9jYj8XUPT8B8oGbpGZKR94S6mcQ==}
+    peerDependencies:
+      '@volar/language-service': ~2.3.1
+    peerDependenciesMeta:
+      '@volar/language-service':
         optional: true
 
   vsce@2.15.0:
@@ -3751,6 +3771,10 @@ snapshots:
       tunnel: 0.0.6
       underscore: 1.13.6
 
+  typescript-auto-import-cache@0.3.3:
+    dependencies:
+      semver: 7.6.2
+
   typescript-eslint@7.16.1(eslint@9.7.0)(typescript@5.5.3):
     dependencies:
       '@typescript-eslint/eslint-plugin': 7.16.1(@typescript-eslint/parser@7.16.1(eslint@9.7.0)(typescript@5.5.3))(eslint@9.7.0)(typescript@5.5.3)
@@ -3848,6 +3872,17 @@ snapshots:
       - sugarss
       - supports-color
       - terser
+
+  volar-service-typescript@0.0.54(@volar/language-service@2.3.4):
+    dependencies:
+      path-browserify: 1.0.1
+      semver: 7.6.2
+      typescript-auto-import-cache: 0.3.3
+      vscode-languageserver-textdocument: 1.0.11
+      vscode-nls: 5.2.0
+      vscode-uri: 3.0.8
+    optionalDependencies:
+      '@volar/language-service': 2.3.4
 
   vsce@2.15.0:
     dependencies:

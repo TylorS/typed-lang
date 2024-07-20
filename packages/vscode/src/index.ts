@@ -36,7 +36,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<LabsIn
 	}
 	const serverModule = lsPath
 		? require.resolve(lsPath)
-		: path.join(context.extensionPath, 'dist/node/server.js');
+		: path.join(context.extensionPath, 'dist/server.js');
 
 	const runOptions = { execArgv: [] };
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=' + 6009] };
