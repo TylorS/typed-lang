@@ -1,12 +1,16 @@
 {
   "name": "typed-vscode",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "main": "dist/index.js",
   "typed": "dist/index.d.ts",
   "description": "Language Server for Typed Language",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
-    "test": "vitest --dir test"
+    "build": "pnpm run esbuild -- --minify",
+    "test": "vitest --dir test",
+    "esbuild": "esbuild ./src/index.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node",
+    "vscode:prepublish": "pnpm run build",
+    "package": "pnpm vsce package --no-dependencies",
+    "publish": "pnpm vsce publish --no-dependencies"
   },
   "keywords": [],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
@@ -26,8 +30,9 @@
     "typescript": "^5.5.3"
   },
   "devDependencies": {
-    "vscode": "^1.1.37",
-    "@types/node": "^20.14.11"
+    "@types/node": "^20.14.11",
+    "esbuild": "^0.23.0",
+    "vscode": "^1.1.37"
   },
   "exports": {
     ".": {
