@@ -1,0 +1,3 @@
+data Maybe<A> = Nothing | Just(value: A)
+
+data Either<E, A> = Left(left: E) | Right(right: A)
