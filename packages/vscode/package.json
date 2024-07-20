@@ -20,13 +20,13 @@
     "@volar/language-server": "^2.3.4",
     "@volar/typescript": "~2.3.4",
     "@volar/vscode": "^2.3.4",
-    "vscode": "^1.1.37",
     "vscode-languageclient": "^9.0.1"
   },
   "peerDependencies": {
     "typescript": "^5.5.3"
   },
   "devDependencies": {
+    "vscode": "^1.1.37",
     "@types/node": "^20.14.11"
   },
   "exports": {
