@@ -2,10 +2,9 @@
   "name": "typed-vscode",
   "version": "0.0.2",
   "main": "dist/index.js",
-  "typed": "dist/index.d.ts",
   "description": "Language Server for Typed Language",
   "scripts": {
-    "build": "pnpm run esbuild -- --minify",
+    "build": "pnpm run esbuild --minify",
     "test": "vitest --dir test",
     "esbuild": "esbuild ./src/index.ts --bundle --outfile=dist/index.js --external:vscode --format=cjs --platform=node",
     "vscode:prepublish": "pnpm run build",
@@ -36,7 +35,6 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/index.js",
       "require": "./dist/index.js"
     }
   },
