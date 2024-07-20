@@ -21,7 +21,8 @@ export interface MappedDocumentGenerator {
   addModule(
     fileName: string,
     span: Span,
-    f: (ctx: MappedDocumentGenerator) => void
+    f: (ctx: MappedDocumentGenerator) => void,
+    skipExport?: boolean
   ): void;
 
   withIdent(f: () => void): void;
@@ -76,7 +77,8 @@ class LineAndModuleGenerator
   addModule(
     fileName: string,
     span: Span,
-    f: (ctx: MappedDocumentGenerator) => void
+    f: (ctx: MappedDocumentGenerator) => void,
+    isExported?: boolean
   ): void {
     const module = new Module(
       this.ctx,
@@ -90,7 +92,8 @@ class LineAndModuleGenerator
           span.start.position,
           span.end.position
         ),
-      }
+      },
+      isExported
     );
     this.linesAndModules.push(module);
     f(module);
@@ -103,9 +106,9 @@ class LineAndModuleGenerator
   }
 
   withIdent(f: () => void): void {
-    this.linesAndModules.push(new Ident(this.ctx.identation.increase()))
-    f()
-    this.linesAndModules.push(new Ident(this.ctx.identation.decrease()))
+    this.linesAndModules.push(new Ident(this.ctx.identation.increase()));
+    f();
+    this.linesAndModules.push(new Ident(this.ctx.identation.decrease()));
   }
 
   private addTextToCurrentLine(text: string, options?: MapData): void {
@@ -116,7 +119,7 @@ class LineAndModuleGenerator
     this.addTextToCurrentLine(lines[0]);
 
     for (let i = 1; i < lines.length; i++) {
-      this.addNewLine()
+      this.addNewLine();
       this.addTextToCurrentLine(lines[i]);
     }
   }
@@ -133,7 +136,8 @@ export class Module
     readonly fileName: string,
     readonly extension: ".ts" | ".d.ts",
     readonly source: string,
-    readonly data: MapData
+    readonly data: MapData,
+    readonly isExported: boolean = true
   ) {
     super(ctx);
   }
@@ -158,10 +162,7 @@ export class TextSnippet {
 export class Spanned extends LineAndModuleGenerator {
   readonly _tag = "Spanned";
 
-  constructor(
-    readonly ctx: MappedDocumentCtx,
-    readonly data: MapData,
-  ) {
+  constructor(readonly ctx: MappedDocumentCtx, readonly data: MapData) {
     super(ctx);
   }
 }

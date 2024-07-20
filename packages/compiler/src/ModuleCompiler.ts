@@ -14,7 +14,7 @@ import {
   Spanned,
   TextSnippet,
 } from "./MappedDocumentGenerator.js";
-import { dirname, relative } from "node:path";
+import { basename, dirname, relative } from "node:path";
 import { CodeMapping } from "@volar/language-core";
 
 export type CompileOutput = {
@@ -37,7 +37,7 @@ export function compileModule(module: Module): CompileOutput {
   while (modulesToProcess.length > 0) {
     const mod = modulesToProcess.shift()!;
     output[mod.fileName] = new ModuleCompiler(
-      module.fileName,
+      module.fileName.replace(module.extension, ""),
       mod.extension,
       mod,
       addModule
@@ -50,8 +50,8 @@ export function compileModule(module: Module): CompileOutput {
 class ModuleCompiler {
   private map: GenMapping;
   private code: string = "";
-  private ident: number = 0
-  private isNewLine: boolean = true
+  private ident: number = 0;
+  private isNewLine: boolean = true;
   private mappings: CodeMapping[] = [];
   readonly location: SpanLocation = new SpanLocation(0, 1, 0);
 
@@ -61,14 +61,17 @@ class ModuleCompiler {
     readonly module: Module,
     readonly onModule: (mod: Module) => void
   ) {
-    this.map = new GenMapping({ file: module.fileName });
-    setSourceContent(this.map, fileName, module.source);
+    this.map = new GenMapping({ file: relative(dirname(fileName), module.fileName) });
+    setSourceContent(this.map, basename(fileName), module.source);
   }
 
   compile(): CompiledModule {
     for (const node of this.module) {
       this.compileNode(node);
     }
+
+    this.addNewLine();
+    this.addCode(`//# sourceMappingURL=${basename(this.module.fileName)}.map`);
 
     return {
       name: this.module.fileName,
@@ -94,15 +97,17 @@ class ModuleCompiler {
   }
 
   private compileModule(module: Module) {
-    this.withSpan(module.data, () => {
-      const modName = getModuleName(module.fileName, this.extension);
-      const importName = ensureRelative(
-        this.fileName,
-        module.fileName.replace(this.extension, ".js")
-      );
-      this.addCode(`export * as ${modName} from "${importName}"`);
-      this.addNewLine();
-    });
+    if (module.isExported) {
+      this.withSpan(module.data, () => {
+        const modName = getModuleName(module.fileName, this.extension);
+        const importName = ensureRelative(
+          this.fileName,
+          module.fileName.replace(this.extension, ".js")
+        );
+        this.addCode(`export * as ${modName} from "${importName}"`);
+        this.addNewLine();
+      });
+    }
 
     this.onModule(module);
   }
@@ -126,7 +131,7 @@ class ModuleCompiler {
   }
 
   private compileIdent(ident: Ident) {
-    this.ident = ident.ident
+    this.ident = ident.ident;
   }
 
   private withSpan(sourceLocation: MapData, f: () => void) {
@@ -186,7 +191,9 @@ class ModuleCompiler {
       generatedOffsets: [targetLocation.start.position],
       sourceOffsets: [sourceLoction.start.position],
       lengths: [sourceLoction.end.position - sourceLoction.start.position],
-      generatedLengths: [targetLocation.end.position - targetLocation.start.position],
+      generatedLengths: [
+        targetLocation.end.position - targetLocation.start.position,
+      ],
       data: {
         verification: true,
         completion: !!name,
@@ -195,7 +202,7 @@ class ModuleCompiler {
         structure: false,
         format: false,
       },
-    })
+    });
   }
 }
 

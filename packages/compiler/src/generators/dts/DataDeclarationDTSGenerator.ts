@@ -34,15 +34,15 @@ export function dataDeclarationDtsGenerator(module: Module, decl: DataDeclaratio
       dataConstructorDtsGenerator(module, constructor)
     );
     module.addNewLine(2);
-    addDataDeclarationGuards(module, decl);
+    addDataDeclarationGuardsDTS(module, decl);
   });
 
   module.addText(`}`);
   module.addNewLine();
 }
 
-function dataConstructorDtsGenerator(
-  module: Module,
+export function dataConstructorDtsGenerator(
+  module: MappedDocumentGenerator,
   constructor: DataConstructor
 ) {
   switch (constructor._tag) {
@@ -55,7 +55,7 @@ function dataConstructorDtsGenerator(
 }
 
 function addVoidConstructorDtsConstructor(
-  module: Module,
+  module: MappedDocumentGenerator,
   constructor: DataConstructor
 ) {
   module.addText(
@@ -68,7 +68,7 @@ function addVoidConstructorDtsConstructor(
 }
 
 function addFieldsConstructorDtsConstructor(
-  module: Module,
+  module: MappedDocumentGenerator,
   constructor: TupleConstructor | RecordConstructor
 ) {
   module.withSpan(
@@ -120,21 +120,21 @@ function addFieldsRecordFunctionParameters(
   );
 }
 
-function addDataDeclarationGuards(module: Module, decl: DataDeclaration) {
+export function addDataDeclarationGuardsDTS(module: MappedDocumentGenerator, decl: DataDeclaration) {
   addDataConstructorGuards(module, decl);
   module.addNewLine(2);
   addDataDeclarationGuard(module, decl);
   module.addNewLine();
 }
 
-function addDataConstructorGuards(module: Module, decl: DataDeclaration) {
+function addDataConstructorGuards(module: MappedDocumentGenerator, decl: DataDeclaration) {
   forEachNodeNewLine(module, decl.constructors, 2, (c) => {
     addDataConstructorGuard(module, c, decl);
   });
 }
 
 function addDataConstructorGuard(
-  module: Module,
+  module: MappedDocumentGenerator,
   constructor: DataConstructor,
   decl: DataDeclaration
 ) {
@@ -148,7 +148,7 @@ function addDataConstructorGuard(
 }
 
 function addVoidConstructorGuard(
-  module: Module,
+  module: MappedDocumentGenerator,
   constructor: VoidConstructor,
   decl: DataDeclaration
 ) {
@@ -182,7 +182,7 @@ const uncapitalize = (str: string) =>
   str.charAt(0).toLowerCase() + str.slice(1);
 
 function addParameterizedConstructorGuard(
-  module: Module,
+  module: MappedDocumentGenerator,
   constructor: TupleConstructor | RecordConstructor,
   decl: DataDeclaration
 ) {
@@ -209,7 +209,7 @@ function addParameterizedConstructorGuard(
   });
 }
 
-function addDataDeclarationGuard(module: Module, decl: DataDeclaration) {
+function addDataDeclarationGuard(module: MappedDocumentGenerator, decl: DataDeclaration) {
   const valueName = `u`;
 
   module.withSpan({ span: decl.span }, (gen) => { 

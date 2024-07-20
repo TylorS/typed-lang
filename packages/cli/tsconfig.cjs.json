@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "resolvePackageJsonExports": false,
+    "outDir": "dist/cjs",
+    "types": [],
+    "typeRoots": []
+  },
+  "include": ["./src"],
+  "references": [
+    {
+      "path": "../compiler/tsconfig.json"
+    }
+  ]
+}

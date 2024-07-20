@@ -20,16 +20,20 @@ import { getTypeParametersFromFields } from "../shared/getTypeParametersFromFiel
 import { addField, getFieldName } from "../shared/addFields.js";
 import { forEachNodeNewLine, forEachNodeSeparator } from "../shared/utils.js";
 import { addType } from "../shared/addType.js";
+import {
+  addDataDeclarationGuardsDTS,
+  dataConstructorDtsGenerator,
+} from "../dts/dataDeclarationDtsGenerator.js";
 
 export function dataDeclarationTsGenerator(
   module: Module,
   decl: DataDeclaration
 ) {
+  const baseModName =
+    module.fileName.replace(module.extension, "") + "." + decl.name;
+
   module.addModule(
-    module.fileName.replace(module.extension, "") +
-      "." +
-      decl.name +
-      module.extension,
+    baseModName + module.extension,
     decl.span,
     (gen) => {
       addDataDeclarationTypeAlias(gen, decl);
@@ -39,7 +43,23 @@ export function dataDeclarationTsGenerator(
       );
       gen.addNewLine(2);
       addDataDeclarationGuards(gen, decl);
-    }
+    },
+    true
+  );
+
+  module.addModule(
+    baseModName + ".d.ts",
+    decl.span,
+    (gen) => {
+      addDataDeclarationTypeAlias(gen, decl);
+      gen.addNewLine();
+      forEachNodeNewLine(gen, decl.constructors, 2, (constructor) =>
+        dataConstructorDtsGenerator(gen, constructor)
+      );
+      gen.addNewLine(2);
+      addDataDeclarationGuardsDTS(gen, decl);
+    },
+    false
   );
 }
 
@@ -111,13 +131,12 @@ function addFieldsConstructorTsConstructor(
           const name = getFieldName(field, i);
           gen.addText(`${name}`);
 
-          if (i < constructor.fields.length - 1) { 
+          if (i < constructor.fields.length - 1) {
             gen.addText(`,`);
           }
 
           gen.addNewLine();
         });
-
       });
       gen.addText(`})`);
     }
@@ -262,14 +281,14 @@ function addDataDeclarationGuard(
     gen.addText(` =>`);
     gen.addNewLine();
 
-    gen.withIdent(() => { 
+    gen.withIdent(() => {
       gen.addText(`typeof ${valueName} === "object" &&`);
-      gen.addNewLine()
-      gen.withIdent(() => { 
+      gen.addNewLine();
+      gen.withIdent(() => {
         gen.addText(`${valueName} !== null &&`);
-        gen.addNewLine()
+        gen.addNewLine();
         gen.addText(`"_tag" in ${valueName} &&`);
-        gen.addNewLine()
+        gen.addNewLine();
         gen.addText(`(`);
         forEachNodeSeparator(gen, decl.constructors, ` || `, (c) => {
           gen.addText(`${valueName}._tag === `);
@@ -277,11 +296,11 @@ function addDataDeclarationGuard(
             span: getConstructorNameSpan(c),
             name: c.name,
           });
-        })
-      
+        });
+
         gen.addText(`)`);
-      })
-    })
+      });
+    });
   });
 }
 

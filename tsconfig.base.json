@@ -26,6 +26,7 @@
         "name": "@effect/language-service"
       }
     ],
+    "resolveJsonModule": true,
     "resolvePackageJsonExports": true,
     "skipLibCheck": true,
     "strict": true,
