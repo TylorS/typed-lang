@@ -8,11 +8,11 @@ import {
 } from "@volar/language-core";
 import * as ts from "typescript";
 import { TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
-import { URI } from 'vscode-uri';
+import { URI } from "vscode-uri";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new TsCompiler();
+const compiler = new TsCompiler({ dataDeclarationOutputMode: "root" });
 
 export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
   return {
@@ -30,7 +30,11 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
     },
     typescript: {
       extraFileExtensions: [
-        { extension: typedLanguageId, isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
+        {
+          extension: typedLanguageId,
+          isMixedContent: true,
+          scriptKind: ts.ScriptKind.Deferred,
+        },
       ],
       getServiceScript(astroCode) {
         for (const code of forEachEmbeddedCode(astroCode)) {
@@ -77,7 +81,7 @@ export class TypedVirtualCode implements VirtualCode {
       this.snapshot.getText(0, this.snapshot.getLength())
     );
 
-    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)]
+    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
   }
 }
 

@@ -27,25 +27,46 @@ import {
 
 export function dataDeclarationTsGenerator(
   module: Module,
-  decl: DataDeclaration
+  decl: DataDeclaration,
+  mode: "sub" | "root"
 ) {
   const baseModName =
     module.fileName.replace(module.extension, "") + "." + decl.name;
 
-  module.addModule(
-    baseModName + module.extension,
-    decl.span,
-    (gen) => {
-      addDataDeclarationTypeAlias(gen, decl);
-      gen.addNewLine();
-      forEachNodeNewLine(gen, decl.constructors, 2, (constructor) =>
-        dataConstructorTsGenerator(gen, constructor)
+  if (mode === "sub") {
+    module.addModule(
+      baseModName + module.extension,
+      decl.span,
+      (gen) => {
+        addDataDeclarationTypeAlias(gen, decl);
+        gen.addNewLine();
+        forEachNodeNewLine(gen, decl.constructors, 2, (constructor) =>
+          dataConstructorTsGenerator(gen, constructor)
+        );
+        gen.addNewLine(2);
+        addDataDeclarationGuards(gen, decl);
+      },
+      true
+    );
+  } else {
+    module.addText(`export namespace `);
+    module.addText(decl.name, { span: decl.nameSpan, name: decl.name });
+    module.addText(` {`);
+    module.addNewLine();
+
+    module.withIdent(() => {
+      addDataDeclarationTypeAlias(module, decl);
+      module.addNewLine();
+      forEachNodeNewLine(module, decl.constructors, 2, (constructor) =>
+        dataConstructorTsGenerator(module, constructor)
       );
-      gen.addNewLine(2);
-      addDataDeclarationGuards(gen, decl);
-    },
-    true
-  );
+      module.addNewLine(2);
+      addDataDeclarationGuards(module, decl);
+    });
+
+    module.addText(`}`);
+    module.addNewLine();
+  }
 
   module.addModule(
     baseModName + ".d.ts",

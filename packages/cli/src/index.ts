@@ -1,4 +1,4 @@
-import { Args, Options, Command } from "@effect/cli";
+import { Options, Command } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Effect } from "effect";
 import { version } from "../package.json";
@@ -10,7 +10,10 @@ import { resolve, dirname } from "node:path";
 const command = Command.make(
   "compile",
   {
-    dir: Args.directory({ name: "dir" }),
+    dir: Options.directory("dir").pipe(Options.withDefault(process.cwd())),
+    mode: Options.choice("mode", ["root", "sub"]).pipe(
+      Options.withDefault("sub")
+    ),
     output: Options.choice("output", ["js", "ts", "dts"]).pipe(
       Options.withDefault("js")
     ),
@@ -21,7 +24,7 @@ const command = Command.make(
       const fs = yield* FileSystem.FileSystem;
       const files = yield* findAllTypedFilesInDirectory(args.dir);
 
-      if (files.length === 0) return 
+      if (files.length === 0) return;
 
       yield* fs.makeDirectory(args.outDir, { recursive: true });
 
@@ -38,7 +41,9 @@ const command = Command.make(
           yield* writeSnapshot(snapshot, args);
         }
       } else {
-        const compiler = new TsCompiler();
+        const compiler = new TsCompiler({
+          dataDeclarationOutputMode: args.mode,
+        });
 
         for (const file of files) {
           const contents = yield* fs.readFileString(file);
@@ -54,10 +59,13 @@ const command = Command.make(
                 resolve(process.cwd(), args.dir),
                 resolve(process.cwd(), args.outDir),
                 fileName
-              )
+              );
 
               yield* fs.writeFileString(outFileName, snapshot.getText());
-              yield* fs.writeFileString(outFileName + ".map", JSON.stringify(snapshot.map));
+              yield* fs.writeFileString(
+                outFileName + ".map",
+                JSON.stringify(snapshot.map)
+              );
             } else {
               const outFileName = getOutFileName(
                 resolve(process.cwd(), args.dir),

@@ -81,7 +81,8 @@ class LineAndModuleGenerator
     isExported?: boolean
   ): void {
     const module = new Module(
-      this.ctx,
+      // Every module has its own imports
+      { ...this.ctx, imports: new ImportManager() },
       fileName,
       this.ctx.extension,
       this.ctx.sourceFile.source,

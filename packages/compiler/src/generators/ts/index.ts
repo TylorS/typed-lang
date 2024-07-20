@@ -10,12 +10,19 @@ import { dirname, relative } from "path";
 
 export function tsSourceFileGenerator(
   module: Module,
-  sourceFile: SourceFile
+  sourceFile: SourceFile,
+  config: {
+    dataDeclarationOutputMode: "sub" | "root";
+  }
 ): void {
   forEachNodeNewLine(module, sourceFile.statements, 2, (statement) => {
     switch (statement._tag) {
       case "DataDeclaration":
-        return dataDeclarationTsGenerator(module, statement);
+        return dataDeclarationTsGenerator(
+          module,
+          statement,
+          config.dataDeclarationOutputMode
+        );
       default:
         throw new Error(`Unsupported statement type: ${statement._tag}`);
     }
@@ -34,7 +41,7 @@ export function tsSourceFileGenerator(
         }
       });
     },
-    false,
+    false
   );
 }
 
@@ -45,14 +52,17 @@ function dataDeclarationRexportDtsGenerator(
 ) {
   gen.withSpan({ span: decl.span }, (gen) => {
     const baseModule = module.fileName.replace(".ts", "");
-    const importName = ensureRelative(module.fileName, baseModule + "." + decl.name + ".js");
-    
+    const importName = ensureRelative(
+      module.fileName,
+      baseModule + "." + decl.name + ".js"
+    );
+
     gen.addText(`export * as `);
     gen.addText(decl.name, { span: decl.nameSpan, name: decl.name });
     gen.addText(` from '`);
     gen.addText(importName);
     gen.addText(`'`);
-  })
+  });
 }
 
 function ensureRelative(from: string, to: string): string {
@@ -62,4 +72,3 @@ function ensureRelative(from: string, to: string): string {
 
   return `./${rel}`;
 }
-
