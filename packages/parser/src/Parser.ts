@@ -15,7 +15,8 @@ import {
   TypeReference,
   VoidConstructor,
 } from "./AST.js";
-import { Span, SpanLocation, Token, TokenKind } from "./Token.js";
+import { Token, TokenKind } from "./Token.js";
+import { Span, SpanLocation } from "./Span.js";
 import { tokenize } from "./Tokenizer.js";
 
 class Parser {
@@ -171,7 +172,7 @@ class Parser {
         name,
         fields,
         new Span(start, end),
-        identifier.span,
+        identifier.span
       );
 
       this.skipWhitespace();
@@ -186,7 +187,7 @@ class Parser {
         name,
         fields,
         new Span(start, end),
-        identifier.span,
+        identifier.span
       );
 
       this.skipWhitespace();

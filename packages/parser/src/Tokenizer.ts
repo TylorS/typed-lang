@@ -1,4 +1,5 @@
-import { Span, SpanLocation, Token, TokenKind } from "./Token.js";
+import { Token, TokenKind } from "./Token.js";
+import { Span, SpanLocation } from "./Span.js";
 
 const WHITESPACE_REGEX = /\s/;
 const ALPHA_REGEX = /[a-zA-Z]/;
@@ -18,7 +19,7 @@ class Tokenizer {
   }
 
   get location(): SpanLocation {
-    return this._location.clone()
+    return this._location.clone();
   }
 
   getChar(): string {
@@ -38,7 +39,10 @@ class Tokenizer {
   }
 
   slice(length: number): string {
-    return this.text.slice(this._location.position, this._location.position + length);
+    return this.text.slice(
+      this._location.position,
+      this._location.position + length
+    );
   }
 
   move(offset = 1): void {
@@ -58,7 +62,7 @@ class Tokenizer {
 
     while (!this.isEOF && WHITESPACE_REGEX.test(char)) {
       text += char;
-      if (NEWLINE_REGEX.test(char)) { 
+      if (NEWLINE_REGEX.test(char)) {
         this._location.position += 1;
         this._location.line += 1;
         this._location.column = 0;
@@ -73,7 +77,9 @@ class Tokenizer {
       this.addToken(
         new Token(TokenKind.Whitespace, text, new Span(start, this.location))
       );
+      return true
     }
+    return false
   }
 }
 
@@ -89,141 +95,204 @@ export function tokenize(text: string): Array<Token> {
     switch (char) {
       case "{": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.OpenBrace,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.OpenBrace, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "}": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.CloseBrace,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.CloseBrace, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "[": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.OpenBracket,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.OpenBracket, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "]": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.CloseBracket,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.CloseBracket, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "(": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.OpenParen,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.OpenParen, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case ")": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.CloseParen,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.CloseParen, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case ",": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.Comma,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.Comma, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "=": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.EqualSign,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.EqualSign, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case ".": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.Period,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.Period, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case ">": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.GreaterThan,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.GreaterThan, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "<": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.LessThan,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.LessThan, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case "|": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.Pipe,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.Pipe, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
       case ":": {
         tokenizer.addToken(
-          new Token(
-            TokenKind.Colon,
-            char,
-            new Span(loc, loc.offset(1))
-          )
+          new Token(TokenKind.Colon, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
+      case ";": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Semicolon, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "_": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Underscore, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "-": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Hyphen, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "+": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Plus, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "*": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Asterisk, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "/": { 
+        tokenizer.addToken(
+          new Token(TokenKind.ForwardSlash, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "%": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Percent, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "!": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Exclamation, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "?": { 
+        tokenizer.addToken(
+          new Token(TokenKind.QuestionMark, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+        
+      case "&": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Ampersand, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "@": { 
+        tokenizer.addToken(
+          new Token(TokenKind.AtSign, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "$": { 
+        tokenizer.addToken(
+          new Token(TokenKind.DollarSign, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "#": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Hash, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "^": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Caret, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "~": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Tilde, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "`": { 
+        tokenizer.addToken(
+          new Token(TokenKind.Backtick, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }
+      case "\\": { 
+        tokenizer.addToken(
+          new Token(TokenKind.BackSlash, char, new Span(loc, loc.offset(1)))
+        );
+        continue;
+      }   
       case "'":
       case '"':
         tokenizeStringLiteral(tokenizer);
         continue;
       default: {
         if (char === "/" && tokenizer.nextChar() === "/") {
-          tokenizeComment(tokenizer)
+          tokenizeComment(tokenizer);
+          continue;
+        }
+
+        if (char === "i" && ["if ", "if("].includes(tokenizer.slice(3))) { 
+          tokenizer.addToken(
+            new Token(
+              TokenKind.IfKeyword,
+              "if",
+              new Span(loc, loc.offset(2))
+            )
+          );
+          tokenizer.takeWhitespace();
           continue;
         }
 
@@ -238,7 +307,7 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
-          continue
+          continue;
         } else if (nextFourChars === "data") {
           tokenizer.addToken(
             new Token(
@@ -248,7 +317,7 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
-          continue
+          continue;
         } else if (nextFourChars === "true") {
           tokenizer.addToken(
             new Token(
@@ -258,7 +327,7 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
-          continue
+          continue;
         }
 
         const nextFiveChars = tokenizer.slice(5);
@@ -272,12 +341,112 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
-        } else if (ALPHA_REGEX.test(char)) {
+          continue;
+        } else if (nextFiveChars === "brand") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.BrandKeyword,
+              nextFiveChars,
+              new Span(loc, loc.offset(5))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (nextFiveChars === "match") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.MatchKeyword,
+              nextFiveChars,
+              new Span(loc, loc.offset(5))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        const nextSixChars = tokenizer.slice(6);
+
+        if (nextSixChars === "export") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ExportKeyword,
+              nextSixChars,
+              new Span(loc, loc.offset(6))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (nextSixChars === "const") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ConstKeyword,
+              nextSixChars,
+              new Span(loc, loc.offset(6))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (nextSixChars === "return") { 
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ReturnKeyword,
+              nextSixChars,
+              new Span(loc, loc.offset(6))
+            )
+          );
+          tokenizer.takeWhitespace();
+        }
+
+        const nextSevenChars = tokenizer.slice(7);
+
+        if (nextSevenChars === "declare") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.DeclareKeyword,
+              nextSevenChars,
+              new Span(loc, loc.offset(7))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        const nextEightChars = tokenizer.slice(8);
+
+        if (nextEightChars === "function") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.FunctionKeyword,
+              nextEightChars,
+              new Span(loc, loc.offset(8))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        const nextNineChars = tokenizer.slice(9);
+
+        if (nextNineChars === "typeclass") { 
+          tokenizer.addToken(
+            new Token(
+              TokenKind.TypeClassKeyword,
+              nextNineChars,
+              new Span(loc, loc.offset(9))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        if (ALPHA_REGEX.test(char)) {
           tokenizeIdentifier(tokenizer);
         } else if (NUMERIC_REGEX.test(char)) {
           tokenizeNumberLiteral(tokenizer);
         } else {
-          tokenizer.takeWhitespace();
+          if (!tokenizer.takeWhitespace()) { 
+            throw new Error(`Unexpected character: ${char} at ${loc.line}:${loc.column}`);
+          }
         }
       }
     }
@@ -305,7 +474,11 @@ function tokenizeStringLiteral(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.StringLiteral, text, new Span(start, tokenizer.location))
+    new Token(
+      TokenKind.StringLiteral,
+      text,
+      new Span(start, tokenizer.location)
+    )
   );
   tokenizer.takeWhitespace();
 }
@@ -335,7 +508,11 @@ function tokenizeNumberLiteral(tokenizer: Tokenizer): void {
   }
 
   tokenizer.addToken(
-    new Token(TokenKind.NumberLiteral, text, new Span(start, tokenizer.location))
+    new Token(
+      TokenKind.NumberLiteral,
+      text,
+      new Span(start, tokenizer.location)
+    )
   );
   tokenizer.takeWhitespace();
 }

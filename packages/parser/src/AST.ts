@@ -1,4 +1,4 @@
-import { Span } from "./Token.js";
+import { Span } from "./Span.js";
 
 export type AST =
   | SourceFile
