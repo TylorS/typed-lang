@@ -28,7 +28,8 @@ export function dataDeclarationTypeAliasTemplate(
     t.newLine(2),
     t.intercolate(t.newLine(2))(
       decl.constructors.map(constructorInterfaceDeclarationTemplate)
-    )
+    ),
+    t.newLine(),
   );
 }
 
@@ -88,7 +89,7 @@ function voidConstructorInterfaceDeclarationTemplate(
     t`export interface ${t.identifier(constructor.name)} {`,
     t.ident(t.newLine(), t`readonly _tag: "${constructor.name.text}";`),
     t.newLine(),
-    t`}`,
+    t`}`
   );
 }
 
@@ -113,8 +114,7 @@ function fieldsConstructorInterfaceDeclarationTemplate(
       )
     ),
     t.newLine(),
-    t`}`,
-    t.newLine()
+    t`}`
   );
 }
 
