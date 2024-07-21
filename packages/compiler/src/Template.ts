@@ -59,7 +59,7 @@ t.ident = (...value: ReadonlyArray<Interpolation>): Interpolation => ({
   value: value.flat(10),
 });
 
-t.interpolate =
+t.intercolate =
   (seperator: Interpolation) =>
   (...values: ReadonlyArray<Interpolation>): Interpolation =>
     values

@@ -21,12 +21,12 @@ export function dataDeclarationTypeAliasTemplate(
     t.identifier(decl.name),
     typeParametersTemplate(decl.typeParameters),
     ` =`,
-    t.newLine(),
     t.ident(
-      t.interpolate(t.newLine())(decl.constructors.map(constructorTemplate))
+      t.newLine(),
+      t.intercolate(t.newLine())(decl.constructors.map(constructorTemplate))
     ),
     t.newLine(2),
-    t.interpolate(t.newLine(2))(
+    t.intercolate(t.newLine(2))(
       decl.constructors.map(constructorInterfaceDeclarationTemplate)
     )
   );
@@ -86,8 +86,7 @@ function voidConstructorInterfaceDeclarationTemplate(
 ): Interpolation {
   return t.span(constructor.span)(
     t`export interface ${t.identifier(constructor.name)} {`,
-    t.newLine(),
-    `  readonly _tag: "${constructor.name.text}";`,
+    t.ident(t.newLine(), t`readonly _tag: "${constructor.name.text}";`),
     t.newLine(),
     t`}`,
   );
@@ -102,12 +101,15 @@ function fieldsConstructorInterfaceDeclarationTemplate(
     t`${typeParametersTemplate(
       getTypeParametersFromFields(constructor.fields)
     )} {`,
-    t.newLine(),
-    t`  readonly _tag: "${constructor.name.text}"`,
-    t.newLine(),
-    t.interpolate(t.newLine())(
-      ...constructor.fields.map(
-        (f) => t`  readonly ${getFieldName(f)}: ${typeTemplate(f.value)}`
+    t.ident(
+      t.newLine(),
+      t`readonly _tag: "${constructor.name.text}"`,
+      t.newLine(),
+      t.intercolate(t.newLine())(
+        ...constructor.fields.map(
+          (f) =>
+            t`readonly ${getFieldName(f)}: ${typeTemplate(f.value)}`
+        )
       )
     ),
     t.newLine(),
