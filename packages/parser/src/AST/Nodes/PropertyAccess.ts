@@ -8,5 +8,6 @@ export class PropertyAccess {
     readonly left: Identifier,
     readonly dot: Span,
     readonly right: Identifier | PropertyAccess,
+    readonly span: Span
   ) {}
 }

@@ -7,7 +7,7 @@ export class TypeParameter {
 
   constructor(
     readonly name: Identifier,
-    readonly constraint: Type | null,
+    readonly constraint: Type | undefined,
     readonly span: Span
   ) {}
 }

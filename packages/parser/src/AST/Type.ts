@@ -9,7 +9,7 @@ import { NumericLiteralType } from "./Type/NumericLiteralType.js";
 import { RecordType } from "./Type/RecordType.js";
 import { SetType } from "./Type/SetType.js";
 import { StringLiteralType } from "./Type/StringLiteralType.js";
-import { TupleType } from "./Type/TupleType.js";
+import { RestType, TupleType } from "./Type/TupleType.js";
 import { TypeReference } from "./Type/TypeReference.js";
 
 export type Type =
@@ -24,6 +24,7 @@ export type Type =
   | RecordType
   | SetType
   | StringLiteralType
+  | RestType
   | TupleType
   | TypeReference;
 

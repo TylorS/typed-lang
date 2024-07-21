@@ -18,7 +18,8 @@ export class IfStatement {
   constructor(
     readonly ifBlock: IfBlock,
     readonly elseIfBlocks: ReadonlyArray<ElseIfBlock>,
-    readonly elseBlock: ElseBlock | null
+    readonly elseBlock: ElseBlock | undefined,
+    readonly span: Span
   ) {}
 }
 
@@ -28,7 +29,8 @@ export class IfBlock {
   constructor(
     readonly keyword: Span,
     readonly condition: Expression,
-    readonly block: Block
+    readonly block: Block,
+    readonly span: Span
   ) {}
 }
 
@@ -39,14 +41,19 @@ export class ElseIfBlock {
     readonly elseKeyword: Span,
     readonly ifKeyword: Span,
     readonly condition: Expression,
-    readonly block: Block
+    readonly block: Block,
+    readonly span: Span
   ) {}
 }
 
 export class ElseBlock {
   readonly _tag = "ElseBlock";
 
-  constructor(readonly keyword: Span, readonly block: Block) {}
+  constructor(
+    readonly keyword: Span,
+    readonly block: Block,
+    readonly span: Span
+  ) {}
 }
 
 export class WhileStatement {
@@ -55,7 +62,8 @@ export class WhileStatement {
   constructor(
     readonly keyword: Span,
     readonly condition: Expression,
-    readonly block: Block
+    readonly block: Block,
+    readonly span: Span
   ) {}
 }
 
@@ -66,24 +74,29 @@ export class ForOfStatement {
     readonly keyword: Span,
     readonly name: Identifier | Destructure,
     readonly iterable: Expression,
-    readonly block: Block
+    readonly block: Block,
+    readonly span: Span
   ) {}
 }
 
 export class BreakStatement {
   readonly _tag = "BreakStatement";
 
-  constructor(readonly keyword: Span) {}
+  constructor(readonly span: Span) {}
 }
 
 export class ContinueStatement {
   readonly _tag = "ContinueStatement";
 
-  constructor(readonly keyword: Span) {}
+  constructor(readonly span: Span) {}
 }
 
 export class ReturnStatement {
   readonly _tag = "ReturnStatement";
 
-  constructor(readonly keyword: Span, readonly expression: Expression) {}
+  constructor(
+    readonly keyword: Span,
+    readonly expression: Expression,
+    readonly span: Span
+  ) {}
 }

@@ -33,7 +33,8 @@ export class BinaryExpression {
   constructor(
     readonly operator: Operator,
     readonly left: Expression,
-    readonly right: Expression
+    readonly right: Expression,
+    readonly span: Span
   ) {}
 }
 
@@ -65,7 +66,8 @@ export class MemberExpression {
   constructor(
     readonly object: Expression,
     readonly dot: Span,
-    readonly property: Identifier
+    readonly property: Identifier,
+    readonly span: Span
   ) {}
 }
 
@@ -78,6 +80,7 @@ export class FunctionExpression {
     readonly parameters: ReadonlyArray<NamedField>,
     readonly returnType: Type | null,
     readonly block: Block,
+    readonly span: Span,
     readonly exported: Span | null
   ) {}
 }

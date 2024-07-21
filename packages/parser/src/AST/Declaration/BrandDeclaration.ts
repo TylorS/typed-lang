@@ -7,8 +7,9 @@ export class BrandDeclaration {
 
   constructor(
     readonly name: Identifier,
+    readonly equals: Span,
     readonly type: Type,
     readonly span: Span,
-    readonly exported: Span | null
+    readonly exported: Span | undefined
   ) {}
 }

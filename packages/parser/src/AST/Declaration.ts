@@ -1,3 +1,4 @@
+import { Comment } from "./Comment.js";
 import { BrandDeclaration } from "./Declaration/BrandDeclaration.js";
 import { DataDeclaration } from "./Declaration/DataDeclaration.js";
 import { FunctionDeclaration } from "./Declaration/FunctionDeclaration.js";
@@ -13,7 +14,8 @@ export type Declaration =
   | ImportDeclaration
   | TypeAliasDeclaration
   | TypeClassDeclaration
-  | VariableDeclaration;
+  | VariableDeclaration
+  | Comment;
 
 export * from "./Declaration/BrandDeclaration.js";
 export * from "./Declaration/DataDeclaration.js";

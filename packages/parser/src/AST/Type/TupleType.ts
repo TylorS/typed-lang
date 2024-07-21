@@ -4,7 +4,10 @@ import type { Type } from "../Type.js";
 export class TupleType {
   readonly _tag = "TupleType";
 
-  constructor(readonly members: ReadonlyArray<Type | RestType>) {}
+  constructor(
+    readonly members: ReadonlyArray<Type | RestType>,
+    readonly span: Span
+  ) {}
 }
 
 export class RestType {

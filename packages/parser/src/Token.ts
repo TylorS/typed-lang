@@ -45,7 +45,6 @@ export enum TokenKind {
   ConstKeyword = "ConstKeyword",
   ContinueKeyword = "ContinueKeyword",
   DataKeyword = "DataKeyword",
-  DeclareKeyword = "DeclareKeyword",
   ExportKeyword = "ExportKeyword",
   FunctionKeyword = "FunctionKeyword",
   TypeClassKeyword = "TypeClassKeyword",

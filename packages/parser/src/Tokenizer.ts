@@ -202,9 +202,13 @@ export function tokenize(text: string): Array<Token> {
         continue;
       }
       case "/": { 
-        tokenizer.addToken(
-          new Token(TokenKind.ForwardSlash, char, new Span(loc, loc.offset(1)))
-        );
+        if (tokenizer.nextChar() === "/") { 
+          tokenizeComment(tokenizer);
+        } else {
+          tokenizer.addToken(
+            new Token(TokenKind.ForwardSlash, char, new Span(loc, loc.offset(1)))
+          );
+        }
         continue;
       }
       case "%": { 
@@ -279,17 +283,40 @@ export function tokenize(text: string): Array<Token> {
         tokenizeStringLiteral(tokenizer);
         continue;
       default: {
-        if (char === "/" && tokenizer.nextChar() === "/") {
-          tokenizeComment(tokenizer);
-          continue;
-        }
-
         if (char === "i" && ["if ", "if("].includes(tokenizer.slice(3))) { 
           tokenizer.addToken(
             new Token(
               TokenKind.IfKeyword,
               "if",
               new Span(loc, loc.offset(2))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        const nextEightChars = tokenizer.slice(8);
+
+        if (nextEightChars === "function") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.FunctionKeyword,
+              nextEightChars,
+              new Span(loc, loc.offset(8))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        }
+
+        const nextNineChars = tokenizer.slice(9);
+
+        if (nextNineChars === "typeclass") { 
+          tokenizer.addToken(
+            new Token(
+              TokenKind.TypeClassKeyword,
+              nextNineChars,
+              new Span(loc, loc.offset(9))
             )
           );
           tokenizer.takeWhitespace();
@@ -362,6 +389,16 @@ export function tokenize(text: string): Array<Token> {
           );
           tokenizer.takeWhitespace();
           continue;
+        } else if (nextFiveChars === "const") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ConstKeyword,
+              nextFiveChars,
+              new Span(loc, loc.offset(6))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
         }
 
         const nextSixChars = tokenizer.slice(6);
@@ -370,16 +407,6 @@ export function tokenize(text: string): Array<Token> {
           tokenizer.addToken(
             new Token(
               TokenKind.ExportKeyword,
-              nextSixChars,
-              new Span(loc, loc.offset(6))
-            )
-          );
-          tokenizer.takeWhitespace();
-          continue;
-        } else if (nextSixChars === "const") {
-          tokenizer.addToken(
-            new Token(
-              TokenKind.ConstKeyword,
               nextSixChars,
               new Span(loc, loc.offset(6))
             )
@@ -395,48 +422,6 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
-        }
-
-        const nextSevenChars = tokenizer.slice(7);
-
-        if (nextSevenChars === "declare") {
-          tokenizer.addToken(
-            new Token(
-              TokenKind.DeclareKeyword,
-              nextSevenChars,
-              new Span(loc, loc.offset(7))
-            )
-          );
-          tokenizer.takeWhitespace();
-          continue;
-        }
-
-        const nextEightChars = tokenizer.slice(8);
-
-        if (nextEightChars === "function") {
-          tokenizer.addToken(
-            new Token(
-              TokenKind.FunctionKeyword,
-              nextEightChars,
-              new Span(loc, loc.offset(8))
-            )
-          );
-          tokenizer.takeWhitespace();
-          continue;
-        }
-
-        const nextNineChars = tokenizer.slice(9);
-
-        if (nextNineChars === "typeclass") { 
-          tokenizer.addToken(
-            new Token(
-              TokenKind.TypeClassKeyword,
-              nextNineChars,
-              new Span(loc, loc.offset(9))
-            )
-          );
-          tokenizer.takeWhitespace();
-          continue;
         }
 
         if (ALPHA_REGEX.test(char)) {

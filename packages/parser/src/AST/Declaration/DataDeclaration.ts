@@ -9,9 +9,10 @@ export class DataDeclaration {
   constructor(
     readonly name: Identifier,
     readonly typeParameters: ReadonlyArray<TypeParameter>,
+    readonly equals: Span,
     readonly constructors: Array<DataConstructor>,
     readonly span: Span,
-    readonly exported: Span | null
+    readonly exported: Span | undefined
   ) {}
 }
 
@@ -22,7 +23,7 @@ export type DataConstructor =
 
 export class VoidConstructor {
   readonly _tag = "VoidConstructor";
-  constructor(readonly name: Identifier) {}
+  constructor(readonly name: Identifier, readonly span: Span) {}
 }
 
 export class TupleConstructor {

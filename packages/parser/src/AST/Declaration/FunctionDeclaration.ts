@@ -12,8 +12,9 @@ export class FunctionDeclaration {
     readonly name: Identifier,
     readonly typeParameters: ReadonlyArray<TypeParameter>,
     readonly parameters: ReadonlyArray<NamedField>,
-    readonly returnType: Type | null,
+    readonly returnType: Type | undefined,
     readonly block: Block,
-    readonly exported: Span | null
+    readonly span: Span,
+    readonly exported: Span | undefined
   ) {}
 }

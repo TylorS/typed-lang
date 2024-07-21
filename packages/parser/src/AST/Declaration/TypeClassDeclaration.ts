@@ -13,6 +13,6 @@ export class TypeClassDeclaration {
     readonly fields: ReadonlyArray<NamedField>,
     readonly closeBrace: Span,
     readonly span: Span,
-    readonly exported: Span | null
+    readonly exported: Span | undefined
   ) {}
 }

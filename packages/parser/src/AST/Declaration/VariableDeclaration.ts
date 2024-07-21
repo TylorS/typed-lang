@@ -8,10 +8,11 @@ export class VariableDeclaration {
 
   constructor(
     readonly name: Identifier | Destructure,
-    readonly typeAnnotation: Type | null,
+    readonly typeAnnotation: Type | undefined,
+    readonly equals: Span,
     readonly expression: Expression,
     readonly span: Span,
-    readonly exported: Span | null
+    readonly exported: Span | undefined
   ) {}
 }
 
