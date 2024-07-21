@@ -41,7 +41,9 @@ export enum TokenKind {
   Whitespace = "Whitespace", 
 
   BrandKeyword = "BrandKeyword",
+  BreakKeyword = "BreakKeyword",
   ConstKeyword = "ConstKeyword",
+  ContinueKeyword = "ContinueKeyword",
   DataKeyword = "DataKeyword",
   DeclareKeyword = "DeclareKeyword",
   ExportKeyword = "ExportKeyword",

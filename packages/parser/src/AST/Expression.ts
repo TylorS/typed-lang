@@ -2,7 +2,10 @@ import { Span } from "../Span.js";
 import { Operator } from "./Nodes/Operator.js";
 import { Identifier } from "./Nodes/Identifier.js";
 import { Literal } from "./Nodes/Literal.js";
-import { TypeReference } from "./Type/TypeReference.js";
+import { Type } from "./Type.js";
+import { TypeParameter } from "./Nodes/TypeParameter.js";
+import { NamedField } from "./Nodes/Field.js";
+import { Block } from "./Nodes/Block.js";
 
 export type Expression =
   | UnaryExpression
@@ -12,6 +15,7 @@ export type Expression =
   | Literal
   | ParenthesizedExpression
   | MemberExpression
+  | FunctionExpression;
 
 export class UnaryExpression { 
   readonly _tag = "UnaryExpression";
@@ -38,7 +42,7 @@ export class FunctionCall {
 
   constructor(
     readonly callee: Expression,
-    readonly typeArguments: readonly TypeReference[],
+    readonly typeArguments: readonly Type[],
     readonly parameters: readonly Expression[],
     readonly span: Span
   ) {}
@@ -62,5 +66,18 @@ export class MemberExpression {
     readonly object: Expression,
     readonly dot: Span,
     readonly property: Identifier
+  ) {}
+}
+
+export class FunctionExpression {
+  readonly _tag = "FunctionExpression";
+
+  constructor(
+    readonly name: Identifier,
+    readonly typeParameters: ReadonlyArray<TypeParameter>,
+    readonly parameters: ReadonlyArray<NamedField>,
+    readonly returnType: Type | null,
+    readonly block: Block,
+    readonly exported: Span | null
   ) {}
 }

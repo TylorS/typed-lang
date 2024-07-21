@@ -4,7 +4,7 @@ export class Identifier {
   readonly _tag = "Identifier";
 
   constructor(
-    readonly name: string,
+    readonly text: string,
     readonly span: Span
   ) {}
 }

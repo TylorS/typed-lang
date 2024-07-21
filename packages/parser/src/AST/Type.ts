@@ -27,3 +27,16 @@ export type Type =
   | TupleType
   | TypeReference;
 
+export * from "./Type/ArrayType.js";
+export * from "./Type/BooleanLiteralType.js";
+export * from "./Type/BrandedType.js";
+export * from "./Type/BuiltInTypes.js";
+export * from "./Type/FunctionType.js";
+export * from "./Type/HigherKindedType.js";
+export * from "./Type/MapType.js";
+export * from "./Type/NumericLiteralType.js";
+export * from "./Type/RecordType.js";
+export * from "./Type/SetType.js";
+export * from "./Type/StringLiteralType.js";
+export * from "./Type/TupleType.js";
+export * from "./Type/TypeReference.js";
