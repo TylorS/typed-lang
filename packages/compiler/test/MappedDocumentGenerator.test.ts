@@ -3,20 +3,24 @@ import { describe, it } from "vitest";
 import { generateModule } from "../src/MappedDocumentGenerator";
 import { compileModule } from "../src/ModuleCompiler";
 import { writeFileSync } from "node:fs";
-import { addDataDeclarationTypeAlias } from "../src/generators/shared/addDataDeclarationTypeAlias";
+import * as templates from "../src/templates/index";
+import { templateToString } from "../src/Template";
 
 describe("MappedDocumentGenerator", () => {
   const fileName = "test.typed";
-  const extension = ".d.ts";
+  const extension = ".ts";
   const outputFileName = fileName + extension;
-  const code = `data Maybe<A> = Nothing | Just(value: A)`;
+  const code = `export data Maybe<A> = Nothing | Just(value: A)`;
   const sourceFile = parse(fileName, code);
-  const decl = sourceFile.statements[0] as DataDeclaration;
-  const module = generateModule(sourceFile, extension);
+  const decl = sourceFile.declarations[0] as DataDeclaration;
+  const module = generateModule(sourceFile, extension, "single");
+  const template = templates.dataDeclarationTypeAliasTemplate(decl);
+
+
+  console.log(templateToString(template));
 
   it("does things", () => {
-    addDataDeclarationTypeAlias(module, decl);
-
+    module.runInterpolation(template);
     const compiled = compileModule(module);
     const output = compiled[outputFileName];
 

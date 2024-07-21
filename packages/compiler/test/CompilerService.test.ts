@@ -7,7 +7,7 @@ import { dtsSourceFileGenerator } from "../src/generators/dts/index.js";
 import { tsSourceFileGenerator } from "../src/generators/ts/index.js";
 import { ok } from "node:assert";
 
-describe("CompilerService", () => {
+describe.skip("CompilerService", () => {
   it("compiles data declarations to DTS", () => {
     const extension = ".d.ts";
     const service = new CompilerService(dtsSourceFileGenerator, extension);

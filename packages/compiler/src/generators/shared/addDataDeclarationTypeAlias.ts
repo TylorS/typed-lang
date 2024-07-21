@@ -17,14 +17,13 @@ export function addDataDeclarationTypeAlias(
   gen.withSpan(
     {
       span: decl.span,
-      name: decl.name,
     },
     (gen) => {
       gen.addText(`export type `);
-      gen.addText(decl.name, { span: decl.nameSpan, name: decl.name });
+      gen.addText(decl.name.text, { span: decl.name.span, name: decl.name.text });
       addTypeParameters(gen, decl.typeParameters);
       gen.addText(` `);
-      gen.addText(`=`, { span: decl.equalsSpan });
+      gen.addText(`=`, { span: decl.equals });
       gen.addNewLine();
 
       gen.withIdent(() => {
@@ -62,9 +61,9 @@ function addVoidConstructorTypeReference(
   constructor: DataConstructor
 ) {
   gen.addText(`| `);
-  gen.addText(`${constructor.name}`, {
-    span: constructor.span,
-    name: constructor.name,
+  gen.addText(`${constructor.name.text}`, {
+    span: constructor.name.span,
+    name: constructor.name.text,
   });
 }
 
@@ -73,9 +72,9 @@ function addFieldsConstructorTypeReference(
   constructor: TupleConstructor | RecordConstructor
 ) {
   gen.addText(`| `);
-  gen.addText(`${constructor.name}`, {
-    span: constructor.nameSpan,
-    name: constructor.name,
+  gen.addText(`${constructor.name.text}`, {
+    span: constructor.name.span,
+    name: constructor.name.text,
   });
   addTypeParameters(gen, getTypeParametersFromFields(constructor.fields));
 }

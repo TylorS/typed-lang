@@ -1,0 +1,1 @@
+{"version":3,"file":"test.typed.ts","names":["Maybe","Nothing","Just","A"],"sources":["test.typed"],"sourcesContent":["export data Maybe<A> = Nothing | Just(value: A)"],"mappings":"AAAA,YAAYA,KAAKA,CAAC,CAAC;IAAI,OAAO;IAAG,IAAI,CAAQ,CAAC;;AAAvB,iBAAAC,OAAOA;;CAAA;;AAAG,iBAAAC,IAAIA,CAAQ,CAAC;;kBAADC,CAACA;;AAAC,AAAA","ignoreList":[]}

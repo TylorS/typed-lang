@@ -1,9 +1,12 @@
 import { SourceFile, Span } from "@typed-lang/parser";
 import { IdentationManager } from "./IdentationManager.js";
 import { ImportManager } from "./ImportManager.js";
+import { Interpolation, Template } from "./Template.js";
 
 export interface MappedDocumentGenerator {
   readonly ctx: MappedDocumentCtx;
+
+  runInterpolation(template: Template): void;
 
   addText(
     text: string,
@@ -34,6 +37,7 @@ export class MappedDocumentCtx {
   constructor(
     readonly sourceFile: SourceFile,
     readonly extension: ".ts" | ".d.ts",
+    readonly modules: "single" | "multiple",
     readonly identation: IdentationManager,
     readonly imports: ImportManager
   ) {}
@@ -56,8 +60,12 @@ class LineAndModuleGenerator
     return this.linesAndModules.values();
   }
 
+  runInterpolation(template: Interpolation): void {
+    runInterpolation(this, template);
+  }
+
   addText(text: string, options?: MapData): void {
-    const lines = text.split("\n").filter(Boolean);
+    const lines = text.split("\n");
 
     if (lines.length === 1) {
       this.addTextToCurrentLine(text, options);
@@ -81,8 +89,10 @@ class LineAndModuleGenerator
     isExported?: boolean
   ): void {
     const module = new Module(
-      // Every module has its own imports
-      { ...this.ctx, imports: new ImportManager() },
+      // Every module has its own imports in "multiple" mode
+      this.ctx.modules === "single"
+        ? this.ctx
+        : { ...this.ctx, imports: new ImportManager() },
       fileName,
       this.ctx.extension,
       this.ctx.sourceFile.source,
@@ -170,11 +180,13 @@ export class Spanned extends LineAndModuleGenerator {
 
 export function generateModule(
   sourceFile: SourceFile,
-  extension: ".ts" | ".d.ts"
+  extension: ".ts" | ".d.ts",
+  module: "single" | "multiple"
 ): Module {
   const ctx = new MappedDocumentCtx(
     sourceFile,
     extension,
+    module,
     new IdentationManager(),
     new ImportManager()
   );
@@ -193,4 +205,48 @@ export function generateModule(
 function getModuleName(fileName: string, extension: ".ts" | ".d.ts"): string {
   const nameParts = fileName.replace(extension, "").split(".");
   return nameParts[nameParts.length - 1];
+}
+
+function runTemplate(
+  gen: MappedDocumentGenerator,
+  { template, values }: Template
+) {
+  let i = 0;
+  for (; i < values.length; i++) {
+    gen.addText(template[i]);
+    runInterpolation(gen, values[i]);
+  }
+  gen.addText(template[i]);
+}
+
+function runInterpolation(
+  gen: MappedDocumentGenerator,
+  interpolation: Interpolation
+) {
+  if (typeof interpolation === "string") {
+    gen.addText(interpolation);
+  } else if (Array.isArray(interpolation)) {
+    for (const value of interpolation) {
+      runInterpolation(gen, value);
+    }
+  } else {
+    const i = interpolation as Exclude<
+      Interpolation,
+      string | readonly Interpolation[]
+    >;
+
+    switch (i._tag) {
+      case "Template":
+        return runTemplate(gen, i);
+      case "WithSpan":
+        return gen.withSpan(
+          { span: i.span, name: i.name, content: i.content },
+          (ctx) => runInterpolation(ctx, i.value)
+        );
+      case "WithIdent":
+        return gen.withIdent(() => runInterpolation(gen, i.value));
+      case "NewLine":
+        return gen.addNewLine(i.lines);
+    }
+  }
 }
