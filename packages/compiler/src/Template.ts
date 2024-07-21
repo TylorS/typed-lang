@@ -48,7 +48,7 @@ t.span =
     span,
     name,
     content,
-    value: value.flat(10),
+    value: value.flat(),
   });
 
 t.identifier = (identifer: Identifier) =>
@@ -56,14 +56,14 @@ t.identifier = (identifer: Identifier) =>
 
 t.ident = (...value: ReadonlyArray<Interpolation>): Interpolation => ({
   _tag: "WithIdent",
-  value: value.flat(10),
+  value: value.flat(),
 });
 
 t.intercolate =
   (seperator: Interpolation) =>
   (...values: ReadonlyArray<Interpolation>): Interpolation =>
     values
-      .flat(10)
+      .flat()
       .flatMap((value, i) => (i === 0 ? [value] : [seperator, value]));
 
 t.newLine = (lines: number = 1): NewLine => ({ _tag: "NewLine", lines });

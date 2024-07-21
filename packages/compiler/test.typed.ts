@@ -3,7 +3,7 @@ export type Maybe<A> =
   | Just<A>
 
 export interface Nothing {
-  readonly _tag: "Nothing";
+  readonly _tag: "Nothing"
 }
 
 export interface Just<A> {

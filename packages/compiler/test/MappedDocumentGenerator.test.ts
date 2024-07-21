@@ -16,7 +16,6 @@ describe("MappedDocumentGenerator", () => {
   const module = generateModule(sourceFile, extension, "single");
   const template = templates.dataDeclarationTypeAliasTemplate(decl);
 
-
   console.log(templateToString(template));
 
   it("does things", () => {

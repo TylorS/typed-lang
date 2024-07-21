@@ -1,5 +1,6 @@
 import { TypeParameter } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
+import { typeTemplate } from "./typeTemplate.js";
 
 export function typeParametersTemplate(
   typeParameters: ReadonlyArray<TypeParameter>
@@ -11,6 +12,13 @@ export function typeParametersTemplate(
 }
 
 function typeParameterTemplate(typeParameter: TypeParameter): Interpolation {
-  // TODO: Support constraints
-  return t.span(typeParameter.span)(typeParameter.name.text);
+  if (typeParameter.constraint) {
+    return t.span(typeParameter.span)(
+      t.identifier(typeParameter.name),
+      ": ",
+      typeTemplate(typeParameter.constraint)
+    );
+  }
+
+  return t.span(typeParameter.span)(t.identifier(typeParameter.name));
 }
