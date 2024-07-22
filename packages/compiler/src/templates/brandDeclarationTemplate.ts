@@ -1,7 +1,7 @@
 import { BrandDeclaration } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { typeAliasTemplate } from "./typeAliasTemplate.js";
-import { typeTemplate } from "./typeTemplate";
+import { typeTemplate } from "./typeTemplate.js";
 
 export function brandDeclarationTemplate(
   decl: BrandDeclaration

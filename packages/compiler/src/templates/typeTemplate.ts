@@ -5,49 +5,49 @@ import { identiferOrPropertyAccess } from "./identifierOrPropertyAccessTemplate.
 export function typeTemplate(type: Type): Interpolation {
   switch (type._tag) {
     case "AnyType":
-      return t`any`;
+      return t.span(type.span)(`any`);
     case "ArrayType":
-      return t`ReadonlyArray<${typeTemplate(type.element)}>`;
+      return t.span(type.span)(t`ReadonlyArray<${typeTemplate(type.element)}>`);
     case "BooleanType":
-      return t`boolean`;
+      return t.span(type.span)(t`boolean`);
     case "BigIntType":
-      return t`bigint`;
+      return t.span(type.span)(t`bigint`);
     case "BooleanLiteralType":
-      return t`${String(type.value)}`;
+      return t.span(type.span)(t`${String(type.value)}`);
     case "DateType":
-      return t`Date`;
+      return t.span(type.span)(t`Date`);
     case "FunctionKeywordType":
-      return t`Function`;
+      return t.span(type.span)(t`Function`);
     case "MapType":
-      return t`ReadonlyMap<${typeTemplate(type.key)}, ${typeTemplate(
+      return t.span(type.span)(t`ReadonlyMap<${typeTemplate(type.key)}, ${typeTemplate(
         type.value
-      )}>`;
+      )}>`);
     case "NeverType":
-      return t`never`;
+      return t.span(type.span)(t`never`);
     case "NullType":
-      return t`null`;
+      return t.span(type.span)(t`null`);
     case "NumberType":
-      return t`number`;
+      return t.span(type.span)(t`number`);
     case "NumericLiteralType":
-      return t`${String(type.value)}`;
+      return t.span(type.span)(t`${String(type.value)}`);
     case "ObjectType":
-      return t`object`;
+      return t.span(type.span)(t`object`);
     case "SetType":
-      return t`ReadonlySet<${typeTemplate(type.value)}>`;
+      return t.span(type.span)(t`ReadonlySet<${typeTemplate(type.value)}>`);
     case "StringType":
-      return t`string`;
+      return t.span(type.span)(t`string`);
     case "StringLiteralType":
-      return t`${JSON.stringify(type.text)}`;
+      return t.span(type.span)(t`${JSON.stringify(type.text)}`);
     case "SymbolType":
-      return t`symbol`;
+      return t.span(type.span)(t`symbol`);
     case "TypeReference":
       return typeReferenceTemplate(type);
     case "UndefinedType":
-      return t`undefined`;
+      return t.span(type.span)(t`undefined`);
     case "UnknownType":
-      return t`unknown`;
+      return t.span(type.span)(t`unknown`);
     case "VoidType":
-      return t`void`;
+      return t.span(type.span)(t`void`);
     case "BrandedType":
     case "FunctionType":
     case "HigherKindedType":
@@ -60,9 +60,9 @@ export function typeTemplate(type: Type): Interpolation {
 }
 
 function typeReferenceTemplate(type: TypeReference): Interpolation {
-  return t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
+  return t.span(type.span)(t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
     type.typeArguments
-  )}`;
+  )}`);
 }
 
 export function typeArgumentsTemplate(
