@@ -4,7 +4,7 @@ import { generateModule } from "../src/MappedDocumentGenerator";
 import { compileModule } from "../src/ModuleCompiler";
 import { writeFileSync } from "node:fs";
 import * as templates from "../src/templates/index";
-import { templateToString } from "../src/Template";
+import { t, templateToString } from "../src/Template";
 
 describe("MappedDocumentGenerator", () => {
   const fileName = "test.typed";
@@ -14,7 +14,11 @@ describe("MappedDocumentGenerator", () => {
   const sourceFile = parse(fileName, code);
   const decl = sourceFile.declarations[0] as DataDeclaration;
   const module = generateModule(sourceFile, extension, "single");
-  const template = templates.dataDeclarationTypeAliasTemplate(decl);
+  const template = [
+    templates.dataDeclarationTypeAliasTemplate(decl),
+    t.newLine(),
+    templates.dataDeclarationConstructorsTemplate(decl)
+  ]
 
   console.log(templateToString(template));
 

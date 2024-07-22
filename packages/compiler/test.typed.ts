@@ -11,4 +11,10 @@ export interface Just<A> {
   readonly value: A
 }
 
+export const Nothing = { _tag: "Nothing" }
+
+export const Just = <A>(value: A) => ({
+  _tag: "Just",
+  value
+})
 //# sourceMappingURL=test.typed.ts.map

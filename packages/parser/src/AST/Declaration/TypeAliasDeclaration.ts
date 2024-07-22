@@ -4,7 +4,7 @@ import { TypeParameter } from "../Nodes/TypeParameter.js";
 import { Type } from "../Type.js";
 
 export class TypeAliasDeclaration {
-  readonly _tag = "TypeAlias";
+  readonly _tag = "TypeAliasDeclaration";
 
   constructor(
     readonly name: Identifier,

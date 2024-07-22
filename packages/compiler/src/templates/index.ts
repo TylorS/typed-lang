@@ -1,1 +1,2 @@
-export * from './dataDeclarationTypeAliasTemplate.js'
+export * from "./dataDeclarationConstructorsTemplate.js";
+export * from "./dataDeclarationTypeAliasTemplate.js";

@@ -14,7 +14,7 @@ import { typeAliasTemplate } from "./typeAliasTemplate.js";
 export function dataDeclarationTypeAliasTemplate(
   decl: DataDeclaration
 ): Interpolation {
-  return t.span(decl.span)(
+  return [
     typeAliasTemplate({
       name: decl.name,
       types: decl.constructors.map(constructorTemplate),
@@ -25,8 +25,7 @@ export function dataDeclarationTypeAliasTemplate(
     t.intercolate(t.newLine(2))(
       decl.constructors.map(constructorInterfaceDeclarationTemplate)
     ),
-    t.newLine()
-  );
+  ];
 }
 
 function constructorTemplate(constructor: DataConstructor): Interpolation {
