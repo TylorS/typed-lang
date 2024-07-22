@@ -2104,7 +2104,7 @@
     },
     "brand-declaration": {
       "name": "meta.brand.declaration.typed",
-      "begin": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(data)\\b\\s+([_$[:alpha:]][_$[:alnum:]]*)\\s*",
+      "begin": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(brand)\\b\\s+([_$[:alpha:]][_$[:alnum:]]*)\\s*",
       "beginCaptures": {
         "1": {
           "name": "keyword.control.export.typed"
