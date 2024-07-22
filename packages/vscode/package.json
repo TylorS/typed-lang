@@ -1,6 +1,6 @@
 {
   "name": "typed-vscode",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "main": "dist/index.js",
   "description": "Language Server for Typed Language",
   "scripts": {
