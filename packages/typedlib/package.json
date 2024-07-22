@@ -1,5 +1,5 @@
 {
-  "name": "@typed-lang/core-data",
+  "name": "@typed-lang/typedlib",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",

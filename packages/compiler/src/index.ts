@@ -1,4 +1,3 @@
-export * from './DtsCompiler.js';
 export * from "./CompilerService.js";
 export * from "./ImportManager.js";
 export * from "./MappedDocumentGenerator.js";

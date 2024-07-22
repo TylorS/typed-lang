@@ -12,7 +12,7 @@ import { URI } from "vscode-uri";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new TsCompiler({ dataDeclarationOutputMode: "root" });
+const compiler = new TsCompiler("single");
 
 export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
   return {
@@ -65,7 +65,7 @@ export class TypedVirtualCode implements VirtualCode {
       this.snapshot.getText(0, this.snapshot.getLength())
     );
 
-    this.id = this.typed.fileName
+    this.id = this.typed.fileName;
     this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
 
     this.mappings = [

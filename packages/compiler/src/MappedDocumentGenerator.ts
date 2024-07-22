@@ -6,7 +6,7 @@ import { Interpolation, Template } from "./Template.js";
 export interface MappedDocumentGenerator {
   readonly ctx: MappedDocumentCtx;
 
-  runInterpolation(template: Template): void;
+  runInterpolation(template: Interpolation): void;
 
   addText(
     text: string,

@@ -13,7 +13,7 @@
   "dependencies": {
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@typed-lang/compiler": "workspace:*",
-    "@typed-lang/core-data": "workspace:*",
+    "@typed-lang/typedlib": "workspace:*",
     "@typed-lang/parser": "workspace:*",
     "@volar/language-core": "~2.3.4",
     "@volar/typescript": "~2.3.4"

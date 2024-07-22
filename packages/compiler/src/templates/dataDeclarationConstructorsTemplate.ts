@@ -7,7 +7,7 @@ import {
 import { Interpolation, t } from "../Template.js";
 import { typeTemplate } from "./typeTemplate.js";
 import { typeParametersTemplate } from "./typeParametersTemplate.js";
-import { getTypeParametersFromFields } from "../generators/shared/getTypeParametersFromFields.js";
+import { getTypeParametersFromFields } from "./getTypeParametersFromFields.js";
 
 export function dataDeclarationConstructorsTemplate(
   decl: DataDeclaration

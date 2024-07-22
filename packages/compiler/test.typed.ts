@@ -11,9 +11,9 @@ export interface Just<A> {
   readonly value: A
 }
 
-export const Nothing = { _tag: "Nothing" }
+export const Nothing: Nothing = { _tag: "Nothing" }
 
-export const Just = <A>(value: A) => ({
+export const Just = <A>(value: A): Just<A> => ({
   _tag: "Just",
   value
 })

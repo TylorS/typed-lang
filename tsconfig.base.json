@@ -12,8 +12,8 @@
     "paths": {
       "@typed-lang/compiler": ["./packages/compiler/src/index.ts"],
       "@typed-lang/compiler/*": ["./packages/compiler/src/*.js"],
-      "@typed-lang/core-data": ["./packages/core-data/src/index.ts"],
-      "@typed-lang/core-data/*": ["./packages/core-data/src/*.js"],
+      "@typed-lang/typedlib": ["./packages/typedlib/src/index.ts"],
+      "@typed-lang/typedlib/*": ["./packages/typedlib/src/*.js"],
       "@typed-lang/parser": ["./packages/parser/src/index.ts"],
       "@typed-lang/parser/*": ["./packages/parser/src/*.js"],
       "@typed-lang/std": ["./packages/std/src/index.ts"],

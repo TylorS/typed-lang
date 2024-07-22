@@ -14,7 +14,7 @@
       "path": "../compiler/tsconfig.json"
     },
     {
-      "path": "../core-data/tsconfig.json"
+      "path": "../typedlib/tsconfig.json"
     },
     {
       "path": "../parser/tsconfig.json"

@@ -8,7 +8,7 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../core-data/tsconfig.json"
+      "path": "../typedlib/tsconfig.json"
     }
   ]
 }

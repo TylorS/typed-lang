@@ -5,11 +5,11 @@ import {
   Identifier,
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
-import { getTypeParametersFromFields } from "../generators/shared/getTypeParametersFromFields.js";
 import { typeTemplate } from "./typeTemplate.js";
 import { typeParametersTemplate } from "./typeParametersTemplate.js";
 import { interfaceTemplate } from "./interfaceTemplate.js";
 import { typeAliasTemplate } from "./typeAliasTemplate.js";
+import { getTypeParametersFromFields } from "./getTypeParametersFromFields.js";
 
 export function dataDeclarationTypeAliasTemplate(
   decl: DataDeclaration
@@ -25,7 +25,7 @@ export function dataDeclarationTypeAliasTemplate(
     t.intercolate(t.newLine(2))(
       decl.constructors.map(constructorInterfaceDeclarationTemplate)
     ),
-    t.newLine()
+    t.newLine(),
   ];
 }
 

@@ -10,7 +10,7 @@
   },
   "references": [
     {
-      "path": "../core-data/tsconfig.json"
+      "path": "../typedlib/tsconfig.json"
     },
     {
       "path": "../parser/tsconfig.json"

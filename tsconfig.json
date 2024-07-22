@@ -6,7 +6,7 @@
       "path": "./packages/compiler/tsconfig.json"
     },
     {
-      "path": "./packages/core-data/tsconfig.json"
+      "path": "./packages/typedlib/tsconfig.json"
     },
     {
       "path": "./packages/parser/tsconfig.json"

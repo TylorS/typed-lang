@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "pnpm typed-lang --dir ./src --output ts --mode root",
+    "build": "pnpm typed-lang --dir ./src",
     "typed-lang": "pnpx tsx ../cli/src/index.ts --outDir ./dist",
     "test": "vitest --dir test"
   },
@@ -13,7 +13,7 @@
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@typed-lang/core-data": "workspace:*",
+    "@typed-lang/typedlib": "workspace:*",
     "hkt-ts": "^2.1.5"
   },
   "exports": {

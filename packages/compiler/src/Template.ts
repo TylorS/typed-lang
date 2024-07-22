@@ -1,5 +1,10 @@
 import { Identifier, Span } from "@typed-lang/parser";
 import { ident } from "./utils";
+import {
+  NamespaceImport,
+  ImportManager,
+  NamedImport,
+} from "./ImportManager";
 
 export interface Template {
   readonly _tag: "Template";
@@ -13,6 +18,8 @@ export type Interpolation =
   | WithSpan
   | WithIdent
   | NewLine
+  | DeclareImport
+  | Import
   | ReadonlyArray<Interpolation>;
 
 export interface WithSpan {
@@ -32,6 +39,18 @@ export interface NewLine {
 export interface WithIdent {
   readonly _tag: "WithIdent";
   readonly value: Interpolation;
+}
+
+export interface DeclareImport {
+  readonly _tag: "DeclareImport";
+  readonly imports: NamedImport | NamespaceImport;
+  readonly moduleSpecifier: string;
+}
+
+export interface Import {
+  readonly _tag: "Import";
+  readonly moduleSpecifier: string;
+  readonly name: string;
 }
 
 export function t(
@@ -68,7 +87,34 @@ t.intercolate =
 
 t.newLine = (lines: number = 1): NewLine => ({ _tag: "NewLine", lines });
 
+t.namedImport = (
+  moduleSpecifier: string,
+  name: string,
+  alias?: string
+): DeclareImport => ({
+  _tag: "DeclareImport",
+  imports: new NamedImport(name, alias),
+  moduleSpecifier,
+});
+
+t.namespaceImport = (
+  moduleSpecifier: string,
+  namespace: string
+): DeclareImport => ({
+  _tag: "DeclareImport",
+  imports: new NamespaceImport(namespace),
+  moduleSpecifier,
+});
+
+t.import = (moduleSpecifier: string, name: string) => ({
+  _tag: "Import",
+  moduleSpecifier,
+  name,
+});
+
 export function templateToString(interpolation: Interpolation): string {
+  const imports = new ImportManager();
+
   if (typeof interpolation === "string") {
     return interpolation;
   }
@@ -96,5 +142,24 @@ export function templateToString(interpolation: Interpolation): string {
       return ident(templateToString(i.value));
     case "NewLine":
       return "\n".repeat(i.lines);
+    case "DeclareImport": {
+      switch (i.imports._tag) {
+        case "NamedImport":
+          imports.addNamedImport(
+            i.moduleSpecifier,
+            i.imports.name,
+            i.imports.alias
+          );
+          break;
+        case "NamespaceImport":
+          imports.addNamespaceImport(i.moduleSpecifier, i.imports.namespace);
+          break;
+      }
+
+      return "";
+    }
+    case "Import": {
+      return imports.identifer(i.moduleSpecifier, i.name);
+    }
   }
 }

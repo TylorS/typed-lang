@@ -74,5 +74,6 @@ export class NamedImports {
 }
 
 export class NamedImport {
+  readonly _tag = "NamedImport";
   constructor(readonly name: string, readonly alias?: string) { }
 }

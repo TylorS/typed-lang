@@ -8,7 +8,7 @@ import { importDeclarationTemplate } from "./importDeclarationTemplate.js";
 import { typeAliasDeclarationTemplate } from "./typeAliasDeclarationTemplate.js";
 import { typeClassDeclarationTemplate } from "./typeClassDeclarationTemplate.js";
 
-export function declarationTempalte(decl: Declaration): Interpolation {
+export function declarationTemplate(decl: Declaration): Interpolation {
   switch (decl._tag) {
     case "BrandDeclaration":
       return brandDeclarationTemplate(decl);
