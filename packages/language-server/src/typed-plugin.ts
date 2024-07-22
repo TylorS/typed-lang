@@ -12,9 +12,10 @@ import { URI } from "vscode-uri";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new TsCompiler({ outputMode: "single" });
 
 export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
+  const compiler = new TsCompiler({ outputMode: "single" });
+
   return {
     getLanguageId(uri) {
       const fileName = uri.toString();
@@ -25,7 +26,7 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
     createVirtualCode(uri, languageId, snapshot) {
       const fileName = uri.toString();
       if (languageId === typedLanguageId) {
-        return new TypedVirtualCode(fileName, snapshot);
+        return new TypedVirtualCode(fileName, snapshot, compiler);
       }
     },
     typescript: {
@@ -38,7 +39,7 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
       ],
       getServiceScript(astroCode) {
         for (const code of forEachEmbeddedCode(astroCode)) {
-          if (code.id === "ts") {
+          if (code.languageId === "typescript") {
             return {
               code,
               extension: ".ts",
@@ -59,13 +60,17 @@ export class TypedVirtualCode implements VirtualCode {
   codegenStacks = [];
   typed: TypedSnapshot;
 
-  constructor(public fileName: string, public snapshot: ts.IScriptSnapshot) {
+  constructor(
+    public fileName: string,
+    public snapshot: ts.IScriptSnapshot,
+    compiler: TsCompiler
+  ) {
     this.typed = compiler.compile(
       this.fileName,
       this.snapshot.getText(0, this.snapshot.getLength())
     );
 
-    this.id = this.typed.fileName;
+    this.id = fileName;
     this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
 
     this.mappings = [
@@ -79,7 +84,7 @@ export class TypedVirtualCode implements VirtualCode {
           completion: true,
           semantic: true,
           navigation: true,
-          structure: true,
+          structure: false,
           format: false,
         },
       },
@@ -89,7 +94,7 @@ export class TypedVirtualCode implements VirtualCode {
 
 function typedSnapshotToVirtualCode(snapshot: TypedSnapshot): VirtualCode {
   return {
-    id: "ts",
+    id: snapshot.fileName,
     languageId: "typescript",
     snapshot: {
       getText: (start, end) => snapshot.getText().slice(start, end),
