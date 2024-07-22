@@ -18,6 +18,10 @@ const command = Command.make(
       Options.withDefault("js")
     ),
     outDir: Options.text("outDir").pipe(Options.withDefault("dist")),
+    declaration: Options.boolean("declaration").pipe(
+      Options.withAlias("d"),
+      Options.withDefault(false)
+    ),
   },
   (args) =>
     Effect.gen(function* () {
@@ -34,7 +38,10 @@ const command = Command.make(
 
       yield* fs.makeDirectory(outDir, { recursive: true });
 
-      const compiler = new TsCompiler(args.mode);
+      const compiler = new TsCompiler({
+        outputMode: args.mode,
+        declaration: args.declaration,
+      });
 
       // Compile all of the input files
       for (const file of files) {
@@ -106,4 +113,3 @@ function writeSnapshot(
     );
   });
 }
-

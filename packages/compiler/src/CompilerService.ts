@@ -15,9 +15,8 @@ export class CompilerService {
     readonly generator: (module: Module, file: SourceFile) => void,
     readonly extension: ".ts" | ".d.ts",
     readonly module: "single" | "multiple",
-    readonly project?: ts.server.Project
   ) {
-    this.snapshots = new TypedSnapshots(extension, project);
+    this.snapshots = new TypedSnapshots(extension);
   }
 
   getSnapshot(fileName: string): TypedSnapshot | undefined {

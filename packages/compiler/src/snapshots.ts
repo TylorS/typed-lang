@@ -13,7 +13,6 @@ export class TypedSnapshots {
 
   constructor(
     readonly extension: string,
-    readonly project?: ts.server.Project
   ) {}
 
   getAll(): Iterable<TypedSnapshot> {
@@ -50,10 +49,6 @@ export class TypedSnapshots {
       mappings
     );
     this.snapshots.set(fileName, typed);
-
-    if (this.project) {
-      typed.getOrCreateScriptInfo(this.project);
-    }
 
     return typed;
   }
@@ -109,50 +104,5 @@ export class TypedSnapshot {
       column,
       source: this.fileName,
     });
-  }
-
-  getOrCreateScriptInfo(project: ts.server.Project): ts.server.ScriptInfo {
-    if (this._scriptInfo) {
-      return this._scriptInfo;
-    }
-
-    const normalizedPath = ts.server.asNormalizedPath(
-      this.fileName + this.extension
-    );
-    this._scriptInfo =
-      project.projectService.getOrCreateScriptInfoForNormalizedPath(
-        normalizedPath,
-        true,
-        this.getText(),
-        ts.ScriptKind.TS,
-        false,
-        {
-          fileExists: (path) =>
-            path === this.fileName ||
-            path === normalizedPath ||
-            ts.sys.fileExists(path),
-        }
-      )!;
-
-    this._scriptInfo.attachToProject(project);
-
-    const sourceMapScriptInfo =
-      project.projectService.getOrCreateScriptInfoForNormalizedPath(
-        ts.server.asNormalizedPath(normalizedPath + ".map"),
-        true,
-        JSON.stringify(this.map),
-        ts.ScriptKind.JSON,
-        false,
-        {
-          fileExists: (path) =>
-            path === this.fileName + ".map" ||
-            path === normalizedPath + ".map" ||
-            ts.sys.fileExists(path),
-        }
-      )!;
-
-    sourceMapScriptInfo.attachToProject(project);
-
-    return this._scriptInfo;
   }
 }

@@ -11,9 +11,10 @@ import { TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new TsCompiler("single");
 
 export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
+  const compiler = new TsCompiler({ outputMode: "single" });
+
   return {
     getLanguageId(fileName) {
       if (fileName.endsWith(extension)) {
@@ -22,7 +23,7 @@ export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
     },
     createVirtualCode(fileName, languageId, snapshot) {
       if (languageId === typedLanguageId) {
-        return new TypedVirtualCode(fileName, snapshot);
+        return new TypedVirtualCode(fileName, snapshot, compiler);
       }
     },
     typescript: {
@@ -56,7 +57,11 @@ export class TypedVirtualCode implements VirtualCode {
   codegenStacks = [];
   typed: TypedSnapshot;
 
-  constructor(public fileName: string, public snapshot: ts.IScriptSnapshot) {
+  constructor(
+    public fileName: string,
+    public snapshot: ts.IScriptSnapshot,
+    compiler: TsCompiler
+  ) {
     this.typed = compiler.compile(
       this.fileName,
       this.snapshot.getText(0, this.snapshot.getLength())

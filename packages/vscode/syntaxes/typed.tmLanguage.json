@@ -100,6 +100,9 @@
           "include": "#data-declaration"
         },
         {
+          "include": "#brand-declaration"
+        },
+        {
           "include": "#namespace-declaration"
         },
         {
@@ -2065,6 +2068,62 @@
         },
         {
           "include": "#type-parameters"
+        },
+        {
+          "begin": "(=)\\s*(intrinsic)(?![_$[:alnum:]])(?:(?=\\.\\.\\.)|(?!\\.))",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.operator.assignment.typed"
+            },
+            "2": {
+              "name": "keyword.control.intrinsic.typed"
+            }
+          },
+          "end": "(?=\\}|;|^\\s*$|(?:^\\s*(?:abstract|async|(?:\\bawait\\s+(?:\\busing(?=\\s+(?!in\\b|of\\b(?!\\s*(?:of\\b|=)))[_$[:alpha:]])\\b)\\b)|break|case|catch|class|const|continue|declare|do|else|enum|export|finally|function|for|goto|if|import|interface|let|module|namespace|switch|return|throw|try|type|(?:\\busing(?=\\s+(?!in\\b|of\\b(?!\\s*(?:of\\b|=)))[_$[:alpha:]])\\b)|var|while)\\b))",
+          "patterns": [
+            {
+              "include": "#type"
+            }
+          ]
+        },
+        {
+          "begin": "(=)\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.operator.assignment.typed"
+            }
+          },
+          "end": "(?=\\}|;|^\\s*$|(?:^\\s*(?:abstract|async|(?:\\bawait\\s+(?:\\busing(?=\\s+(?!in\\b|of\\b(?!\\s*(?:of\\b|=)))[_$[:alpha:]])\\b)\\b)|break|case|catch|class|const|continue|declare|do|else|enum|export|finally|function|for|goto|if|import|interface|let|module|namespace|switch|return|throw|try|type|(?:\\busing(?=\\s+(?!in\\b|of\\b(?!\\s*(?:of\\b|=)))[_$[:alpha:]])\\b)|var|while)\\b))",
+          "patterns": [
+            {
+              "include": "#type"
+            }
+          ]
+        }
+      ]
+    },
+    "brand-declaration": {
+      "name": "meta.brand.declaration.typed",
+      "begin": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(data)\\b\\s+([_$[:alpha:]][_$[:alnum:]]*)\\s*",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.export.typed"
+        },
+        "2": {
+          "name": "storage.modifier.typed"
+        },
+        "3": {
+          "name": "storage.type.brand.typed"
+        },
+        "4": {
+          "name": "entity.name.type.brand.typed"
+        }
+      },
+      "end": "(?<![\\|\\s]*//.*\n)(?<![\\|\\s]*\\|.*\n)\n",
+      "contentName": "source.ts",
+      "patterns": [
+        {
+          "include": "#comment"
         },
         {
           "begin": "(=)\\s*(intrinsic)(?![_$[:alnum:]])(?:(?=\\.\\.\\.)|(?!\\.))",

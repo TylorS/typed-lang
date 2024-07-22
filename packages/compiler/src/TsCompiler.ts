@@ -11,21 +11,39 @@ const TYPED_SUB_MODULE_REGEX = /\.typed\.(.+)\.ts$/;
 const TYPED_EXTENSION = ".typed";
 const TYPED_TS_EXTENSION = TYPED_EXTENSION + ".ts";
 
+export interface TsCompilerOptions {
+  // Determines if the output should be a single module or multiple modules
+  readonly outputMode: "single" | "multiple";
+  // Determines if the output should include declaration files
+  readonly declaration: boolean;
+}
+
+const defaultOptions: TsCompilerOptions = {
+  outputMode: "multiple",
+  declaration: false,
+};
+
 export class TsCompiler extends CompilerService {
-  constructor(outputMode: "single" | "multiple", project?: ts.server.Project) {
+  constructor({
+    outputMode = defaultOptions.outputMode,
+    declaration = defaultOptions.declaration,
+  }: Partial<TsCompilerOptions> = {}) {
     super(
       (m, f) => {
-        // TODO: Generate DTS files
-
         if (outputMode === "single") {
           m.runInterpolation(singleModuleTemplate(f));
         } else {
           runMultipleModuleTemplates(m, f);
         }
+
+        if (declaration) {
+          // TODO: Generate DTS files
+        }
+
+        m.prependImports()
       },
       ".ts",
-      outputMode,
-      project
+      outputMode
     );
   }
 
@@ -112,7 +130,7 @@ function singleModuleDeclarationTemplate(decl: Declaration): Interpolation {
         t.newLine(),
         t.ident(declarationTemplate(decl)),
         t.newLine(),
-        `}`,
+        `}`
       );
     default:
       return declarationTemplate(decl);

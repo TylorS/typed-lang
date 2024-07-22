@@ -26,7 +26,7 @@ export interface MappedDocumentGenerator {
     span: Span,
     f: (ctx: MappedDocumentGenerator) => void,
     skipExport?: boolean
-  ): void;
+  ): Module;
 
   withIdent(f: () => void): void;
 
@@ -87,10 +87,10 @@ class LineAndModuleGenerator
     span: Span,
     f: (ctx: MappedDocumentGenerator) => void,
     isExported?: boolean
-  ): void {
+  ): Module {
     const module = new Module(
       // Every module has its own imports in "multiple" mode
-      this.ctx.modules === "single"
+      this.ctx.modules === "single" && !fileName.endsWith(".d.ts")
         ? this.ctx
         : { ...this.ctx, imports: new ImportManager() },
       fileName,
@@ -108,6 +108,7 @@ class LineAndModuleGenerator
     );
     this.linesAndModules.push(module);
     f(module);
+    return module;
   }
 
   withSpan(data: MapData, f: (ctx: MappedDocumentGenerator) => void): void {
@@ -151,6 +152,14 @@ export class Module
     readonly isExported: boolean = true
   ) {
     super(ctx);
+  }
+
+  prependImports() {
+    const imports = this.ctx.imports.toCode();
+
+    if (imports) {
+      this.linesAndModules.unshift(new TextSnippet(imports), new NewLine());
+    }
   }
 }
 

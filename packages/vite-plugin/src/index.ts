@@ -5,7 +5,7 @@ import { dirname, resolve } from "path";
 const TYPED_EXTENSION = ".typed";
 
 export function makeTypedLangPlugin(): Plugin {
-  const service = new TsCompiler("multiple");
+  const service = new TsCompiler({ outputMode: "multiple" });
   function compileToJs(code: string, id: string) {
     const snapshot = service.compile(id, code);
     return service.transpile(snapshot, id);

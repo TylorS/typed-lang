@@ -105,7 +105,6 @@ class ModuleCompiler {
           module.fileName.replace(this.extension, ".js")
         );
         this.addCode(`export * as ${modName} from "${importName}"`);
-        this.addNewLine();
       });
     }
 

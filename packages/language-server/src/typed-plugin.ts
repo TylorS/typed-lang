@@ -12,7 +12,7 @@ import { URI } from "vscode-uri";
 
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
-const compiler = new TsCompiler("single");
+const compiler = new TsCompiler({ outputMode: "single" });
 
 export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
   return {
