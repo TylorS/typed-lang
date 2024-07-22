@@ -25,6 +25,7 @@ export function dataDeclarationTypeAliasTemplate(
     t.intercolate(t.newLine(2))(
       decl.constructors.map(constructorInterfaceDeclarationTemplate)
     ),
+    t.newLine()
   ];
 }
 

@@ -27,6 +27,8 @@ function constructorTemplate(
         exported ? t`${t.span(exported)(`export`)} ` : "",
         t`const `,
         t.identifier(constructor.name),
+        t`: `,
+        t.identifier(constructor.name),
         t` = { _tag: "${t.identifier(constructor.name)}" }`
       );
     case "TupleConstructor":
@@ -42,7 +44,10 @@ function constructorTemplate(
             (f) => t`${getFieldName(f)}: ${typeTemplate(f.value)}`
           )
         ),
-        t`) => ({`,
+        t`): `,
+        t.identifier(constructor.name),
+        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        t` => ({`,
         t.ident(
           t.newLine(),
           t`_tag: "${t.identifier(constructor.name)}",`,
@@ -67,7 +72,10 @@ function constructorTemplate(
             (f) => t`${getFieldName(f)}: ${typeTemplate(f.value)}`
           )
         ),
-        `) => ({`,
+        `): `,
+        t.identifier(constructor.name),
+        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        ` => ({`,
         t.ident(
           t.newLine(),
           t`_tag: "${t.identifier(constructor.name)}"`,
