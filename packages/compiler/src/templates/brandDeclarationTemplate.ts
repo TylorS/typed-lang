@@ -7,7 +7,7 @@ export function brandDeclarationTemplate(
   decl: BrandDeclaration
 ): Interpolation {
   return t.span(decl.span)(
-    t.namedImport("Branded", "@typed-lang/typedlib"),
+    t.namedImport("@typed-lang/typedlib", "Branded"),
     typeAliasTemplate({
       name: decl.name,
       types: [

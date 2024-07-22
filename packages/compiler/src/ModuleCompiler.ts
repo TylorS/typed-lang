@@ -36,6 +36,7 @@ export function compileModule(module: Module): CompileOutput {
 
   while (modulesToProcess.length > 0) {
     const mod = modulesToProcess.shift()!;
+    mod.prependImports()
     output[mod.fileName] = new ModuleCompiler(
       module.fileName.replace(module.extension, ""),
       mod.extension,

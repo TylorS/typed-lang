@@ -39,8 +39,6 @@ export class TsCompiler extends CompilerService {
         if (declaration) {
           // TODO: Generate DTS files
         }
-
-        m.prependImports()
       },
       ".ts",
       outputMode

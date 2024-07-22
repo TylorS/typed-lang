@@ -256,6 +256,28 @@ function runInterpolation(
         return gen.withIdent(() => runInterpolation(gen, i.value));
       case "NewLine":
         return gen.addNewLine(i.lines);
+      case "DeclareImport": {
+        switch (i.imports._tag) {
+          case "NamedImport":
+            gen.ctx.imports.addNamedImport(
+              i.moduleSpecifier,
+              i.imports.name,
+              i.imports.alias
+            );
+            break;
+          case "NamespaceImport":
+            gen.ctx.imports.addNamespaceImport(
+              i.moduleSpecifier,
+              i.imports.namespace
+            );
+        }
+        break;
+      }
+      case "Import": {
+        return gen.addText(
+          gen.ctx.imports.identifer(i.moduleSpecifier, i.name)
+        );
+      }
     }
   }
 }

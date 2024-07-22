@@ -56,9 +56,9 @@ export class FileImport {
 
   toCode = () => { 
     if (this.imports._tag === 'NamedImports') {
-      return `import { ${this.imports.imports.map(i => i.alias ? `${i.name} as ${i.alias}` : i.name).join(', ')} } from '${this.specifier}';`;
+      return `import { ${this.imports.imports.map(i => i.alias ? `${i.name} as ${i.alias}` : i.name).join(', ')} } from "${this.specifier}"`;
     } else {
-      return `import * as ${this.imports.namespace} from '${this.specifier}';`;
+      return `import * as ${this.imports.namespace} from "${this.specifier}";`;
     }
   }
 }
