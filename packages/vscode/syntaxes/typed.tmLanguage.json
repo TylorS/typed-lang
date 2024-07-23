@@ -106,6 +106,9 @@
           "include": "#typeclass-declaration"
         },
         {
+          "include": "#instance-declaration"
+        },
+        {
           "include": "#namespace-declaration"
         },
         {
@@ -2191,6 +2194,47 @@
           "captures": {
             "0": {
               "name": "entity.name.type.typeclass.typed"
+            }
+          }
+        },
+        {
+          "include": "#type-parameters"
+        },
+        {
+          "include": "#class-or-interface-body"
+        }
+      ]
+    },
+    "instance-declaration": {
+      "name": "meta.typeclass.typed",
+      "begin": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(?:(abstract)\\s+)?\\b(instance)\\b(?=\\s+|/[/*])",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.export.typed"
+        },
+        "2": {
+          "name": "storage.modifier.typed"
+        },
+        "3": {
+          "name": "storage.modifier.typed"
+        },
+        "4": {
+          "name": "storage.type.instance.typed"
+        }
+      },
+      "end": "(?<=\\})",
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#class-or-interface-heritage"
+        },
+        {
+          "match": "[_$[:alpha:]][_$[:alnum:]]*",
+          "captures": {
+            "0": {
+              "name": "entity.name.type.instance.typed"
             }
           }
         },
