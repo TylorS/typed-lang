@@ -2158,6 +2158,47 @@
         }
       ]
     },
+    "typeclass-declaration": {
+      "name": "meta.typeclass.typed",
+      "begin": "(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(?:(abstract)\\s+)?\\b(typeclass)\\b(?=\\s+|/[/*])",
+      "beginCaptures": {
+        "1": {
+          "name": "keyword.control.export.typed"
+        },
+        "2": {
+          "name": "storage.modifier.typed"
+        },
+        "3": {
+          "name": "storage.modifier.typed"
+        },
+        "4": {
+          "name": "storage.type.typeclass.typed"
+        }
+      },
+      "end": "(?<=\\})",
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "include": "#class-or-interface-heritage"
+        },
+        {
+          "match": "[_$[:alpha:]][_$[:alnum:]]*",
+          "captures": {
+            "0": {
+              "name": "entity.name.type.interface.typed"
+            }
+          }
+        },
+        {
+          "include": "#type-parameters"
+        },
+        {
+          "include": "#class-or-interface-body"
+        }
+      ]
+    },
     "namespace-declaration": {
       "name": "meta.namespace.declaration.typed",
       "begin": "(?:(?<![_$[:alnum:]])(?:(?<=\\.\\.\\.)|(?<!\\.))(?:(\\bexport)\\s+)?(?:(\\bdeclare)\\s+)?\\b(namespace|module)\\s+(?=[_$[:alpha:]\"'`]))",
@@ -4375,6 +4416,9 @@
         },
         {
           "include": "#type-name"
+        },
+        {
+          "#include": "#higher-kinded-type"
         }
       ]
     },
@@ -4877,6 +4921,18 @@
           "match": "[_$[:alpha:]][_$[:alnum:]]*"
         }
       ]
+    },
+    "higher-kinded-type": {
+      "match": "([A-Za-z][A-Za-z0-9]*)<(_|[A-Za-z][A-Za-z0-9]*(\\s*,\\s*[A-Za-z][A-Za-z0-9]*)*)>",
+      "name": "meta.higher-kinded-type.typed",
+      "captures": {
+        "1": {
+          "name": "entity.name.type.typed"
+        },
+        "2": {
+          "name": "variable.parameter.type.typed"
+        }
+      }
     },
     "punctuation-comma": {
       "name": "punctuation.separator.comma.typed",
