@@ -84,7 +84,7 @@ export class TypedVirtualCode implements VirtualCode {
           completion: true,
           semantic: true,
           navigation: true,
-          structure: false,
+          structure: true,
           format: false,
         },
       },

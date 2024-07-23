@@ -198,8 +198,8 @@ class ModuleCompiler {
         verification: true,
         completion: !!name,
         semantic: true,
-        navigation: !!name,
-        structure: false,
+        navigation: true,
+        structure: true,
         format: false,
       },
     });
