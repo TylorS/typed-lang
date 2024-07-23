@@ -103,6 +103,9 @@
           "include": "#brand-declaration"
         },
         {
+          "include": "#typeclass-declaration"
+        },
+        {
           "include": "#namespace-declaration"
         },
         {
@@ -2187,7 +2190,7 @@
           "match": "[_$[:alpha:]][_$[:alnum:]]*",
           "captures": {
             "0": {
-              "name": "entity.name.type.interface.typed"
+              "name": "entity.name.type.typeclass.typed"
             }
           }
         },
