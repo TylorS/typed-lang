@@ -29,17 +29,20 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
         return new TypedVirtualCode(fileName, snapshot, compiler);
       }
     },
+    isAssociatedFileOnly(_, languageId) {
+      return languageId === typedLanguageId;
+    },
     typescript: {
       extraFileExtensions: [
         {
           extension: typedLanguageId,
-          isMixedContent: true,
+          isMixedContent: false,
           scriptKind: ts.ScriptKind.Deferred,
         },
       ],
       getServiceScript(astroCode) {
         for (const code of forEachEmbeddedCode(astroCode)) {
-          if (code.languageId === "typescript") {
+          if (code.id === "typescript") {
             return {
               code,
               extension: ".ts",
@@ -53,11 +56,10 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
 }
 
 export class TypedVirtualCode implements VirtualCode {
-  id: string;
+  id: string = "root";
   languageId = typedLanguageId;
   mappings!: CodeMapping[];
   embeddedCodes!: VirtualCode[];
-  codegenStacks = [];
   typed: TypedSnapshot;
 
   constructor(
@@ -70,8 +72,7 @@ export class TypedVirtualCode implements VirtualCode {
       this.snapshot.getText(0, this.snapshot.getLength())
     );
 
-    this.id = fileName;
-    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed)];
+    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed, "typescript")];
 
     this.mappings = [
       {
@@ -84,7 +85,7 @@ export class TypedVirtualCode implements VirtualCode {
           completion: true,
           semantic: true,
           navigation: true,
-          structure: true,
+          structure: false,
           format: false,
         },
       },
@@ -92,9 +93,9 @@ export class TypedVirtualCode implements VirtualCode {
   }
 }
 
-function typedSnapshotToVirtualCode(snapshot: TypedSnapshot): VirtualCode {
+function typedSnapshotToVirtualCode(snapshot: TypedSnapshot, id: string): VirtualCode {
   return {
-    id: snapshot.fileName,
+    id,
     languageId: "typescript",
     snapshot: {
       getText: (start, end) => snapshot.getText().slice(start, end),
