@@ -2,7 +2,7 @@ import { Span } from "../Span.js";
 import { Operator } from "./Nodes/Operator.js";
 import { Identifier } from "./Nodes/Identifier.js";
 import { Literal } from "./Nodes/Literal.js";
-import { Type } from "./Type.js";
+import { HigherKindedType, Type } from "./Type.js";
 import { TypeParameter } from "./Nodes/TypeParameter.js";
 import { NamedField } from "./Nodes/Field.js";
 import { Block } from "./Nodes/Block.js";
@@ -76,7 +76,7 @@ export class FunctionExpression {
 
   constructor(
     readonly name: Identifier,
-    readonly typeParameters: ReadonlyArray<TypeParameter>,
+    readonly typeParameters: ReadonlyArray<TypeParameter | HigherKindedType>,
     readonly parameters: ReadonlyArray<NamedField>,
     readonly returnType: Type | null,
     readonly block: Block,

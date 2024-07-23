@@ -23,15 +23,17 @@ class Parser {
     return this.tokens[this.pos++];
   }
 
-  consumeToken(kind: TokenKind): Token {
+  consumeToken(...kinds: TokenKind[]): Token {
     const token = this.token();
 
-    if (token?.kind === kind) {
+    if (token && kinds.includes(token.kind)) {
       return this.consume();
     }
 
     throw new Error(
-      `Expected token of kind ${kind} but got ${token.kind}:: ${token.text}`
+      `Expected token of kind ${kinds.join(", ")} but got ${token.kind}:: ${
+        token.text
+      }`
     );
   }
 
@@ -172,6 +174,54 @@ function parseTypeParameters(parser: Parser): AST.TypeParameter[] {
           name.span
         )
       );
+    } while (parser.consumeTokenIf(TokenKind.Comma));
+    parser.skipWhitespace();
+    parser.consumeToken(TokenKind.GreaterThan);
+  }
+  return typeParameters;
+}
+
+function parseTypeParametersOrHigherKindedType(
+  parser: Parser
+): Array<AST.TypeParameter | AST.HigherKindedType> {
+  const typeParameters: Array<AST.TypeParameter | AST.HigherKindedType> = [];
+  if (parser.consumeTokenIf(TokenKind.LessThan)) {
+    do {
+      parser.skipWhitespace();
+      const name = parser.consumeToken(
+        TokenKind.Identifier,
+        TokenKind.Underscore
+      );
+      parser.skipWhitespace();
+      if (parser.token().kind === TokenKind.LessThan) {
+        parser.skipWhitespace();
+        const parameters = parseTypeParametersOrHigherKindedType(parser);
+        parser.skipWhitespace();
+        const constraint = parseTypeConstraint(parser);
+        typeParameters.push(
+          new AST.HigherKindedType(
+            new AST.Identifier(name.text, name.span),
+            parameters,
+            constraint,
+            new Span(
+              name.span.start,
+              constraint?.span.end ??
+                parameters[parameters.length - 1]?.span.end ??
+                name.span.end
+            )
+          )
+        );
+      } else {
+        const constraint = parseTypeConstraint(parser);
+        typeParameters.push(
+          new AST.TypeParameter(
+            new AST.Identifier(name.text, name.span),
+            constraint,
+            new Span(name.span.start, constraint?.span.end ?? name.span.end)
+          )
+        );
+      }
+      parser.skipWhitespace();
     } while (parser.consumeTokenIf(TokenKind.Comma));
     parser.skipWhitespace();
     parser.consumeToken(TokenKind.GreaterThan);
@@ -602,8 +652,8 @@ function parseFunctionDeclaration(
   exportKeyword: Token | undefined
 ): AST.FunctionDeclaration {
   const name = consumeIdentifier(parser);
-  parser.skipWhitespace();  
-  const typeParams = parseTypeParameters(parser);
+  parser.skipWhitespace();
+  const typeParams = parseTypeParametersOrHigherKindedType(parser);
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.OpenParen);
   parser.skipWhitespace();
@@ -921,7 +971,11 @@ function parseRecordField(parser: Parser): AST.RecordField {
   parser.skipWhitespace();
   const value = parseExpression(parser);
   parser.skipWhitespace();
-  return new AST.RecordField(name, value, new Span(name.span.start, value.span.end));
+  return new AST.RecordField(
+    name,
+    value,
+    new Span(name.span.start, value.span.end)
+  );
 }
 
 function parseExpressionFromOpenBracket(parser: Parser): AST.ArrayLiteral {
@@ -951,7 +1005,9 @@ function parseExpressions(
   return [expressions, end];
 }
 
-function parseExpressionFromOpenParen(parser: Parser): AST.ParenthesizedExpression {
+function parseExpressionFromOpenParen(
+  parser: Parser
+): AST.ParenthesizedExpression {
   // TODO: Support FunctionExpressions
 
   const openParen = parser.consumeToken(TokenKind.OpenParen);
@@ -975,12 +1031,16 @@ function parseTypeClassDeclaration(
   parser.skipWhitespace();
   const name = consumeIdentifier(parser);
   parser.skipWhitespace();
-  const typeParameters = parseTypeParameters(parser);
+  const typeParameters = parseTypeParametersOrHigherKindedType(parser);
   parser.skipWhitespace();
   const openBrace = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
   try {
-    const [fields, closeBrace] = parseFields(parser, [TokenKind.Semicolon, TokenKind.Whitespace], TokenKind.CloseBrace);
+    const [fields, closeBrace] = parseFields(
+      parser,
+      [TokenKind.Semicolon, TokenKind.Whitespace],
+      TokenKind.CloseBrace
+    );
     parser.skipWhitespace();
     return new AST.TypeClassDeclaration(
       name,
@@ -988,10 +1048,13 @@ function parseTypeClassDeclaration(
       openBrace.span,
       fields as readonly AST.NamedField[],
       closeBrace.span,
-      new Span(exportKeyword ? exportKeyword.span.start : start, closeBrace.span.end),
+      new Span(
+        exportKeyword ? exportKeyword.span.start : start,
+        closeBrace.span.end
+      ),
       exportKeyword?.span
     );
-  } catch { 
+  } catch {
     const closeBrace = parser.consumeToken(TokenKind.CloseBrace);
     return new AST.TypeClassDeclaration(
       name,
@@ -999,7 +1062,10 @@ function parseTypeClassDeclaration(
       openBrace.span,
       [],
       closeBrace.span,
-      new Span(exportKeyword ? exportKeyword.span.start : start, closeBrace.span.end),
+      new Span(
+        exportKeyword ? exportKeyword.span.start : start,
+        closeBrace.span.end
+      ),
       exportKeyword?.span
     );
   }

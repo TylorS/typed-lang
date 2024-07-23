@@ -508,9 +508,9 @@ export type D = Unknown
     ]);
   });
 
-  it("parses typeclass declarations", () => { 
+  it("parses typeclass declarations", () => {
     const fileName = "test.typed";
-    const source = `export typeclass Eq<A> {}`
+    const source = `export typeclass Eq<A> {}`;
     const sourceFile = parse(fileName, source);
 
     expect(sourceFile.declarations).toEqual([
@@ -535,6 +535,232 @@ export type D = Unknown
         new Span(new SpanLocation(0, 1, 0), new SpanLocation(25, 1, 25)),
         new Span(new SpanLocation(0, 1, 0), new SpanLocation(6, 1, 6))
       ),
-    ])
-  })
+    ]);
+  });
+
+  it("parses typeclass declaration with higher-kinded types", () => {
+    const fileName = "test.typed";
+    const source = `typeclass Covariant<F<_>> {
+  map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+}`;
+
+    const sourceFile = parse(fileName, source);
+
+    expect(sourceFile.declarations).toEqual([
+      new AST.TypeClassDeclaration(
+        new AST.Identifier(
+          `Covariant`,
+          new Span(new SpanLocation(10, 1, 10), new SpanLocation(19, 1, 19))
+        ),
+        [
+          new AST.HigherKindedType(
+            new AST.Identifier(
+              `F`,
+              new Span(new SpanLocation(20, 1, 20), new SpanLocation(21, 1, 21))
+            ),
+            [
+              new AST.TypeParameter(
+                new AST.Identifier(
+                  `_`,
+                  new Span(
+                    new SpanLocation(22, 1, 22),
+                    new SpanLocation(23, 1, 23)
+                  )
+                ),
+                undefined,
+                new Span(
+                  new SpanLocation(22, 1, 22),
+                  new SpanLocation(23, 1, 23)
+                )
+              ),
+            ],
+            undefined,
+            new Span(new SpanLocation(20, 1, 20), new SpanLocation(23, 1, 23))
+          ),
+        ],
+        new Span(new SpanLocation(26, 1, 26), new SpanLocation(27, 1, 27)),
+        [
+          new AST.NamedField(
+            new AST.Identifier(
+              `map`,
+              new Span(new SpanLocation(30, 2, 2), new SpanLocation(33, 2, 5))
+            ),
+            new AST.FunctionType(
+              [
+                new AST.TypeParameter(
+                  new AST.Identifier(
+                    `A`,
+                    new Span(
+                      new SpanLocation(36, 2, 8),
+                      new SpanLocation(37, 2, 9)
+                    )
+                  ),
+                  undefined,
+                  new Span(
+                    new SpanLocation(36, 2, 8),
+                    new SpanLocation(37, 2, 9)
+                  )
+                ),
+                new AST.TypeParameter(
+                  new AST.Identifier(
+                    `B`,
+                    new Span(
+                      new SpanLocation(39, 2, 11),
+                      new SpanLocation(40, 2, 12)
+                    )
+                  ),
+                  undefined,
+                  new Span(
+                    new SpanLocation(39, 2, 11),
+                    new SpanLocation(40, 2, 12)
+                  )
+                ),
+              ],
+              [
+                new AST.NamedField(
+                  new AST.Identifier(
+                    `fa`,
+                    new Span(
+                      new SpanLocation(42, 2, 14),
+                      new SpanLocation(44, 2, 16)
+                    )
+                  ),
+                  new AST.TypeReference(
+                    new AST.Identifier(
+                      `F`,
+                      new Span(
+                        new SpanLocation(46, 2, 18),
+                        new SpanLocation(47, 2, 19)
+                      )
+                    ),
+                    [
+                      new AST.TypeReference(
+                        new AST.Identifier(
+                          `A`,
+                          new Span(
+                            new SpanLocation(48, 2, 20),
+                            new SpanLocation(49, 2, 21)
+                          )
+                        ),
+                        [],
+                        new Span(
+                          new SpanLocation(48, 2, 20),
+                          new SpanLocation(49, 2, 21)
+                        )
+                      ),
+                    ],
+                    new Span(
+                      new SpanLocation(46, 2, 18),
+                      new SpanLocation(49, 2, 21)
+                    )
+                  ),
+                  new Span(
+                    new SpanLocation(42, 2, 14),
+                    new SpanLocation(49, 2, 21)
+                  )
+                ),
+                new AST.NamedField(
+                  new AST.Identifier(
+                    `f`,
+                    new Span(
+                      new SpanLocation(52, 2, 24),
+                      new SpanLocation(53, 2, 25)
+                    )
+                  ),
+                  new AST.FunctionType(
+                    [],
+                    [
+                      new AST.NamedField(
+                        new AST.Identifier(
+                          `a`,
+                          new Span(
+                            new SpanLocation(56, 2, 28),
+                            new SpanLocation(57, 2, 29)
+                          )
+                        ),
+                        new AST.TypeReference(
+                          new AST.Identifier(
+                            `A`,
+                            new Span(
+                              new SpanLocation(59, 2, 31),
+                              new SpanLocation(60, 2, 32)
+                            )
+                          ),
+                          [],
+                          new Span(
+                            new SpanLocation(59, 2, 31),
+                            new SpanLocation(60, 2, 32)
+                          )
+                        ),
+                        new Span(
+                          new SpanLocation(56, 2, 28),
+                          new SpanLocation(60, 2, 32)
+                        )
+                      ),
+                    ],
+                    new AST.TypeReference(
+                      new AST.Identifier(
+                        `B`,
+                        new Span(
+                          new SpanLocation(65, 2, 37),
+                          new SpanLocation(66, 2, 38)
+                        )
+                      ),
+                      [],
+                      new Span(
+                        new SpanLocation(65, 2, 37),
+                        new SpanLocation(66, 2, 38)
+                      )
+                    ),
+                    new Span(
+                      new SpanLocation(55, 2, 27),
+                      new SpanLocation(66, 2, 38)
+                    )
+                  ),
+                  new Span(
+                    new SpanLocation(52, 2, 24),
+                    new SpanLocation(66, 2, 38)
+                  )
+                ),
+              ],
+              new AST.TypeReference(
+                new AST.Identifier(
+                  `F`,
+                  new Span(
+                    new SpanLocation(71, 2, 43),
+                    new SpanLocation(72, 2, 44)
+                  )
+                ),
+                [
+                  new AST.TypeReference(
+                    new AST.Identifier(
+                      `B`,
+                      new Span(
+                        new SpanLocation(73, 2, 45),
+                        new SpanLocation(74, 2, 46)
+                      )
+                    ),
+                    [],
+                    new Span(
+                      new SpanLocation(73, 2, 45),
+                      new SpanLocation(74, 2, 46)
+                    )
+                  ),
+                ],
+                new Span(
+                  new SpanLocation(71, 2, 43),
+                  new SpanLocation(74, 2, 46)
+                )
+              ),
+              new Span(new SpanLocation(41, 2, 13), new SpanLocation(74, 2, 46))
+            ),
+            new Span(new SpanLocation(30, 2, 2), new SpanLocation(74, 2, 46))
+          ),
+        ],
+        new Span(new SpanLocation(76, 3, 0), new SpanLocation(77, 3, 1)),
+        new Span(new SpanLocation(0, 1, 0), new SpanLocation(77, 3, 1)),
+        undefined
+      ),
+    ]);
+  });
 });
