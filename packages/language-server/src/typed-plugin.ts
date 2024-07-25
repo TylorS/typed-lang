@@ -29,9 +29,6 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
         return new TypedVirtualCode(fileName, snapshot, compiler);
       }
     },
-    isAssociatedFileOnly(_, languageId) {
-      return languageId === typedLanguageId;
-    },
     typescript: {
       extraFileExtensions: [
         {

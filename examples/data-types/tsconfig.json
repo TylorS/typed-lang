@@ -5,7 +5,12 @@
     "src",
   ],
   "compilerOptions": {
-    "rootDir": "src"
+    "rootDir": "src",
+    "plugins": [
+      {
+        "name": "@typed-lang/ts-plugin"
+      }
+    ]
   },
   "references": [
     {

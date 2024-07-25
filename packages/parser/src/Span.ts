@@ -1,8 +1,11 @@
 export class Span {
+  readonly _tag = "Span";
   constructor(public start: SpanLocation, public end: SpanLocation) {}
 }
 
 export class SpanLocation {
+  readonly _tag = "SpanLocation";
+
   constructor(
     public position: number,
     public line: number,

@@ -77,9 +77,9 @@ class Tokenizer {
       this.addToken(
         new Token(TokenKind.Whitespace, text, new Span(start, this.location))
       );
-      return true
+      return true;
     }
-    return false
+    return false;
   }
 }
 
@@ -171,125 +171,125 @@ export function tokenize(text: string): Array<Token> {
         );
         continue;
       }
-      case ";": { 
+      case ";": {
         tokenizer.addToken(
           new Token(TokenKind.Semicolon, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "_": { 
+      case "_": {
         tokenizer.addToken(
           new Token(TokenKind.Underscore, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "-": { 
+      case "-": {
         tokenizer.addToken(
           new Token(TokenKind.Hyphen, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "+": { 
+      case "+": {
         tokenizer.addToken(
           new Token(TokenKind.Plus, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "*": { 
+      case "*": {
         tokenizer.addToken(
           new Token(TokenKind.Asterisk, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "/": { 
-        if (tokenizer.nextChar() === "/") { 
+      case "/": {
+        if (tokenizer.nextChar() === "/") {
           tokenizeComment(tokenizer);
         } else {
           tokenizer.addToken(
-            new Token(TokenKind.ForwardSlash, char, new Span(loc, loc.offset(1)))
+            new Token(
+              TokenKind.ForwardSlash,
+              char,
+              new Span(loc, loc.offset(1))
+            )
           );
         }
         continue;
       }
-      case "%": { 
+      case "%": {
         tokenizer.addToken(
           new Token(TokenKind.Percent, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "!": { 
+      case "!": {
         tokenizer.addToken(
           new Token(TokenKind.Exclamation, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "?": { 
+      case "?": {
         tokenizer.addToken(
           new Token(TokenKind.QuestionMark, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-        
-      case "&": { 
+
+      case "&": {
         tokenizer.addToken(
           new Token(TokenKind.Ampersand, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "@": { 
+      case "@": {
         tokenizer.addToken(
           new Token(TokenKind.AtSign, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "$": { 
+      case "$": {
         tokenizer.addToken(
           new Token(TokenKind.DollarSign, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "#": { 
+      case "#": {
         tokenizer.addToken(
           new Token(TokenKind.Hash, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "^": { 
+      case "^": {
         tokenizer.addToken(
           new Token(TokenKind.Caret, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "~": { 
+      case "~": {
         tokenizer.addToken(
           new Token(TokenKind.Tilde, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "`": { 
+      case "`": {
         tokenizer.addToken(
           new Token(TokenKind.Backtick, char, new Span(loc, loc.offset(1)))
         );
         continue;
       }
-      case "\\": { 
+      case "\\": {
         tokenizer.addToken(
           new Token(TokenKind.BackSlash, char, new Span(loc, loc.offset(1)))
         );
         continue;
-      }   
+      }
       case "'":
       case '"':
         tokenizeStringLiteral(tokenizer);
         continue;
       default: {
-        if (char === "i" && ["if ", "if("].includes(tokenizer.slice(3))) { 
+        if (char === "i" && ["if ", "if("].includes(tokenizer.slice(3))) {
           tokenizer.addToken(
-            new Token(
-              TokenKind.IfKeyword,
-              "if",
-              new Span(loc, loc.offset(2))
-            )
+            new Token(TokenKind.IfKeyword, "if", new Span(loc, loc.offset(2)))
           );
           tokenizer.takeWhitespace();
           continue;
@@ -307,11 +307,21 @@ export function tokenize(text: string): Array<Token> {
           );
           tokenizer.takeWhitespace();
           continue;
+        } else if (nextEightChars === "instance") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.InstanceKeyword,
+              nextEightChars,
+              new Span(loc, loc.offset(8))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
         }
 
         const nextNineChars = tokenizer.slice(9);
 
-        if (nextNineChars === "typeclass") { 
+        if (nextNineChars === "typeclass") {
           tokenizer.addToken(
             new Token(
               TokenKind.TypeClassKeyword,
@@ -413,7 +423,7 @@ export function tokenize(text: string): Array<Token> {
           );
           tokenizer.takeWhitespace();
           continue;
-        } else if (nextSixChars === "return") { 
+        } else if (nextSixChars === "return") {
           tokenizer.addToken(
             new Token(
               TokenKind.ReturnKeyword,
@@ -429,8 +439,10 @@ export function tokenize(text: string): Array<Token> {
         } else if (NUMERIC_REGEX.test(char)) {
           tokenizeNumberLiteral(tokenizer);
         } else {
-          if (!tokenizer.takeWhitespace()) { 
-            throw new Error(`Unexpected character: ${char} at ${loc.line}:${loc.column}`);
+          if (!tokenizer.takeWhitespace()) {
+            throw new Error(
+              `Unexpected character: ${char} at ${loc.line}:${loc.column}`
+            );
           }
         }
       }

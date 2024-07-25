@@ -47,6 +47,7 @@ export enum TokenKind {
   DataKeyword = "DataKeyword",
   ExportKeyword = "ExportKeyword",
   FunctionKeyword = "FunctionKeyword",
+  InstanceKeyword = "InstanceKeyword",
   TypeClassKeyword = "TypeClassKeyword",
   TypeKeyword = "TypeKeyword",
   MatchKeyword = "MatchKeyword",

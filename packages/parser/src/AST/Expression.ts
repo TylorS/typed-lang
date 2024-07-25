@@ -75,12 +75,11 @@ export class FunctionExpression {
   readonly _tag = "FunctionExpression";
 
   constructor(
-    readonly name: Identifier,
+    readonly name: Identifier | null,
     readonly typeParameters: ReadonlyArray<TypeParameter | HigherKindedType>,
     readonly parameters: ReadonlyArray<NamedField>,
     readonly returnType: Type | null,
-    readonly block: Block,
+    readonly block: Block | Expression,
     readonly span: Span,
-    readonly exported: Span | null
   ) {}
 }

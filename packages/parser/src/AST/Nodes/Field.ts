@@ -11,7 +11,7 @@ export class NamedField {
 
   constructor(
     readonly name: Identifier,
-    readonly value: Type,
+    readonly value: Type | undefined,
     readonly span: Span
   ) {}
 }

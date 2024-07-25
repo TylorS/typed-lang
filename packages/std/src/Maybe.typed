@@ -1,1 +1,10 @@
+import { Covariant } from './Covariant.typed'
+
 export data Maybe<A> = Nothing | Just(value: A)
+
+export instance Covariant<Maybe> {
+  map: <A, B>(fa: Maybe<A>, f: (a: A) => B): Maybe<B> => Maybe.match(fa, {
+    Nothing: () => Nothing,
+    Just: (value) => Just(f(value))
+  })
+}

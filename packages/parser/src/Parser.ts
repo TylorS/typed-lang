@@ -4,8 +4,8 @@ import { Token, TokenKind } from "./Token.js";
 import { tokenize } from "./Tokenizer.js";
 
 class Parser {
-  private pos = 0;
-  constructor(readonly tokens: readonly Token[]) {}
+  public pos = 0;
+  constructor(readonly source: string, readonly tokens: readonly Token[]) {}
 
   get isEOF(): boolean {
     return this.pos >= this.tokens.length;
@@ -33,7 +33,7 @@ class Parser {
     throw new Error(
       `Expected token of kind ${kinds.join(", ")} but got ${token.kind}:: ${
         token.text
-      }`
+      } at ${JSON.stringify(this.source.slice(token.span.start.position))}`
     );
   }
 
@@ -57,7 +57,7 @@ class Parser {
 
 export function parse(fileName: string, source: string): AST.SourceFile {
   const tokens = tokenize(source);
-  const parser = new Parser(tokens);
+  const parser = new Parser(source, tokens);
   const declarations: AST.Declaration[] = [];
 
   while (!parser.isEOF) {
@@ -81,9 +81,10 @@ function parseDeclaration(parser: Parser): AST.Declaration {
     TokenKind.DataKeyword,
     TokenKind.TypeKeyword,
     TokenKind.BrandKeyword,
+    TokenKind.ConstKeyword,
     TokenKind.FunctionKeyword,
     TokenKind.TypeClassKeyword,
-    TokenKind.ConstKeyword,
+    TokenKind.InstanceKeyword,
     TokenKind.Comment
   );
 
@@ -111,6 +112,12 @@ function parseDeclaration(parser: Parser): AST.Declaration {
       );
     case TokenKind.TypeClassKeyword:
       return parseTypeClassDeclaration(
+        parser,
+        current.span.start,
+        exportKeyword
+      );
+    case TokenKind.InstanceKeyword:
+      return parseInstanceDeclaration(
         parser,
         current.span.start,
         exportKeyword
@@ -269,14 +276,14 @@ function parseConstructor(parser: Parser): AST.DataConstructor {
   }
 
   if (parser.consumeTokenIf(TokenKind.OpenBrace)) {
-    const [fields, end] = parseFields(
+    const [fields, end] = parseNamedFields(
       parser,
       [TokenKind.Semicolon, TokenKind.Whitespace],
       TokenKind.CloseBrace
     );
     return new AST.RecordConstructor(
       name,
-      fields as readonly AST.NamedField[],
+      fields,
       new Span(name.span.start, end.span.end)
     );
   }
@@ -285,7 +292,10 @@ function parseConstructor(parser: Parser): AST.DataConstructor {
 }
 
 function consumeIdentifier(parser: Parser): AST.Identifier {
-  const token = parser.consumeToken(TokenKind.Identifier);
+  const token = parser.consumeToken(
+    TokenKind.Identifier,
+    TokenKind.MatchKeyword
+  );
   return new AST.Identifier(token.text, token.span);
 }
 
@@ -309,6 +319,47 @@ function consumePropertyAccessFromIdentifier(
     right,
     new Span(left.span.start, right.span.end)
   );
+}
+
+function consumeIdentifierOrMemberExpression(
+  parser: Parser
+): AST.Identifier | AST.MemberExpression {
+  return consumeMemberExpressionFromIdentifier(
+    parser,
+    consumeIdentifier(parser)
+  );
+}
+
+function consumeMemberExpressionFromIdentifier(
+  parser: Parser,
+  object: AST.Identifier | AST.MemberExpression
+): AST.Identifier | AST.MemberExpression {
+  const dot = parser.consumeTokenIf(TokenKind.Period);
+  if (dot === undefined) return object;
+  const property = consumeIdentifier(parser);
+
+  return new AST.MemberExpression(
+    object,
+    dot.span,
+    property,
+    new Span(object.span.start, property.span.end)
+  );
+}
+
+function parseNamedFields(
+  parser: Parser,
+  separators: readonly TokenKind[],
+  terminator: TokenKind
+): readonly [AST.NamedField[], Token] {
+  const fields: AST.NamedField[] = [];
+  do {
+    parser.skipWhitespace();
+    fields.push(parseNamedField(parser));
+    parser.skipWhitespace();
+  } while (separators.some((kind) => parser.consumeTokenIf(kind)));
+  const end = parser.consumeToken(terminator);
+  parser.skipWhitespace();
+  return [fields, end];
 }
 
 function parseFields(
@@ -345,15 +396,19 @@ function parseField(parser: Parser, fieldIndex: () => number): AST.Field {
 function parseNamedField(parser: Parser): AST.NamedField {
   const name = consumeIdentifier(parser);
   parser.skipWhitespace();
-  parser.consumeToken(TokenKind.Colon);
-  parser.skipWhitespace();
-  const type = parseType(parser);
-  parser.skipWhitespace();
-  return new AST.NamedField(
-    name,
-    type,
-    new Span(name.span.start, type.span.end)
-  );
+
+  if (parser.consumeTokenIf(TokenKind.Colon)) {
+    parser.skipWhitespace();
+
+    const type = parseType(parser);
+    parser.skipWhitespace();
+    return new AST.NamedField(
+      name,
+      type,
+      new Span(name.span.start, type.span.end)
+    );
+  }
+  return new AST.NamedField(name, undefined, name.span);
 }
 
 function parsePositionalField(
@@ -534,13 +589,13 @@ function parseTypeFromOpenBracket(parser: Parser): AST.TupleType {
 function parseTypeFromOpenBrace(parser: Parser): AST.RecordType {
   const start = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
-  const [fields, end] = parseFields(
+  const [fields, end] = parseNamedFields(
     parser,
     [TokenKind.Semicolon, TokenKind.Whitespace],
     TokenKind.CloseBrace
   );
   return new AST.RecordType(
-    fields as readonly AST.NamedField[],
+    fields,
     new Span(start.span.start, end.span.end)
   );
 }
@@ -657,7 +712,7 @@ function parseFunctionDeclaration(
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.OpenParen);
   parser.skipWhitespace();
-  const [fields] = parseFields(
+  const [fields] = parseNamedFields(
     parser,
     [TokenKind.Comma, TokenKind.Whitespace],
     TokenKind.CloseParen
@@ -675,7 +730,7 @@ function parseFunctionDeclaration(
   return new AST.FunctionDeclaration(
     name,
     typeParams,
-    fields as readonly AST.NamedField[],
+    fields,
     returnType,
     block,
     new Span(exportKeyword ? exportKeyword.span.start : start, block.span.end),
@@ -697,20 +752,21 @@ function parseBlock(parser: Parser): AST.Block {
   );
 }
 
-function parseStatement(parser: Parser) {
+function parseStatement(parser: Parser): AST.Statement {
   const current = parser.consumeTokenIf(
     TokenKind.FunctionKeyword,
     TokenKind.ConstKeyword,
     TokenKind.IfKeyword,
     TokenKind.Comment,
-    TokenKind.ReturnKeyword
+    TokenKind.ReturnKeyword,
+    TokenKind.OpenParen
   );
 
   if (current === undefined) {
     throw new Error(
       `Unexpected token in block: ${parser.token().kind} :: ${
         parser.token().text
-      }`
+      } at position ${parser.source.slice(parser.token().span.start.position)}`
     );
   }
 
@@ -734,7 +790,11 @@ function parseStatement(parser: Parser) {
     }
     default:
       throw new Error(
-        `Unexpected token in block: ${current.kind} :: ${current.text}`
+        `Unexpected token in block: ${current.kind} :: ${
+          current.text
+        } at position ${parser.source.slice(
+          parser.token().span.start.position - 1
+        )}`
       );
   }
 }
@@ -868,9 +928,15 @@ function parseExpression(parser: Parser): AST.Expression {
       return parseExpressionFromOpenBracket(parser);
     case TokenKind.OpenParen:
       return parseExpressionFromOpenParen(parser);
+    case TokenKind.LessThan:
+      return parseExpressionFromLessThan(parser);
     default:
       throw new Error(
-        `Unexpected token in expression: ${token.kind} :: ${token.text}`
+        `Unexpected token in expression: ${token.kind} :: ${
+          token.text
+        } at position ${parser.source.slice(
+          parser.token().span.start.position
+        )}`
       );
   }
 }
@@ -879,11 +945,26 @@ function parseExpressionFromIdentifier(parser: Parser): AST.Expression {
   // TODO: Supoort member expressions
   // TODO: Support function calls
 
-  const identifier = consumeIdentifier(parser);
-  parser.skipWhitespace();
-  const operator = parseOperator(parser);
+  const identifier = consumeIdentifierOrMemberExpression(parser);
   parser.skipWhitespace();
 
+  if (parser.consumeTokenIf(TokenKind.OpenParen)) {
+    const typeArguments = parseTypeArguments(parser);
+    const [params, close] = parseExpressions(
+      parser,
+      TokenKind.Comma,
+      TokenKind.CloseParen
+    );
+    return new AST.FunctionCall(
+      identifier,
+      typeArguments,
+      params,
+      new Span(identifier.span.start, close.span.end)
+    );
+  }
+
+  const operator = parseOperator(parser);
+  parser.skipWhitespace();
   if (operator === undefined) return identifier;
 
   const nextExpression = parseExpression(parser);
@@ -937,9 +1018,10 @@ function parseExpressionFromBooleanLiteral(parser: Parser): AST.BooleanLiteral {
 function parseExpressionFromOpenBrace(parser: Parser): AST.RecordLiteral {
   const start = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
+
   const [fields, end] = parseRecordFields(
     parser,
-    [TokenKind.Comma],
+    [TokenKind.Comma, TokenKind.Whitespace],
     TokenKind.CloseBrace
   );
   return new AST.RecordLiteral(
@@ -1005,13 +1087,54 @@ function parseExpressions(
   return [expressions, end];
 }
 
-function parseExpressionFromOpenParen(
-  parser: Parser
-): AST.ParenthesizedExpression {
-  // TODO: Support FunctionExpressions
-
+function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
   const openParen = parser.consumeToken(TokenKind.OpenParen);
   parser.skipWhitespace();
+
+  // Lambda expression
+  if (parser.token().kind === TokenKind.CloseParen) {
+    parser.consumeToken(TokenKind.CloseParen);
+    parser.skipWhitespace();
+    parseFatArrow(parser);
+    parser.skipWhitespace();
+    const returnType = parseReturnType(parser);
+    parser.skipWhitespace();
+    const block = parseBlockOrExpression(parser);
+
+    return new AST.FunctionExpression(
+      null,
+      [],
+      [],
+      returnType,
+      block,
+      new Span(openParen.span.start, block.span.end)
+    );
+  }
+
+  const [fields] = parseNamedFields(
+    parser,
+    [TokenKind.Comma, TokenKind.Whitespace],
+    TokenKind.CloseParen
+  );
+
+  if (fields.length > 0) {
+    parser.skipWhitespace();
+    parseFatArrow(parser);
+    parser.skipWhitespace();
+    const returnType = parseReturnType(parser);
+    parser.skipWhitespace();
+    const block = parseBlockOrExpression(parser);
+
+    return new AST.FunctionExpression(
+      null,
+      [],
+      fields,
+      returnType,
+      block,
+      new Span(openParen.span.start, block.span.end)
+    );
+  }
+
   const expression = parseExpression(parser);
   parser.skipWhitespace();
   const closeParen = parser.consumeToken(TokenKind.CloseParen);
@@ -1021,6 +1144,55 @@ function parseExpressionFromOpenParen(
     closeParen.span,
     new Span(openParen.span.start, closeParen.span.end)
   );
+}
+
+function parseExpressionFromLessThan(parser: Parser): AST.FunctionExpression {
+  const typeParameters = parseTypeParametersOrHigherKindedType(parser);
+  parser.skipWhitespace();
+  parser.consumeToken(TokenKind.OpenParen);
+  parser.skipWhitespace();
+  const [fields] = parseNamedFields(
+    parser,
+    [TokenKind.Comma, TokenKind.Whitespace],
+    TokenKind.CloseParen
+  );
+  parser.skipWhitespace();
+  const returnType = parseReturnType(parser);
+  parser.skipWhitespace();
+  parseFatArrow(parser);
+  parser.skipWhitespace();
+
+  const block = parseBlockOrExpression(parser);
+
+  return new AST.FunctionExpression(
+    null,
+    typeParameters,
+    fields,
+    returnType,
+    block,
+    new Span(typeParameters[0].span.start, block.span.end)
+  );
+}
+
+function parseFatArrow(parser: Parser) {
+  parser.consumeToken(TokenKind.EqualSign);
+  parser.consumeToken(TokenKind.GreaterThan);
+}
+
+function parseReturnType(parser: Parser): AST.Type | null {
+  if (parser.consumeTokenIf(TokenKind.Colon)) {
+    parser.skipWhitespace();
+    return parseType(parser);
+  }
+  return null;
+}
+
+function parseBlockOrExpression(parser: Parser): AST.Block | AST.Expression {
+  if (parser.token().kind === TokenKind.OpenBrace) {
+    return parseBlock(parser);
+  }
+
+  return parseExpression(parser);
 }
 
 function parseTypeClassDeclaration(
@@ -1036,7 +1208,7 @@ function parseTypeClassDeclaration(
   const openBrace = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
   try {
-    const [fields, closeBrace] = parseFields(
+    const [fields, closeBrace] = parseNamedFields(
       parser,
       [TokenKind.Semicolon, TokenKind.Whitespace],
       TokenKind.CloseBrace
@@ -1046,7 +1218,7 @@ function parseTypeClassDeclaration(
       name,
       typeParameters,
       openBrace.span,
-      fields as readonly AST.NamedField[],
+      fields,
       closeBrace.span,
       new Span(
         exportKeyword ? exportKeyword.span.start : start,
@@ -1069,4 +1241,66 @@ function parseTypeClassDeclaration(
       exportKeyword?.span
     );
   }
+}
+
+function parseInstanceDeclaration(
+  parser: Parser,
+  start: SpanLocation,
+  exportKeyword: Token | undefined
+): AST.InstanceDeclaration {
+  parser.skipWhitespace();
+  const name = consumeIdentifier(parser);
+  parser.skipWhitespace();
+  const typeParameters = parseTypeParametersOrHigherKindedType(parser);
+  parser.skipWhitespace();
+  const openBrace = parser.consumeToken(TokenKind.OpenBrace);
+  parser.skipWhitespace();
+  const [fields, closeBrace] = parseInstanceFields(
+    parser,
+    [TokenKind.Comma, TokenKind.Whitespace],
+    TokenKind.CloseBrace
+  );
+  parser.skipWhitespace();
+  return new AST.InstanceDeclaration(
+    name,
+    typeParameters,
+    openBrace.span,
+    fields,
+    closeBrace.span,
+    new Span(
+      exportKeyword ? exportKeyword.span.start : start,
+      closeBrace.span.end
+    ),
+    exportKeyword?.span
+  );
+}
+
+function parseInstanceFields(
+  parser: Parser,
+  separators: readonly TokenKind[],
+  terminator: TokenKind
+): readonly [AST.InstanceField[], Token] {
+  const fields: AST.InstanceField[] = [];
+  do {
+    parser.skipWhitespace();
+    fields.push(parseInstanceField(parser));
+    parser.skipWhitespace();
+  } while (separators.some((kind) => parser.consumeTokenIf(kind)));
+  const end = parser.consumeToken(terminator);
+  parser.skipWhitespace();
+  return [fields, end];
+}
+
+function parseInstanceField(parser: Parser): AST.InstanceField {
+  const identifer = consumeIdentifier(parser);
+  parser.skipWhitespace();
+  parser.consumeToken(TokenKind.Colon);
+  parser.skipWhitespace();
+  const expression = parseExpression(parser);
+
+  return new AST.InstanceField(
+    identifer,
+    expression,
+    new Span(identifer.span.start, expression.span.end)
+  );
 }

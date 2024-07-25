@@ -3,6 +3,11 @@ import { parse } from "../src/Parser.js";
 import * as AST from "../src/AST/index.js";
 import { Span, SpanLocation } from "../src/Span.js";
 
+const dummySpan = new Span(
+  new SpanLocation(0, 0, 0),
+  new SpanLocation(0, 0, 0)
+);
+
 describe("Parser", () => {
   it("parses data declarations", () => {
     const fileName = "test.typed";
@@ -763,4 +768,347 @@ export type D = Unknown
       ),
     ]);
   });
+
+  it("parses instance declarations", () => {
+    const fileName = "test.typed";
+    const source = `export typeclass Covariant<F<_>> {
+  map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+}
+
+export data Maybe<A> = Nothing | Just(value: A)
+
+export instance Covariant<Maybe> {
+  map: <A, B>(fa: Maybe<A>, f: (a: A) => B): Maybe<B> =>
+    Maybe.match(fa, { Nothing: () => Nothing, Just: (value) => Just(f(value)) })
+}
+`;
+
+    const sourceFile = parse(fileName, source);
+
+    assertAst(
+      sourceFile.declarations[0],
+      new AST.TypeClassDeclaration(
+        new AST.Identifier(`Covariant`, dummySpan),
+        [
+          new AST.HigherKindedType(
+            new AST.Identifier(`F`, dummySpan),
+            [
+              new AST.TypeParameter(
+                new AST.Identifier(`_`, dummySpan),
+                undefined,
+                dummySpan
+              ),
+            ],
+            undefined,
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        [
+          new AST.NamedField(
+            new AST.Identifier(`map`, dummySpan),
+            new AST.FunctionType(
+              [
+                new AST.TypeParameter(
+                  new AST.Identifier(`A`, dummySpan),
+                  undefined,
+                  dummySpan
+                ),
+                new AST.TypeParameter(
+                  new AST.Identifier(`B`, dummySpan),
+                  undefined,
+                  dummySpan
+                ),
+              ],
+              [
+                new AST.NamedField(
+                  new AST.Identifier(`fa`, dummySpan),
+                  new AST.TypeReference(
+                    new AST.Identifier(`F`, dummySpan),
+                    [
+                      new AST.TypeReference(
+                        new AST.Identifier(`A`, dummySpan),
+                        [],
+                        dummySpan
+                      ),
+                    ],
+                    dummySpan
+                  ),
+                  dummySpan
+                ),
+                new AST.NamedField(
+                  new AST.Identifier(`f`, dummySpan),
+                  new AST.FunctionType(
+                    [],
+                    [
+                      new AST.NamedField(
+                        new AST.Identifier(`a`, dummySpan),
+                        new AST.TypeReference(
+                          new AST.Identifier(`A`, dummySpan),
+                          [],
+                          dummySpan
+                        ),
+                        dummySpan
+                      ),
+                    ],
+                    new AST.TypeReference(
+                      new AST.Identifier(`B`, dummySpan),
+                      [],
+                      dummySpan
+                    ),
+                    dummySpan
+                  ),
+                  dummySpan
+                ),
+              ],
+              new AST.TypeReference(
+                new AST.Identifier(`F`, dummySpan),
+                [
+                  new AST.TypeReference(
+                    new AST.Identifier(
+                      `B`,
+                      new Span(
+                        new SpanLocation(73, 2, 45),
+                        new SpanLocation(74, 2, 46)
+                      )
+                    ),
+                    [],
+                    new Span(
+                      new SpanLocation(73, 2, 45),
+                      new SpanLocation(74, 2, 46)
+                    )
+                  ),
+                ],
+                dummySpan
+              ),
+              dummySpan
+            ),
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        dummySpan,
+        dummySpan
+      )
+    );
+
+    assertAst(
+      sourceFile.declarations[1],
+      new AST.DataDeclaration(
+        new AST.Identifier("Maybe", dummySpan),
+        [
+          new AST.TypeParameter(
+            new AST.Identifier("A", dummySpan),
+            undefined,
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        [
+          new AST.VoidConstructor(
+            new AST.Identifier("Nothing", dummySpan),
+            dummySpan
+          ),
+          new AST.TupleConstructor(
+            new AST.Identifier("Just", dummySpan),
+            [
+              new AST.NamedField(
+                new AST.Identifier("value", dummySpan),
+                new AST.TypeReference(
+                  new AST.Identifier("A", dummySpan),
+                  [],
+                  dummySpan
+                ),
+                dummySpan
+              ),
+            ],
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        dummySpan
+      )
+    );
+
+    assertAst(
+      sourceFile.declarations[2],
+      new AST.InstanceDeclaration(
+        new AST.Identifier("Covariant", dummySpan),
+        [
+          new AST.TypeParameter(
+            new AST.Identifier("Maybe", dummySpan),
+            undefined,
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        [
+          new AST.InstanceField(
+            new AST.Identifier("map", dummySpan),
+            new AST.FunctionExpression(
+              null,
+              [
+                new AST.TypeParameter(
+                  new AST.Identifier("A", dummySpan),
+                  undefined,
+                  dummySpan
+                ),
+                new AST.TypeParameter(
+                  new AST.Identifier("B", dummySpan),
+                  undefined,
+                  dummySpan
+                ),
+              ],
+              [
+                new AST.NamedField(
+                  new AST.Identifier("fa", dummySpan),
+                  new AST.TypeReference(
+                    new AST.Identifier("Maybe", dummySpan),
+                    [
+                      new AST.TypeReference(
+                        new AST.Identifier("A", dummySpan),
+                        [],
+                        dummySpan
+                      ),
+                    ],
+                    dummySpan
+                  ),
+                  dummySpan
+                ),
+                new AST.NamedField(
+                  new AST.Identifier("f", dummySpan),
+                  new AST.FunctionType(
+                    [],
+                    [
+                      new AST.NamedField(
+                        new AST.Identifier("a", dummySpan),
+                        new AST.TypeReference(
+                          new AST.Identifier("A", dummySpan),
+                          [],
+                          dummySpan
+                        ),
+                        dummySpan
+                      ),
+                    ],
+                    new AST.TypeReference(
+                      new AST.Identifier("B", dummySpan),
+                      [],
+                      dummySpan
+                    ),
+                    dummySpan
+                  ),
+                  dummySpan
+                ),
+              ],
+              new AST.TypeReference(
+                new AST.Identifier("Maybe", dummySpan),
+                [
+                  new AST.TypeReference(
+                    new AST.Identifier("B", dummySpan),
+                    [],
+                    dummySpan
+                  ),
+                ],
+                dummySpan
+              ),
+              new AST.FunctionCall(
+                new AST.MemberExpression(
+                  new AST.Identifier("Maybe", dummySpan),
+                  dummySpan,
+                  new AST.Identifier("match", dummySpan),
+                  dummySpan
+                ),
+                [],
+                [
+                  new AST.Identifier("fa", dummySpan),
+                  new AST.RecordLiteral(
+                    [
+                      new AST.RecordField(
+                        new AST.Identifier("Nothing", dummySpan),
+                        new AST.FunctionExpression(
+                          null,
+                          [],
+                          [],
+                          null,
+                          new AST.Identifier("Nothing", dummySpan),
+                          dummySpan
+                        ),
+                        dummySpan
+                      ),
+                      new AST.RecordField(
+                        new AST.Identifier("Just", dummySpan),
+                        new AST.FunctionExpression(
+                          null,
+                          [],
+                          [
+                            new AST.NamedField(
+                              new AST.Identifier("value", dummySpan),
+                              undefined,
+                              dummySpan
+                            ),
+                          ],
+                          null,
+                          new AST.FunctionCall(
+                            new AST.Identifier("Just", dummySpan),
+                            [],
+                            [
+                              new AST.FunctionCall(
+                                new AST.Identifier("f", dummySpan),
+                                [],
+                                [new AST.Identifier("value", dummySpan)],
+                                dummySpan
+                              ),
+                            ],
+                            dummySpan
+                          ),
+                          dummySpan
+                        ),
+                        dummySpan
+                      ),
+                    ],
+                    dummySpan
+                  ),
+                ],
+                dummySpan
+              ),
+              dummySpan
+            ),
+            dummySpan
+          ),
+        ],
+        dummySpan,
+        dummySpan,
+        dummySpan
+      )
+    );
+  });
 });
+
+function assertAst(a: unknown, b: unknown) {
+  expect(recursivelyRemoveSpan(a)).toEqual(recursivelyRemoveSpan(b));
+}
+
+function recursivelyRemoveSpan(a: unknown): unknown {
+  if (isSpan(a)) return null;
+
+  if (typeof a !== "object") return a;
+  if (a === null) return a;
+
+  if (Array.isArray(a)) {
+    return a.map(recursivelyRemoveSpan);
+  }
+
+  const result: Record<string, unknown> = {};
+
+  for (const key in a) {
+    result[key] = recursivelyRemoveSpan(a[key]);
+  }
+
+  return result;
+}
+
+function isSpan(a: unknown): a is Span {
+  return (
+    typeof a === "object" && a !== null && "_tag" in a && a["_tag"] === "Span"
+  );
+}
