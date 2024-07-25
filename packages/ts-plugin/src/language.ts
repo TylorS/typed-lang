@@ -31,7 +31,7 @@ export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
       extraFileExtensions: [
         {
           extension: typedLanguageId,
-          isMixedContent: false,
+          isMixedContent: true,
           scriptKind: ts.ScriptKind.Deferred,
         },
       ],

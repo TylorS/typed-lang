@@ -13,12 +13,12 @@
   "devDependencies": {
     "@effect/language-service": "^0.1.0",
     "@eslint/js": "^9.7.0",
-    "eslint": "9.x",
+    "eslint": "~9.7.0",
     "globals": "^15.8.0",
     "tsx": "^4.16.2",
-    "typescript": "^5.5.3",
-    "typescript-eslint": "^7.16.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^7.17.0",
     "vite-plugin-tsconfig-paths": "^1.4.1",
-    "vitest": "^2.0.3"
+    "vitest": "^2.0.4"
   }
 }

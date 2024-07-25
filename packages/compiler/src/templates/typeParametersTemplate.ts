@@ -8,7 +8,7 @@ export function typeParametersTemplate(
   if (typeParameters.length === 0) {
     return "";
   }
-  return t`<${typeParameters.map(typeParameterTemplate)}>`;
+  return t`<${t.intercolate(', ')(typeParameters.map(typeParameterTemplate))}>`;
 }
 
 function typeParameterTemplate(typeParameter: TypeParameter): Interpolation {
