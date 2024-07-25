@@ -199,7 +199,7 @@ class ModuleCompiler {
         completion: !!name,
         semantic: true,
         navigation: true,
-        structure: true,
+        structure: !!name,
         format: false,
       },
     });
