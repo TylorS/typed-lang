@@ -293,6 +293,12 @@ export function tokenize(text: string): Array<Token> {
           );
           tokenizer.takeWhitespace();
           continue;
+        } else if (char === "a" && tokenizer.slice(2) === "as") {
+          tokenizer.addToken(
+            new Token(TokenKind.AsKeyword, "as", new Span(loc, loc.offset(2)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
         }
 
         const nextEightChars = tokenizer.slice(8);
@@ -359,6 +365,16 @@ export function tokenize(text: string): Array<Token> {
           tokenizer.addToken(
             new Token(
               TokenKind.BooleanLiteral,
+              nextFourChars,
+              new Span(loc, loc.offset(4))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (nextFourChars === "from") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.FromKeyword,
               nextFourChars,
               new Span(loc, loc.offset(4))
             )
@@ -432,6 +448,16 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
+        } else if (nextSixChars === "import") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ImportKeyword,
+              nextSixChars,
+              new Span(loc, loc.offset(6))
+            )
+          );
+          tokenizer.takeWhitespace();
+          continue;
         }
 
         if (ALPHA_REGEX.test(char)) {

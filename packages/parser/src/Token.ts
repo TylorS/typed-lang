@@ -54,6 +54,9 @@ export enum TokenKind {
   IfKeyword = "IfKeyword",
   ElseKeyword = "ElseKeyword",
   ReturnKeyword = "ReturnKeyword",
+  ImportKeyword = "ImportKeyword",
+  FromKeyword = "FromKeyword",
+  AsKeyword = "AsKeyword",
 
   Identifier = "Identifier",
   StringLiteral = "StringLiteral",

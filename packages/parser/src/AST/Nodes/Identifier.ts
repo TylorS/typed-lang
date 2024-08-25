@@ -6,5 +6,9 @@ export class Identifier {
   constructor(
     readonly text: string,
     readonly span: Span
-  ) {}
+  ) { }
+  
+  toString() {
+    return this.text;
+  }
 }

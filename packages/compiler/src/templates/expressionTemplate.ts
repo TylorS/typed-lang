@@ -29,6 +29,7 @@ import { typeParametersTemplate } from "./typeParametersTemplate.js";
 import { variableDeclarationTemplate } from "./variableDeclarationTemplate.js";
 import { functionDeclarationTemplate } from "./functionDeclarationTemplate.js";
 import { identifierOrDestructureTemplate } from "./identifierOrDestructureTemplate.js";
+import { unwrapHkt } from "./unwrapHKT.js";
 
 export function statementTemplate(statement: Statement): Interpolation {
   switch (statement._tag) {
@@ -117,16 +118,25 @@ function functionCallTemplate(expression: FunctionCall): Interpolation {
   );
 }
 
+// TODO: WE NEED MUCH BETTER SUPPORT FOR HKT's
 function functionExpressionTemplate(
   expression: FunctionExpression
 ): Interpolation {
   return t.span(expression.span)(
-    typeParametersTemplate(expression.typeParameters),
+    typeParametersTemplate(expression.typeParameters.flatMap(unwrapHkt)),
     t`( ${t.intercolate(`, `)(
       expression.parameters.map(
-        (f) => t`${t.identifier(f.name)}: ${typeTemplate(f.value)}`
+        (f) =>
+          // TODO: Need to support replacing of HKTs
+          t`${t.identifier(f.name)}: ${
+            f.value === undefined ? t.identifier(f.name) : typeTemplate(f.value)
+          }`
       )
-    )} ) => ${blockTemplate(expression.block)}`
+    )} ) => ${
+      expression.block._tag === "Block"
+        ? blockTemplate(expression.block)
+        : expressionTemplate(expression.block)
+    }`
   );
 }
 

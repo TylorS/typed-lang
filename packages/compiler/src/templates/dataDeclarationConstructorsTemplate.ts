@@ -2,6 +2,7 @@ import {
   DataConstructor,
   DataDeclaration,
   Field,
+  Identifier,
   Span,
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
@@ -41,7 +42,10 @@ function constructorTemplate(
         t`(`,
         t.intercolate(`, `)(
           constructor.fields.map(
-            (f) => t`${getFieldName(f)}: ${typeTemplate(f.value)}`
+            (f) =>
+              t`${getFieldName(f)}: ${
+                f.value === undefined ? getFieldName(f) : typeTemplate(f.value)
+              }`
           )
         ),
         t`): `,
@@ -69,7 +73,12 @@ function constructorTemplate(
         t`(`,
         t.intercolate(`, `)(
           constructor.fields.map(
-            (f) => t`${getFieldName(f)}: ${typeTemplate(f.value)}`
+            (f) =>
+              t`${getFieldName(f)}: ${
+                f.value === undefined
+                  ? t.identifier(f.name)
+                  : typeTemplate(f.value)
+              }`
           )
         ),
         `): `,
@@ -96,6 +105,8 @@ function getFieldName(field: Field): Interpolation {
   if (field._tag === "NamedField") {
     return t.identifier(field.name);
   } else {
-    return t`arg${String(field.index)}`;
+    return t.identifier(
+      new Identifier(`arg${String(field.index)}`, field.span)
+    );
   }
 }

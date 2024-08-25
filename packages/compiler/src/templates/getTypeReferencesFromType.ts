@@ -1,4 +1,25 @@
-import { Type, TypeReference } from "@typed-lang/parser";
+import {
+  Field,
+  Identifier,
+  Type,
+  TypeReference,
+} from "@typed-lang/parser";
+
+const fieldToTypeReference = (field: Field) => {
+  if (field._tag === "NamedField") {
+    return field.value === undefined
+      ? new TypeReference(field.name, [], field.span)
+      : getTypeReferencesFromType(field.value);
+  } else {
+    return [
+      new TypeReference(
+        new Identifier(`arg${field.index}`, field.span),
+        [],
+        field.span
+      ),
+    ];
+  }
+};
 
 export function getTypeReferencesFromType(type: Type): TypeReference[] {
   switch (type._tag) {
@@ -7,7 +28,7 @@ export function getTypeReferencesFromType(type: Type): TypeReference[] {
     case "TupleType":
       return type.members.flatMap((f) => getTypeReferencesFromType(f));
     case "RecordType":
-      return type.fields.flatMap((f) => getTypeReferencesFromType(f.value));
+      return type.fields.flatMap(fieldToTypeReference);
     case "ArrayType":
       return getTypeReferencesFromType(type.element);
     case "SetType":
@@ -19,7 +40,7 @@ export function getTypeReferencesFromType(type: Type): TypeReference[] {
       ];
     case "FunctionType":
       return [
-        ...type.parameters.flatMap((p) => getTypeReferencesFromType(p.value)),
+        ...type.parameters.flatMap(fieldToTypeReference),
         ...getTypeReferencesFromType(type.returnType),
       ];
     // TODO:

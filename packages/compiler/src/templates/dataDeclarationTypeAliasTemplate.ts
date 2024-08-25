@@ -60,19 +60,24 @@ function constructorInterfaceDeclarationTemplate(
         typeParams: getTypeParametersFromFields(constructor.fields),
         fields: [
           [`_tag`, t`"${t.identifier(constructor.name)}"`],
-          ...constructor.fields.map(
-            (f) => [getFieldName(f), typeTemplate(f.value)] as const
-          ),
+          ...constructor.fields.map((f) => {
+            const name = getFieldName(f).toString();
+            
+            return [
+              name,
+              f.value === undefined ? name : typeTemplate(f.value),
+            ] as const;
+          }),
         ],
       });
   }
 }
 
-function getFieldName(field: Field): string | Identifier {
+function getFieldName(field: Field): Identifier {
   switch (field._tag) {
     case "NamedField":
       return field.name;
     case "PositionalField":
-      return "arg" + field.index;
+      return new Identifier(`arg${field.index}`, field.span);
   }
 }

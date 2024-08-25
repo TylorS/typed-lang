@@ -1,8 +1,12 @@
 import { TypeClassDeclaration } from "@typed-lang/parser";
-import { Interpolation } from "../Template.js";
+import { Interpolation, t } from "../Template.js";
+import { typeParametersTemplate } from "./typeParametersTemplate.js";
+import { unwrapHkt } from "./unwrapHKT.js";
 
 export function typeClassDeclarationTemplate(
   decl: TypeClassDeclaration
 ): Interpolation {
-  throw new Error("Not implemented");
+  return t`${decl.exported ? t.span(decl.exported)(`export`) : ""}interface ${t.identifier(
+    decl.name
+  )}${typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt))} {}`;
 }

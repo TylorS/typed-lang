@@ -1,4 +1,13 @@
-import { Type, TypeReference } from "@typed-lang/parser";
+import {
+  BrandedType,
+  FunctionType,
+  HigherKindedType,
+  RecordType,
+  RestType,
+  TupleType,
+  Type,
+  TypeReference,
+} from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { identiferOrPropertyAccess } from "./identifierOrPropertyAccessTemplate.js";
 
@@ -19,9 +28,9 @@ export function typeTemplate(type: Type): Interpolation {
     case "FunctionKeywordType":
       return t.span(type.span)(t`Function`);
     case "MapType":
-      return t.span(type.span)(t`ReadonlyMap<${typeTemplate(type.key)}, ${typeTemplate(
-        type.value
-      )}>`);
+      return t.span(type.span)(
+        t`ReadonlyMap<${typeTemplate(type.key)}, ${typeTemplate(type.value)}>`
+      );
     case "NeverType":
       return t.span(type.span)(t`never`);
     case "NullType":
@@ -49,20 +58,52 @@ export function typeTemplate(type: Type): Interpolation {
     case "VoidType":
       return t.span(type.span)(t`void`);
     case "BrandedType":
+      return brandedTypeTemplate(type);
     case "FunctionType":
+      return functionTypeTemplate(type);
     case "HigherKindedType":
+      return higherKindedTypeTemplate(type);
     case "RecordType":
+      return recordTypeTemplate(type);
     case "RestType":
+      return restTypeTemplate(type);
     case "TupleType":
+      return tupleTypeTemplate(type);
     default:
-      throw new Error(`Unhandled type: ${type}`);
+      throw new Error(`Unhandled type: ${JSON.stringify(type, null, 2)}`);
   }
 }
 
 function typeReferenceTemplate(type: TypeReference): Interpolation {
-  return t.span(type.span)(t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
-    type.typeArguments
-  )}`);
+  return t.span(type.span)(
+    t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
+      type.typeArguments
+    )}`
+  );
+}
+
+function brandedTypeTemplate(type: BrandedType): Interpolation {
+  return t.span(type.span)(t``);
+}
+
+function functionTypeTemplate(type: FunctionType): Interpolation {
+  return t.span(type.span)(t``);
+}
+
+function higherKindedTypeTemplate(type: HigherKindedType): Interpolation {
+  return t.span(type.span)(t``);
+}
+
+function recordTypeTemplate(type: RecordType): Interpolation {
+  return t.span(type.span)(t``);
+}
+
+function restTypeTemplate(type: RestType): Interpolation {
+  return t.span(type.span)(t``);
+}
+
+function tupleTypeTemplate(type: TupleType): Interpolation {
+  return t.span(type.span)(t``);
 }
 
 export function typeArgumentsTemplate(

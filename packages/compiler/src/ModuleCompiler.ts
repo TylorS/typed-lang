@@ -140,7 +140,7 @@ class ModuleCompiler {
     const end = this.location.clone();
     this.addMapping(
       sourceLocation.span,
-      { start, end },
+      new Span(start, end),
       sourceLocation.name,
       sourceLocation.content
     );

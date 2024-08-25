@@ -121,6 +121,9 @@ importers:
       '@volar/language-core':
         specifier: ~2.3.4
         version: 2.3.4
+      hkt-ts:
+        specifier: ^2.1.5
+        version: 2.1.5(tslib@2.6.3)
       merge-source-map:
         specifier: ^1.1.0
         version: 1.1.0

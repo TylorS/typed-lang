@@ -85,6 +85,7 @@ function parseDeclaration(parser: Parser): AST.Declaration {
     TokenKind.FunctionKeyword,
     TokenKind.TypeClassKeyword,
     TokenKind.InstanceKeyword,
+    TokenKind.ImportKeyword,
     TokenKind.Comment
   );
 
@@ -128,6 +129,8 @@ function parseDeclaration(parser: Parser): AST.Declaration {
         current.span.start,
         exportKeyword
       );
+    case TokenKind.ImportKeyword:
+      return parseImportDeclaration(parser, current.span.start);
     case TokenKind.Comment: {
       if (exportKeyword) {
         throw new Error(`Unexpected export keyword before comment`);
@@ -594,10 +597,7 @@ function parseTypeFromOpenBrace(parser: Parser): AST.RecordType {
     [TokenKind.Semicolon, TokenKind.Whitespace],
     TokenKind.CloseBrace
   );
-  return new AST.RecordType(
-    fields,
-    new Span(start.span.start, end.span.end)
-  );
+  return new AST.RecordType(fields, new Span(start.span.start, end.span.end));
 }
 
 function parseFunctionTypeFromOpenParam(
@@ -1303,4 +1303,101 @@ function parseInstanceField(parser: Parser): AST.InstanceField {
     expression,
     new Span(identifer.span.start, expression.span.end)
   );
+}
+
+function parseImportDeclaration(
+  parser: Parser,
+  start: SpanLocation
+): AST.ImportDeclaration {
+  parser.skipWhitespace();
+  const isNamespace = parser.consumeTokenIf(TokenKind.Asterisk);
+  parser.skipWhitespace();
+
+  if (isNamespace) {
+    const name = consumeIdentifier(parser);
+    parser.skipWhitespace();
+    parser.consumeToken(TokenKind.FromKeyword);
+    parser.skipWhitespace();
+    const moduleName = parser.consumeTokenIf(TokenKind.StringLiteral);
+    if (moduleName === undefined) {
+      throw new Error(
+        `Expected module name in import declaration at position ${parser.source.slice(
+          parser.token().span.start.position
+        )}`
+      );
+    }
+    parser.skipWhitespace();
+    parser.consumeTokenIf(TokenKind.Semicolon);
+    parser.skipWhitespace();
+
+    return new AST.ImportDeclaration(
+      new AST.NamespaceImport(name, name.span),
+      new AST.StringLiteral(moduleName.text, moduleName.span),
+      new Span(start, moduleName.span.end)
+    );
+  } else {
+    parser.consumeToken(TokenKind.OpenBrace);
+    parser.skipWhitespace();
+    const [fields] = parseNamedImports(
+      parser,
+      [TokenKind.Comma],
+      TokenKind.CloseBrace
+    );
+    parser.skipWhitespace();
+
+    parser.consumeToken(TokenKind.FromKeyword);
+    parser.skipWhitespace();
+    const moduleName = parser.consumeTokenIf(TokenKind.StringLiteral);
+    if (moduleName === undefined) {
+      throw new Error(
+        `Expected module name in import declaration at position ${parser.source.slice(
+          parser.token().span.start.position
+        )}`
+      );
+    }
+    parser.skipWhitespace();
+    parser.consumeTokenIf(TokenKind.Semicolon);
+    parser.skipWhitespace();
+
+    return new AST.ImportDeclaration(
+      new AST.NamedImports(
+        fields,
+        new Span(fields[0].span.start, fields[fields.length - 1].span.end)
+      ),
+      new AST.StringLiteral(moduleName.text, moduleName.span),
+      new Span(start, moduleName.span.end)
+    );
+  }
+}
+
+function parseNamedImports(
+  parser: Parser,
+  separators: readonly TokenKind[],
+  terminator: TokenKind
+): readonly [AST.ImportSpecifier[], Token] {
+  const fields: AST.ImportSpecifier[] = [];
+  do {
+    parser.skipWhitespace();
+    fields.push(parseImportSpecifier(parser));
+    parser.skipWhitespace();
+  } while (separators.some((kind) => parser.consumeTokenIf(kind)));
+  const end = parser.consumeToken(terminator);
+  parser.skipWhitespace();
+  return [fields, end];
+}
+
+function parseImportSpecifier(parser: Parser): AST.ImportSpecifier {
+  const identifier = consumeIdentifier(parser);
+  parser.skipWhitespace();
+  if (parser.consumeTokenIf(TokenKind.AsKeyword)) {
+    parser.skipWhitespace();
+    const alias = consumeIdentifier(parser);
+    return new AST.ImportSpecifier(
+      identifier,
+      alias,
+      new Span(identifier.span.start, alias.span.end)
+    );
+  }
+
+  return new AST.ImportSpecifier(identifier, null, identifier.span);
 }
