@@ -17,6 +17,7 @@ export enum OperatorKind {
   GreaterThan = "GreaterThan",
   GreaterThanOrEqual = "GreaterThanOrEqual",
   And = "And",
+  LogicalAnd = "LogicalAnd",
   Or = "Or",
   Not = "Not",
   BitwiseAnd = "BitwiseAnd",

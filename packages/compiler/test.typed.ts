@@ -13,7 +13,7 @@ export interface Just<A> {
 
 export const Nothing: Nothing = { _tag: "Nothing" }
 
-export const Just = <A>(value: A): Just<A> => ({
+export const Just = <const A>(value: A): Just<A> => ({
   _tag: "Just",
   value
 })

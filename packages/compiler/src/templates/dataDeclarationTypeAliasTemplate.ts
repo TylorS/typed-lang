@@ -3,6 +3,7 @@ import {
   DataDeclaration,
   Field,
   Identifier,
+  TypeParameter,
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { typeTemplate } from "./typeTemplate.js";
@@ -23,7 +24,9 @@ export function dataDeclarationTypeAliasTemplate(
     }),
     t.newLine(2),
     t.intercolate(t.newLine(2))(
-      decl.constructors.map(constructorInterfaceDeclarationTemplate)
+      decl.constructors.map((c) =>
+        constructorInterfaceDeclarationTemplate(c, decl)
+      )
     ),
     t.newLine(),
   ];
@@ -37,13 +40,21 @@ function constructorTemplate(constructor: DataConstructor): Interpolation {
     case "RecordConstructor":
       return t.span(constructor.span)(
         t.identifier(constructor.name),
-        typeParametersTemplate(getTypeParametersFromFields(constructor.fields))
+        typeParametersTemplate(
+          getTypeParametersFromFields(constructor.fields),
+          {
+            parameterVariance: false,
+            functionDefaultValue: false,
+            constants: false,
+          }
+        )
       );
   }
 }
 
 function constructorInterfaceDeclarationTemplate(
-  constructor: DataConstructor
+  constructor: DataConstructor,
+  decl: DataDeclaration
 ): Interpolation {
   switch (constructor._tag) {
     case "VoidConstructor":
@@ -57,12 +68,23 @@ function constructorInterfaceDeclarationTemplate(
       return interfaceTemplate({
         name: constructor.name,
         span: constructor.span,
-        typeParams: getTypeParametersFromFields(constructor.fields),
+        typeParams: getTypeParametersFromFields(constructor.fields).map(
+          (typeParam) =>
+            new TypeParameter(
+              typeParam.name,
+              typeParam.constraint,
+              typeParam.span,
+              typeParam.variance ??
+                decl.typeParameters.find(
+                  (tp) => tp.name.text === typeParam.name.text
+                )?.variance
+            )
+        ),
         fields: [
           [`_tag`, t`"${t.identifier(constructor.name)}"`],
           ...constructor.fields.map((f) => {
             const name = getFieldName(f).toString();
-            
+
             return [
               name,
               f.value === undefined ? name : typeTemplate(f.value),

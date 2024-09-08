@@ -14,9 +14,9 @@ export enum Params {
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace Variance {
-  export type Covariant<A> = (_: never, __covariant: never) => A;
-  export type Contravariant<A> = (_: A, __contravariant: never) => never;
-  export type Invariant<A> = (_: A, __invariant: A) => A;
+  export type Covariant<A> = (__covariant: never) => A;
+  export type Contravariant<A> = ( __contravariant: A) => never;
+  export type Invariant<A> = (__invariant: A) => A;
 }
 
 export type Variance<A> =

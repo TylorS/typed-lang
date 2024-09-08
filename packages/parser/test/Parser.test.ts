@@ -85,6 +85,278 @@ describe("Parser", () => {
     ]);
   });
 
+  it("parses data declarations with variance annotations", () => {
+    const fileName = "test.typed";
+    const source = `export data Maybe<out A> = Nothing | Just(value: A)`;
+    const sourceFile = parse(fileName, source);
+
+    expect(sourceFile.declarations).toMatchInlineSnapshot(`
+      [
+        DataDeclaration {
+          "_tag": "DataDeclaration",
+          "constructors": [
+            VoidConstructor {
+              "_tag": "VoidConstructor",
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 34,
+                    "line": 1,
+                    "position": 34,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 27,
+                    "line": 1,
+                    "position": 27,
+                  },
+                },
+                "text": "Nothing",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 34,
+                  "line": 1,
+                  "position": 34,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 27,
+                  "line": 1,
+                  "position": 27,
+                },
+              },
+            },
+            TupleConstructor {
+              "_tag": "TupleConstructor",
+              "fields": [
+                NamedField {
+                  "_tag": "NamedField",
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 47,
+                        "line": 1,
+                        "position": 47,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 42,
+                        "line": 1,
+                        "position": 42,
+                      },
+                    },
+                    "text": "value",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 50,
+                      "line": 1,
+                      "position": 50,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 42,
+                      "line": 1,
+                      "position": 42,
+                    },
+                  },
+                  "value": TypeReference {
+                    "_tag": "TypeReference",
+                    "name": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 50,
+                          "line": 1,
+                          "position": 50,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 49,
+                          "line": 1,
+                          "position": 49,
+                        },
+                      },
+                      "text": "A",
+                    },
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 50,
+                        "line": 1,
+                        "position": 50,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 49,
+                        "line": 1,
+                        "position": 49,
+                      },
+                    },
+                    "typeArguments": [],
+                  },
+                },
+              ],
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 41,
+                    "line": 1,
+                    "position": 41,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 37,
+                    "line": 1,
+                    "position": 37,
+                  },
+                },
+                "text": "Just",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 51,
+                  "line": 1,
+                  "position": 51,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 37,
+                  "line": 1,
+                  "position": 37,
+                },
+              },
+            },
+          ],
+          "equals": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 1,
+              "position": 26,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 1,
+              "position": 25,
+            },
+          },
+          "exported": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 1,
+              "position": 6,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 1,
+              "position": 0,
+            },
+          },
+          "name": Identifier {
+            "_tag": "Identifier",
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 17,
+                "line": 1,
+                "position": 17,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 12,
+                "line": 1,
+                "position": 12,
+              },
+            },
+            "text": "Maybe",
+          },
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 51,
+              "line": 1,
+              "position": 51,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 1,
+              "position": 0,
+            },
+          },
+          "typeParameters": [
+            TypeParameter {
+              "_tag": "TypeParameter",
+              "constraint": undefined,
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 23,
+                    "line": 1,
+                    "position": 23,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 22,
+                    "line": 1,
+                    "position": 22,
+                  },
+                },
+                "text": "A",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 23,
+                  "line": 1,
+                  "position": 23,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 22,
+                  "line": 1,
+                  "position": 22,
+                },
+              },
+              "variance": "out",
+            },
+          ],
+        },
+      ]
+    `);
+  });
+
   it("parses single-line comments", () => {
     const fileName = "test.typed";
     const source = `// This is a comment`;

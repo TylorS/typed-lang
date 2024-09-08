@@ -7,7 +7,7 @@ import {
   toEncodedMap,
 } from "@jridgewell/gen-mapping";
 import {
-  Ident,
+  Indent,
   LineSegment,
   MapData,
   Module,
@@ -86,7 +86,7 @@ class ModuleCompiler {
     switch (node._tag) {
       case "NewLine":
         return this.addNewLine();
-      case "Ident":
+      case "Indent":
         return this.compileIdent(node);
       case "Module":
         return this.compileModule(node);
@@ -130,7 +130,7 @@ class ModuleCompiler {
     }
   }
 
-  private compileIdent(ident: Ident) {
+  private compileIdent(ident: Indent) {
     this.ident = ident.ident;
   }
 

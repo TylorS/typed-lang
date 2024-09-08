@@ -1,6 +1,6 @@
 const TWO_SPACES = "  ";
 
-export class IdentationManager {
+export class IndentationManager {
   private level = 0;
 
   padding = () => TWO_SPACES.repeat(this.level);

@@ -1,5 +1,5 @@
 import { SourceFile, Span } from "@typed-lang/parser";
-import { IdentationManager } from "./IdentationManager.js";
+import { IndentationManager } from "./IndentationManager.js";
 import { ImportManager } from "./ImportManager.js";
 import { Interpolation, Template } from "./Template.js";
 
@@ -28,7 +28,7 @@ export interface MappedDocumentGenerator {
     skipExport?: boolean
   ): Module;
 
-  withIdent(f: () => void): void;
+  withIndent(f: () => void): void;
 
   withSpan(data: MapData, f: (ctx: MappedDocumentGenerator) => void): void;
 }
@@ -38,7 +38,7 @@ export class MappedDocumentCtx {
     readonly sourceFile: SourceFile,
     readonly extension: ".ts" | ".d.ts",
     readonly modules: "single" | "multiple",
-    readonly identation: IdentationManager,
+    readonly indentation: IndentationManager,
     readonly imports: ImportManager
   ) {}
 }
@@ -117,10 +117,10 @@ class LineAndModuleGenerator
     f(spanned);
   }
 
-  withIdent(f: () => void): void {
-    this.linesAndModules.push(new Ident(this.ctx.identation.increase()));
+  withIndent(f: () => void): void {
+    this.linesAndModules.push(new Indent(this.ctx.indentation.increase()));
     f();
-    this.linesAndModules.push(new Ident(this.ctx.identation.decrease()));
+    this.linesAndModules.push(new Indent(this.ctx.indentation.decrease()));
   }
 
   private addTextToCurrentLine(text: string, options?: MapData): void {
@@ -158,19 +158,23 @@ export class Module
     const imports = this.ctx.imports.toCode();
 
     if (imports) {
-      this.linesAndModules.unshift(new TextSnippet(imports), new NewLine());
+      this.linesAndModules.unshift(
+        new TextSnippet(imports),
+        new NewLine(),
+        new NewLine()
+      );
     }
   }
 }
 
-export type LineSegment = TextSnippet | Spanned | NewLine | Ident;
+export type LineSegment = TextSnippet | Spanned | NewLine | Indent;
 
 export class NewLine {
   readonly _tag = "NewLine";
 }
 
-export class Ident {
-  readonly _tag = "Ident";
+export class Indent {
+  readonly _tag = "Indent";
   constructor(readonly ident: number) {}
 }
 
@@ -196,7 +200,7 @@ export function generateModule(
     sourceFile,
     extension,
     module,
-    new IdentationManager(),
+    new IndentationManager(),
     new ImportManager()
   );
   return new Module(
@@ -252,8 +256,8 @@ function runInterpolation(
           { span: i.span, name: i.name, content: i.content },
           (ctx) => runInterpolation(ctx, i.value)
         );
-      case "WithIdent":
-        return gen.withIdent(() => runInterpolation(gen, i.value));
+      case "WithIndent":
+        return gen.withIndent(() => runInterpolation(gen, i.value));
       case "NewLine":
         return gen.addNewLine(i.lines);
       case "DeclareImport": {

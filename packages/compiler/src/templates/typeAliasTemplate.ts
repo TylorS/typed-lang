@@ -12,11 +12,17 @@ export function typeAliasTemplate(params: {
     params.exported ? t`${t.span(params.exported)(`export`)} ` : ``,
     `type `,
     t.identifier(params.name),
-    params.typeParams ? typeParametersTemplate(params.typeParams) : ``,
+    params.typeParams
+      ? typeParametersTemplate(params.typeParams, {
+          parameterVariance: false,
+          functionDefaultValue: false,
+          constants: false,
+        })
+      : ``,
     ` =`,
     params.types.length === 1
       ? [` `, params.types[0]]
-      : t.ident(
+      : t.indent(
           t.newLine(),
           `| `,
           t.intercolate([t.newLine(), `| `])(params.types)

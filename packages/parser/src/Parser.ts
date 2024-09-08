@@ -15,8 +15,12 @@ class Parser {
     return this.tokens[this.pos];
   }
 
-  peek(): Token | undefined {
-    return this.tokens[this.pos + 1];
+  peek(offset = 1): Token | undefined {
+    return this.tokens[this.pos + offset];
+  }
+
+  previousToken(): Token {
+    return this.tokens[this.pos - 1];
   }
 
   consume(): Token {
@@ -174,6 +178,7 @@ function parseTypeParameters(parser: Parser): AST.TypeParameter[] {
   if (parser.consumeTokenIf(TokenKind.LessThan)) {
     do {
       parser.skipWhitespace();
+      const variance = parseVarianceAnnotation(parser);
       const name = parser.consumeToken(TokenKind.Identifier);
       parser.skipWhitespace();
       const constraint = parseTypeConstraint(parser);
@@ -181,7 +186,8 @@ function parseTypeParameters(parser: Parser): AST.TypeParameter[] {
         new AST.TypeParameter(
           new AST.Identifier(name.text, name.span),
           constraint,
-          name.span
+          name.span,
+          variance
         )
       );
     } while (parser.consumeTokenIf(TokenKind.Comma));
@@ -191,6 +197,32 @@ function parseTypeParameters(parser: Parser): AST.TypeParameter[] {
   return typeParameters;
 }
 
+function parseVarianceAnnotation(
+  parser: Parser
+): "in" | "out" | "in out" | undefined {
+  parser.skipWhitespace();
+  const next = parser.token();
+
+  if (next?.kind === TokenKind.Identifier) {
+    if (next.text === "in") {
+      parser.skipWhitespace();
+
+      const next2 = parser.token();
+      if (next2?.kind === TokenKind.Identifier && next2.text === "out") {
+        parser.pos++;
+        parser.skipWhitespace();
+        return "in out";
+      }
+
+      return "in";
+    } else if (next.text === "out") {
+      parser.pos++;
+      parser.skipWhitespace();
+      return "out";
+    }
+  }
+}
+
 function parseTypeParametersOrHigherKindedType(
   parser: Parser
 ): Array<AST.TypeParameter | AST.HigherKindedType> {
@@ -198,10 +230,12 @@ function parseTypeParametersOrHigherKindedType(
   if (parser.consumeTokenIf(TokenKind.LessThan)) {
     do {
       parser.skipWhitespace();
+      const variance = parseVarianceAnnotation(parser);
       const name = parser.consumeToken(
         TokenKind.Identifier,
         TokenKind.Underscore
       );
+
       parser.skipWhitespace();
       if (parser.token().kind === TokenKind.LessThan) {
         parser.skipWhitespace();
@@ -227,12 +261,14 @@ function parseTypeParametersOrHigherKindedType(
           new AST.TypeParameter(
             new AST.Identifier(name.text, name.span),
             constraint,
-            new Span(name.span.start, constraint?.span.end ?? name.span.end)
+            new Span(name.span.start, constraint?.span.end ?? name.span.end),
+            variance
           )
         );
       }
       parser.skipWhitespace();
-    } while (parser.consumeTokenIf(TokenKind.Comma));
+    } while (parser.consumeTokenIf(TokenKind.Comma, TokenKind.Whitespace));
+
     parser.skipWhitespace();
     parser.consumeToken(TokenKind.GreaterThan);
   }
@@ -908,10 +944,22 @@ function parseElseIfBlock(parser: Parser): AST.ElseIfBlock | undefined {
   );
 }
 
-function parseExpression(parser: Parser): AST.Expression {
-  const token = parser.token();
+function parseUnaryExpression(parser: Parser): AST.Expression {
+  const operator = parseUnaryOperator(parser);
+  if (operator) {
+    parser.skipWhitespace();
+    const expression = parseUnaryExpression(parser);
+    return new AST.UnaryExpression(
+      operator,
+      expression,
+      new Span(operator.span.start, expression.span.end)
+    );
+  }
+  return parsePrimaryExpression(parser);
+}
 
-  // TOOD: Support Unary expressions
+function parsePrimaryExpression(parser: Parser): AST.Expression {
+  const token = parser.token();
 
   switch (token.kind) {
     case TokenKind.Identifier:
@@ -938,6 +986,92 @@ function parseExpression(parser: Parser): AST.Expression {
           parser.token().span.start.position
         )}`
       );
+  }
+}
+
+function parseUnaryOperator(parser: Parser): AST.Operator | undefined {
+  const token = parser.consumeTokenIf(
+    TokenKind.Plus,
+    TokenKind.Minus,
+    TokenKind.Exclamation
+  );
+  if (token === undefined) return undefined;
+
+  switch (token.kind) {
+    case TokenKind.Plus:
+      return new AST.Operator(AST.OperatorKind.Add, token.span);
+    case TokenKind.Minus:
+      return new AST.Operator(AST.OperatorKind.Subtract, token.span);
+    case TokenKind.Exclamation:
+      return new AST.Operator(AST.OperatorKind.Not, token.span);
+  }
+}
+
+function getPrecedence(operator: AST.Operator): number {
+  switch (operator.kind) {
+    case AST.OperatorKind.Or:
+      return 1;
+    case AST.OperatorKind.LogicalAnd:
+      return 2;
+    case AST.OperatorKind.BitwiseOr:
+      return 3;
+    case AST.OperatorKind.BitwiseXor:
+      return 4;
+    case AST.OperatorKind.BitwiseAnd:
+      return 5;
+    case AST.OperatorKind.Equal:
+    case AST.OperatorKind.NotEqual:
+      return 6;
+    case AST.OperatorKind.LessThan:
+    case AST.OperatorKind.LessThanOrEqual:
+    case AST.OperatorKind.GreaterThan:
+    case AST.OperatorKind.GreaterThanOrEqual:
+      return 7;
+    case AST.OperatorKind.LeftShift:
+    case AST.OperatorKind.RightShift:
+    case AST.OperatorKind.UnsignedRightShift:
+      return 8;
+    case AST.OperatorKind.Add:
+    case AST.OperatorKind.Subtract:
+      return 9;
+    case AST.OperatorKind.Multiply:
+    case AST.OperatorKind.Divide:
+    case AST.OperatorKind.Modulo:
+      return 10;
+    case AST.OperatorKind.And:
+      return 11;
+    default:
+      return 0;
+  }
+}
+
+function isRightAssociative(operator: AST.Operator): boolean {
+  return operator.kind === AST.OperatorKind.Exponent;
+}
+
+function parseExpression(parser: Parser, minPrecedence = 0): AST.Expression {
+  parser.skipWhitespace();
+  let left = parseUnaryExpression(parser);
+
+  while (true) {
+    const operator = parseOperator(parser);
+    if (!operator || getPrecedence(operator) < minPrecedence) {
+      return left;
+    }
+
+    const nextMinPrecedence = isRightAssociative(operator)
+      ? getPrecedence(operator)
+      : getPrecedence(operator) + 1;
+
+    parser.skipWhitespace();
+    const right = parseExpression(parser, nextMinPrecedence);
+
+    left = new AST.BinaryExpression(
+      operator,
+      left,
+      right,
+      new Span(left.span.start, right.span.end)
+    );
   }
 }
 
@@ -984,7 +1118,15 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
     TokenKind.Plus,
     TokenKind.Minus,
     TokenKind.Asterisk,
-    TokenKind.ForwardSlash
+    TokenKind.ForwardSlash,
+    TokenKind.Percent,
+    TokenKind.Caret,
+    TokenKind.Pipe,
+    TokenKind.Ampersand,
+    TokenKind.EqualSign,
+    TokenKind.Exclamation,
+    TokenKind.LessThan,
+    TokenKind.GreaterThan
   );
   if (token === undefined) return undefined;
 
@@ -994,9 +1136,97 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
     case TokenKind.Minus:
       return new AST.Operator(AST.OperatorKind.Subtract, token.span);
     case TokenKind.Asterisk:
+      if (parser.consumeTokenIf(TokenKind.Asterisk)) {
+        return new AST.Operator(
+          AST.OperatorKind.Exponent,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
       return new AST.Operator(AST.OperatorKind.Multiply, token.span);
     case TokenKind.ForwardSlash:
       return new AST.Operator(AST.OperatorKind.Divide, token.span);
+    case TokenKind.Percent:
+      return new AST.Operator(AST.OperatorKind.Modulo, token.span);
+    case TokenKind.Caret:
+      return new AST.Operator(AST.OperatorKind.BitwiseXor, token.span);
+    case TokenKind.Pipe:
+      if (parser.consumeTokenIf(TokenKind.Pipe)) {
+        return new AST.Operator(
+          AST.OperatorKind.Or,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.BitwiseOr, token.span);
+    case TokenKind.Ampersand:
+      if (parser.consumeTokenIf(TokenKind.Ampersand)) {
+        return new AST.Operator(
+          AST.OperatorKind.And,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.BitwiseAnd, token.span);
+    case TokenKind.EqualSign:
+      if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+        if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+          return new AST.Operator(
+            AST.OperatorKind.EqualEqualEqual,
+            new Span(token.span.start, parser.previousToken().span.end)
+          );
+        }
+        return new AST.Operator(
+          AST.OperatorKind.EqualEqual,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.Equal, token.span);
+    case TokenKind.Exclamation:
+      if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+        if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+          return new AST.Operator(
+            AST.OperatorKind.NotEqualEqual,
+            new Span(token.span.start, parser.previousToken().span.end)
+          );
+        }
+        return new AST.Operator(
+          AST.OperatorKind.NotEqual,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.Not, token.span);
+    case TokenKind.LessThan:
+      if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+        return new AST.Operator(
+          AST.OperatorKind.LessThanOrEqual,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      if (parser.consumeTokenIf(TokenKind.LessThan)) {
+        return new AST.Operator(
+          AST.OperatorKind.LeftShift,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.LessThan, token.span);
+    case TokenKind.GreaterThan:
+      if (parser.consumeTokenIf(TokenKind.EqualSign)) {
+        return new AST.Operator(
+          AST.OperatorKind.GreaterThanOrEqual,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      if (parser.consumeTokenIf(TokenKind.GreaterThan)) {
+        if (parser.consumeTokenIf(TokenKind.GreaterThan)) {
+          return new AST.Operator(
+            AST.OperatorKind.UnsignedRightShift,
+            new Span(token.span.start, parser.previousToken().span.end)
+          );
+        }
+        return new AST.Operator(
+          AST.OperatorKind.RightShift,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.GreaterThan, token.span);
   }
 }
 
@@ -1095,9 +1325,9 @@ function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
   if (parser.token().kind === TokenKind.CloseParen) {
     parser.consumeToken(TokenKind.CloseParen);
     parser.skipWhitespace();
-    parseFatArrow(parser);
-    parser.skipWhitespace();
     const returnType = parseReturnType(parser);
+    parser.skipWhitespace();
+    parseFatArrow(parser);
     parser.skipWhitespace();
     const block = parseBlockOrExpression(parser);
 
@@ -1111,39 +1341,50 @@ function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
     );
   }
 
-  const [fields] = parseNamedFields(
-    parser,
-    [TokenKind.Comma, TokenKind.Whitespace],
-    TokenKind.CloseParen
-  );
+  const isProbablyNamedFields =
+    parser.token().kind === TokenKind.Identifier &&
+    (parser.peek(1)?.kind === TokenKind.Colon ||
+      parser.peek(2)?.kind === TokenKind.Colon);
 
-  if (fields.length > 0) {
-    parser.skipWhitespace();
-    parseFatArrow(parser);
-    parser.skipWhitespace();
-    const returnType = parseReturnType(parser);
-    parser.skipWhitespace();
-    const block = parseBlockOrExpression(parser);
-
-    return new AST.FunctionExpression(
-      null,
-      [],
-      fields,
-      returnType,
-      block,
-      new Span(openParen.span.start, block.span.end)
+  if (isProbablyNamedFields) {
+    const [fields] = parseNamedFields(
+      parser,
+      [TokenKind.Comma, TokenKind.Whitespace],
+      TokenKind.CloseParen
     );
+
+    if (fields.length > 0) {
+      parser.skipWhitespace();
+      const returnType = parseReturnType(parser);
+      parser.skipWhitespace();
+      parseFatArrow(parser);
+      parser.skipWhitespace();
+      const block = parseBlockOrExpression(parser);
+
+      return new AST.FunctionExpression(
+        null,
+        [],
+        fields,
+        returnType,
+        block,
+        new Span(openParen.span.start, block.span.end)
+      );
+    }
   }
 
   const expression = parseExpression(parser);
   parser.skipWhitespace();
   const closeParen = parser.consumeToken(TokenKind.CloseParen);
-  return new AST.ParenthesizedExpression(
+  parser.skipWhitespace();
+
+  const parenthesizedExpression = new AST.ParenthesizedExpression(
     openParen.span,
     expression,
     closeParen.span,
     new Span(openParen.span.start, closeParen.span.end)
   );
+
+  return parenthesizedExpression;
 }
 
 function parseExpressionFromLessThan(parser: Parser): AST.FunctionExpression {

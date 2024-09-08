@@ -38,7 +38,14 @@ function constructorTemplate(
         t`const `,
         t.identifier(constructor.name),
         t` = `,
-        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        typeParametersTemplate(
+          getTypeParametersFromFields(constructor.fields),
+          {
+            constants: true,
+            parameterVariance: false,
+            functionDefaultValue: true,
+          }
+        ),
         t`(`,
         t.intercolate(`, `)(
           constructor.fields.map(
@@ -50,9 +57,16 @@ function constructorTemplate(
         ),
         t`): `,
         t.identifier(constructor.name),
-        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        typeParametersTemplate(
+          getTypeParametersFromFields(constructor.fields),
+          {
+            parameterVariance: false,
+            functionDefaultValue: false,
+            constants: false,
+          }
+        ),
         t` => ({`,
-        t.ident(
+        t.indent(
           t.newLine(),
           t`_tag: "${t.identifier(constructor.name)}",`,
           t.newLine(),
@@ -69,7 +83,14 @@ function constructorTemplate(
         `const `,
         t.identifier(constructor.name),
         ` = `,
-        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        typeParametersTemplate(
+          getTypeParametersFromFields(constructor.fields),
+          {
+            parameterVariance: false,
+            functionDefaultValue: true,
+            constants: true,
+          }
+        ),
         t`(`,
         t.intercolate(`, `)(
           constructor.fields.map(
@@ -83,9 +104,16 @@ function constructorTemplate(
         ),
         `): `,
         t.identifier(constructor.name),
-        typeParametersTemplate(getTypeParametersFromFields(constructor.fields)),
+        typeParametersTemplate(
+          getTypeParametersFromFields(constructor.fields),
+          {
+            parameterVariance: false,
+            functionDefaultValue: false,
+            constants: false,
+          }
+        ),
         ` => ({`,
-        t.ident(
+        t.indent(
           t.newLine(),
           t`_tag: "${t.identifier(constructor.name)}"`,
           constructor.fields.length > 0 ? [t`,`, t.newLine()] : t``,

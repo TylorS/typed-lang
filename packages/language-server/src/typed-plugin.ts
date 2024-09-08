@@ -37,8 +37,8 @@ export function getLanguagePlugin(): LanguagePlugin<URI, TypedVirtualCode> {
           scriptKind: ts.ScriptKind.Deferred,
         },
       ],
-      getServiceScript(astroCode) {
-        for (const code of forEachEmbeddedCode(astroCode)) {
+      getServiceScript(typedCode) {
+        for (const code of forEachEmbeddedCode(typedCode)) {
           if (code.id === "typescript") {
             return {
               code,
@@ -57,40 +57,52 @@ export class TypedVirtualCode implements VirtualCode {
   languageId = typedLanguageId;
   mappings!: CodeMapping[];
   embeddedCodes!: VirtualCode[];
-  typed: TypedSnapshot;
+  typed!: TypedSnapshot;
 
   constructor(
     public fileName: string,
     public snapshot: ts.IScriptSnapshot,
     compiler: TsCompiler
   ) {
-    this.typed = compiler.compile(
-      this.fileName,
-      this.snapshot.getText(0, this.snapshot.getLength())
-    );
+    try {
+      this.typed = compiler.compile(
+        this.fileName,
+        this.snapshot.getText(0, this.snapshot.getLength())
+      );
 
-    this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed, "typescript")];
+      this.embeddedCodes = [
+        typedSnapshotToVirtualCode(this.typed, "typescript"),
+      ];
 
-    this.mappings = [
-      {
-        sourceOffsets: [0],
-        generatedOffsets: [0],
-        lengths: [this.snapshot.getLength()],
-        generatedLengths: [this.typed.getText().length],
-        data: {
-          verification: true,
-          completion: true,
-          semantic: true,
-          navigation: true,
-          structure: false,
-          format: false,
+      this.mappings = [
+        {
+          sourceOffsets: [0],
+          generatedOffsets: [0],
+          lengths: [this.snapshot.getLength()],
+          generatedLengths: [this.typed.getText().length],
+          data: {
+            verification: true,
+            completion: true,
+            semantic: true,
+            navigation: true,
+            structure: false,
+            format: false,
+          },
         },
-      },
-    ];
+      ];
+    } catch (error) {
+      this.embeddedCodes = [];
+      this.mappings = [];
+
+      console.error(error);
+    }
   }
 }
 
-function typedSnapshotToVirtualCode(snapshot: TypedSnapshot, id: string): VirtualCode {
+function typedSnapshotToVirtualCode(
+  snapshot: TypedSnapshot,
+  id: string
+): VirtualCode {
   return {
     id,
     languageId: "typescript",

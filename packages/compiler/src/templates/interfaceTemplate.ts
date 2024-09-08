@@ -15,9 +15,12 @@ export function interfaceTemplate({
 }): Interpolation {
   return t.span(span)(
     t`export interface ${t.identifier(name)}`,
-    typeParametersTemplate(typeParams),
+    typeParametersTemplate(typeParams, {
+      parameterVariance: true,
+      functionDefaultValue: false,
+    }),
     t` {`,
-    t.ident(
+    t.indent(
       t.newLine(),
       t.intercolate(t.newLine())(
         fields.map(([name, type]) =>

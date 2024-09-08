@@ -123,8 +123,12 @@ function functionExpressionTemplate(
   expression: FunctionExpression
 ): Interpolation {
   return t.span(expression.span)(
-    typeParametersTemplate(expression.typeParameters.flatMap(unwrapHkt)),
-    t`( ${t.intercolate(`, `)(
+    typeParametersTemplate(expression.typeParameters.flatMap(unwrapHkt), {
+      parameterVariance: false,
+      functionDefaultValue: true,
+      constants: true,
+    }),
+    t`(${t.intercolate(`, `)(
       expression.parameters.map(
         (f) =>
           // TODO: Need to support replacing of HKTs
@@ -132,7 +136,9 @@ function functionExpressionTemplate(
             f.value === undefined ? t.identifier(f.name) : typeTemplate(f.value)
           }`
       )
-    )} ) => ${
+    )})`,
+    expression.returnType ? t`: ${typeTemplate(expression.returnType)} ` : "",
+    t`=> ${
       expression.block._tag === "Block"
         ? blockTemplate(expression.block)
         : expressionTemplate(expression.block)
@@ -195,7 +201,7 @@ export function blockTemplate(block: Block): Interpolation {
   return t.span(block.span)(
     t`{`,
     t.newLine(),
-    t.ident(
+    t.indent(
       t.intercolate([t.newLine(), t.newLine()])(
         block.statements.map(statementTemplate)
       )

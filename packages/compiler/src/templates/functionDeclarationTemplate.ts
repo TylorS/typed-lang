@@ -13,7 +13,10 @@ export function functionDeclarationTemplate(
     decl.exported ? t`${t.span(decl.exported)(`export`)} ` : "",
     `function `,
     t.identifier(decl.name),
-    typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt)),
+    typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt), {
+      parameterVariance: false,
+      functionDefaultValue: false,
+    }),
     t`(`,
     t.intercolate(t`, `)(
       // TODO: Need to support replacing of HKTs
@@ -24,7 +27,8 @@ export function functionDeclarationTemplate(
           }`
       )
     ),
-    t`) `,
+    t`)`,
+    decl.returnType ? t`${t`: ${typeTemplate(decl.returnType)}`} ` : "",
     blockTemplate(decl.block)
   );
 }

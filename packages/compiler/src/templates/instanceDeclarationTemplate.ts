@@ -10,7 +10,11 @@ export function instanceDeclarationTemplate(
   decl: InstanceDeclaration
 ): Interpolation {
   return t`export const ${t.identifier(decl.name)}${typeParametersTemplate(
-    decl.typeParameters.flatMap(unwrapHkt)
+    decl.typeParameters.flatMap(unwrapHkt),
+    {
+      parameterVariance: false,
+      functionDefaultValue: false,
+    }
   )} = {
     ${t.intercolate(t`,\n  `)(
       decl.fields.map(

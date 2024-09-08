@@ -126,7 +126,7 @@ function singleModuleDeclarationTemplate(decl: Declaration): Interpolation {
         t.identifier(decl.name),
         ` {`,
         t.newLine(),
-        t.ident(declarationTemplate(decl)),
+        t.indent(declarationTemplate(decl)),
         t.newLine(),
         `}`
       );

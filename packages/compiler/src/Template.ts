@@ -1,10 +1,6 @@
 import { Identifier, Span } from "@typed-lang/parser";
-import { ident } from "./utils";
-import {
-  NamespaceImport,
-  ImportManager,
-  NamedImport,
-} from "./ImportManager";
+import { indent } from "./utils";
+import { NamespaceImport, ImportManager, NamedImport } from "./ImportManager";
 
 export interface Template {
   readonly _tag: "Template";
@@ -16,7 +12,7 @@ export type Interpolation =
   | string
   | Template
   | WithSpan
-  | WithIdent
+  | WithIndent
   | NewLine
   | DeclareImport
   | Import
@@ -36,8 +32,8 @@ export interface NewLine {
   readonly lines: number;
 }
 
-export interface WithIdent {
-  readonly _tag: "WithIdent";
+export interface WithIndent {
+  readonly _tag: "WithIndent";
   readonly value: Interpolation;
 }
 
@@ -51,6 +47,9 @@ export interface Import {
   readonly _tag: "Import";
   readonly moduleSpecifier: string;
   readonly name: string;
+
+  readonly asNamedImport: () => DeclareImport;
+  readonly asNamespaceImport: (namespace: string) => DeclareImport;
 }
 
 export function t(
@@ -59,6 +58,18 @@ export function t(
 ): Interpolation {
   return { _tag: "Template", template, values };
 }
+
+const fakeTemplateArray = (length: number): TemplateStringsArray => {
+  const raw = Array.from({ length }, () => "");
+  return Object.assign(raw, { raw });
+};
+
+t.many = (...values: ReadonlyArray<Interpolation>): Interpolation => {
+  return t(
+    fakeTemplateArray(values.length + 1),
+    ...values
+  );
+};
 
 t.span =
   (span: Span, name?: string, content?: string) =>
@@ -73,8 +84,8 @@ t.span =
 t.identifier = (identifer: Identifier) =>
   t.span(identifer.span, identifer.text)(identifer.text);
 
-t.ident = (...value: ReadonlyArray<Interpolation>): Interpolation => ({
-  _tag: "WithIdent",
+t.indent = (...value: ReadonlyArray<Interpolation>): Interpolation => ({
+  _tag: "WithIndent",
   value: value.flat(),
 });
 
@@ -106,10 +117,13 @@ t.namespaceImport = (
   moduleSpecifier,
 });
 
-t.import = (moduleSpecifier: string, name: string) => ({
+t.import = (moduleSpecifier: string, name: string): Import => ({
   _tag: "Import",
   moduleSpecifier,
   name,
+  asNamedImport: () => t.namedImport(moduleSpecifier, name),
+  asNamespaceImport: (namespace: string) =>
+    t.namespaceImport(moduleSpecifier, namespace),
 });
 
 export function templateToString(interpolation: Interpolation): string {
@@ -138,8 +152,8 @@ export function templateToString(interpolation: Interpolation): string {
     }
     case "WithSpan":
       return templateToString(i.value);
-    case "WithIdent":
-      return ident(templateToString(i.value));
+    case "WithIndent":
+      return indent(templateToString(i.value));
     case "NewLine":
       return "\n".repeat(i.lines);
     case "DeclareImport": {

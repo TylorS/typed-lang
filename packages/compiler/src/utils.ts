@@ -1,4 +1,4 @@
-// Add identation to all new lines
-export function ident(str: string, depth: number = 2): string {
+// Add indentation to all new lines
+export function indent(str: string, depth: number = 2): string {
   return str.replace(/(\n+)/g, `$1${" ".repeat(depth)}`);
 }

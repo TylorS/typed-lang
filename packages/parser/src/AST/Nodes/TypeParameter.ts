@@ -8,6 +8,7 @@ export class TypeParameter {
   constructor(
     readonly name: Identifier,
     readonly constraint: Type | undefined,
-    readonly span: Span
+    readonly span: Span,
+    readonly variance?: "in" | "out" | "in out"
   ) {}
 }
