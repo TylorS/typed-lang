@@ -49,7 +49,7 @@ describe("TsCompiler", () => {
           Nothing: (nothing: Nothing) => Return1,
           Just: (just: Just<A>) => Return2
         }): Return1 | Return2 {
-          return ;(matchers as any)[maybe._tag](maybe)
+          return (matchers as any)[maybe._tag](maybe)
         }
       }
       //# sourceMappingURL=data.typed.ts.map"
@@ -105,7 +105,7 @@ describe("TsCompiler", () => {
           Left: (left: Left<E>) => Return1,
           Right: (right: Right<A>) => Return2
         }): Return1 | Return2 {
-          return ;(matchers as any)[either._tag](either)
+          return (matchers as any)[either._tag](either)
         }
       }
       //# sourceMappingURL=data.typed.ts.map"

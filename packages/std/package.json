@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "pnpm typed-lang --dir ./src",
+    "build": "pnpm typed-lang -d --dir ./src",
     "typed-lang": "pnpx tsx ../cli/src/index.ts --outDir ./dist",
     "test": "vitest --dir test"
   },

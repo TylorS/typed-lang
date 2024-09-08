@@ -1522,8 +1522,6 @@ function parseTypeClassDeclaration(
   parser.skipWhitespace();
   const fields: AST.NamedField[] = [];
 
-  console.log();
-
   do {
     parser.skipWhitespace();
     const name = consumeIdentifier(parser);
@@ -1537,8 +1535,6 @@ function parseTypeClassDeclaration(
     );
     fields.push(field);
     parser.skipWhitespace();
-
-    console.log(parser.token(), parser.peek())
   } while (parser.consumeTokenIf(TokenKind.Comma, TokenKind.Whitespace));
   parser.skipWhitespace();
   const closeBrace = parser.consumeToken(TokenKind.CloseBrace);

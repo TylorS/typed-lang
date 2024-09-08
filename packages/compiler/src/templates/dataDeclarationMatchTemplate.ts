@@ -56,7 +56,7 @@ export function dataDeclarationMatchTemplate(
     t`}`,
     t`): ${t.intercolate(" | ")(...typeParamsForReturnTypes)} {`,
     t.newLine(),
-    t.indent(t`return ;(matchers as any)[${paramName}._tag](${paramName})`),
+    t.indent(t`return (matchers as any)[${paramName}._tag](${paramName})`),
     t.newLine(),
     t`}`
   );
