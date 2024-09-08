@@ -27,6 +27,12 @@ export enum OperatorKind {
   LeftShift = "LeftShift",
   RightShift = "RightShift",
   UnsignedRightShift = "UnsignedRightShift",
+  TernaryIf = "TernaryIf",
+  TernaryElse = "TernaryElse",
+  In = "In",
+  InstanceOf = "InstanceOf",
+  NullishCoalescing = "NullishCoalescing",
+  OptionalChaining = "OptionalChaining",
 }
 
 export class Operator {

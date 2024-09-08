@@ -172,4 +172,203 @@ describe("TsCompiler", () => {
       //# sourceMappingURL=parenthesizedExpression.typed.ts.map"
     `);
   });
+
+  it("compiles ternary expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a > b ? a : b`;
+    const result = compiler.compile(`ternaryExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a > b ? a : b
+      //# sourceMappingURL=ternaryExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles logical or expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a || b`;
+    const result = compiler.compile(`logicalOrExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a || b
+      //# sourceMappingURL=logicalOrExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles logical and expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a && b`;
+    const result = compiler.compile(`logicalAndExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a && b
+      //# sourceMappingURL=logicalAndExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise and expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a & b`;
+    const result = compiler.compile(`bitwiseAndExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a & b
+      //# sourceMappingURL=bitwiseAndExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise or expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a | b`;
+    const result = compiler.compile(`bitwiseOrExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a | b
+      //# sourceMappingURL=bitwiseOrExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise xor expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a ^ b`;
+    const result = compiler.compile(`bitwiseXorExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a ^ b
+      //# sourceMappingURL=bitwiseXorExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise not expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => ~a`;
+    const result = compiler.compile(`bitwiseNotExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => ~a
+      //# sourceMappingURL=bitwiseNotExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles unary expressions", () => {
+    const code = `export const add = (a: Int, b: Int): boolean => !a`;
+    const result = compiler.compile(`unaryExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): boolean => !a
+      //# sourceMappingURL=unaryExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles binary expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a + b`;
+    const result = compiler.compile(`binaryExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a + b
+      //# sourceMappingURL=binaryExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles assignment expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a = b`;
+    const result = compiler.compile(`assignmentExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a = b
+      //# sourceMappingURL=assignmentExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise shift left expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a << b`;
+    const result = compiler.compile(`bitwiseShiftLeftExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a << b
+      //# sourceMappingURL=bitwiseShiftLeftExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise shift right expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a >> b`;
+    const result = compiler.compile(`bitwiseShiftRightExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a >> b
+      //# sourceMappingURL=bitwiseShiftRightExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise unsigned shift right expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a >>> b`;
+    const result = compiler.compile(`bitwiseUnsignedShiftRightExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a >>> b
+      //# sourceMappingURL=bitwiseUnsignedShiftRightExpression.typed.ts.map"
+    `);
+  });
+
+
+  it("compiles nullish coalescing expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a ?? b`;
+    const result = compiler.compile(`nullishCoalescingExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a ?? b
+      //# sourceMappingURL=nullishCoalescingExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles optional chaining expressions", () => {
+    const code = `export const add = (a: Int, b: Int): Int => a?.b`;
+    const result = compiler.compile(`optionalChainingExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: Int, b: Int): Int => a?.b
+      //# sourceMappingURL=optionalChainingExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles member expressions", () => {
+    const code = `export const add = (a: { b: Int }): Int => a.b`;
+    const result = compiler.compile(`memberExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const add = (a: ): Int => a.b
+      //# sourceMappingURL=memberExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles logical AND expressions", () => {
+    const code = `export const and = (a: boolean, b: boolean): boolean => a && b`;
+    const result = compiler.compile(`logicalAndExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const and = (a: boolean, b: boolean): boolean => a && b
+      //# sourceMappingURL=logicalAndExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles logical OR expressions", () => {
+    const code = `export const or = (a: boolean, b: boolean): boolean => a || b`;
+    const result = compiler.compile(`logicalOrExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const or = (a: boolean, b: boolean): boolean => a || b
+      //# sourceMappingURL=logicalOrExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise AND expressions", () => {
+    const code = `export const bitwiseAnd = (a: Int, b: Int): Int => a & b`;
+    const result = compiler.compile(`bitwiseAndExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const bitwiseAnd = (a: Int, b: Int): Int => a & b
+      //# sourceMappingURL=bitwiseAndExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise OR expressions", () => {
+    const code = `export const bitwiseOr = (a: Int, b: Int): Int => a | b`;
+    const result = compiler.compile(`bitwiseOrExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const bitwiseOr = (a: Int, b: Int): Int => a | b
+      //# sourceMappingURL=bitwiseOrExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles bitwise XOR expressions", () => {
+    const code = `export const bitwiseXor = (a: Int, b: Int): Int => a ^ b`;
+    const result = compiler.compile(`bitwiseXorExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const bitwiseXor = (a: Int, b: Int): Int => a ^ b
+      //# sourceMappingURL=bitwiseXorExpression.typed.ts.map"
+    `);
+  });
+
+  it("compiles ternary expressions", () => {
+    const code = `export const ternary = (condition: Boolean, a: Int, b: Int): Int => condition ? a : b`;
+    const result = compiler.compile(`ternaryExpression.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "export const ternary = (condition: boolean, a: Int, b: Int): Int => condition ? a : b
+      //# sourceMappingURL=ternaryExpression.typed.ts.map"
+    `);
+  });
 });

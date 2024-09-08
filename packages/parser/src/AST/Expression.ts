@@ -17,7 +17,7 @@ export type Expression =
   | MemberExpression
   | FunctionExpression;
 
-export class UnaryExpression { 
+export class UnaryExpression {
   readonly _tag = "UnaryExpression";
 
   constructor(
@@ -65,6 +65,7 @@ export class MemberExpression {
 
   constructor(
     readonly object: Expression,
+    readonly questionMark: Span | null,
     readonly dot: Span,
     readonly property: Identifier,
     readonly span: Span
@@ -80,6 +81,6 @@ export class FunctionExpression {
     readonly parameters: ReadonlyArray<NamedField>,
     readonly returnType: Type | null,
     readonly block: Block | Expression,
-    readonly span: Span,
+    readonly span: Span
   ) {}
 }

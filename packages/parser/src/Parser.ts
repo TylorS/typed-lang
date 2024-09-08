@@ -373,12 +373,14 @@ function consumeMemberExpressionFromIdentifier(
   parser: Parser,
   object: AST.Identifier | AST.MemberExpression
 ): AST.Identifier | AST.MemberExpression {
+  const questionMark = parser.consumeTokenIf(TokenKind.QuestionMark);
   const dot = parser.consumeTokenIf(TokenKind.Period);
   if (dot === undefined) return object;
   const property = consumeIdentifier(parser);
 
   return new AST.MemberExpression(
     object,
+    questionMark?.span ?? null,
     dot.span,
     property,
     new Span(object.span.start, property.span.end)
@@ -978,7 +980,18 @@ function parsePrimaryExpression(parser: Parser): AST.Expression {
       return parseExpressionFromOpenParen(parser);
     case TokenKind.LessThan:
       return parseExpressionFromLessThan(parser);
-    default:
+    default: {
+      const unaryOperator = parseUnaryOperator(parser);
+      if (unaryOperator) {
+        parser.skipWhitespace();
+        const expression = parsePrimaryExpression(parser);
+        return new AST.UnaryExpression(
+          unaryOperator,
+          expression,
+          new Span(unaryOperator.span.start, expression.span.end)
+        );
+      }
+
       throw new Error(
         `Unexpected token in expression: ${token.kind} :: ${
           token.text
@@ -986,6 +999,7 @@ function parsePrimaryExpression(parser: Parser): AST.Expression {
           parser.token().span.start.position
         )}`
       );
+    }
   }
 }
 
@@ -993,7 +1007,8 @@ function parseUnaryOperator(parser: Parser): AST.Operator | undefined {
   const token = parser.consumeTokenIf(
     TokenKind.Plus,
     TokenKind.Minus,
-    TokenKind.Exclamation
+    TokenKind.Exclamation,
+    TokenKind.Tilde
   );
   if (token === undefined) return undefined;
 
@@ -1004,6 +1019,8 @@ function parseUnaryOperator(parser: Parser): AST.Operator | undefined {
       return new AST.Operator(AST.OperatorKind.Subtract, token.span);
     case TokenKind.Exclamation:
       return new AST.Operator(AST.OperatorKind.Not, token.span);
+    case TokenKind.Tilde:
+      return new AST.Operator(AST.OperatorKind.BitwiseNot, token.span);
   }
 }
 
@@ -1076,9 +1093,6 @@ function parseExpression(parser: Parser, minPrecedence = 0): AST.Expression {
 }
 
 function parseExpressionFromIdentifier(parser: Parser): AST.Expression {
-  // TODO: Supoort member expressions
-  // TODO: Support function calls
-
   const identifier = consumeIdentifierOrMemberExpression(parser);
   parser.skipWhitespace();
 
@@ -1126,7 +1140,10 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
     TokenKind.EqualSign,
     TokenKind.Exclamation,
     TokenKind.LessThan,
-    TokenKind.GreaterThan
+    TokenKind.GreaterThan,
+    TokenKind.Tilde,
+    TokenKind.QuestionMark,
+    TokenKind.Colon
   );
   if (token === undefined) return undefined;
 
@@ -1227,6 +1244,18 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
         );
       }
       return new AST.Operator(AST.OperatorKind.GreaterThan, token.span);
+    case TokenKind.Tilde:
+      return new AST.Operator(AST.OperatorKind.BitwiseNot, token.span);
+    case TokenKind.QuestionMark:
+      if (parser.consumeTokenIf(TokenKind.QuestionMark)) {
+        return new AST.Operator(
+          AST.OperatorKind.NullishCoalescing,
+          new Span(token.span.start, parser.previousToken().span.end)
+        );
+      }
+      return new AST.Operator(AST.OperatorKind.TernaryIf, token.span);
+    case TokenKind.Colon:
+      return new AST.Operator(AST.OperatorKind.TernaryElse, token.span);
   }
 }
 

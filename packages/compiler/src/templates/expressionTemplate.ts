@@ -148,9 +148,9 @@ function functionExpressionTemplate(
 
 function memberExpressionTemplate(expression: MemberExpression): Interpolation {
   return t.span(expression.span)(
-    t`${expressionTemplate(expression.object)}.${t.identifier(
-      expression.property
-    )}`
+    t`${expressionTemplate(expression.object)}${
+      expression.questionMark ? t.span(expression.questionMark)(`?`) : ""
+    }.${t.identifier(expression.property)}`
   );
 }
 

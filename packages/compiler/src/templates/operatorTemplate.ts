@@ -57,5 +57,19 @@ function operatorKindToText(kind: OperatorKind): string {
       return "-";
     case OperatorKind.UnsignedRightShift:
       return ">>>";
+    case OperatorKind.TernaryIf:
+      return "?";
+    case OperatorKind.TernaryElse:
+      return ":";
+    case OperatorKind.NullishCoalescing:
+      return "??";
+    case OperatorKind.OptionalChaining:
+      return "?.";
+    case OperatorKind.InstanceOf:
+      return "instanceof";
+    case OperatorKind.In:
+      return "in";
+    case OperatorKind.LogicalAnd:
+      return "&&";
   }
 }
