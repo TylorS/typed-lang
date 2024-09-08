@@ -146,7 +146,7 @@ function functionExpressionTemplate(
       )
     )})`,
     expression.returnType ? t`: ${typeTemplate(expression.returnType)} ` : "",
-    t`=> ${
+    t` => ${
       expression.block._tag === "Block"
         ? blockTemplate(expression.block)
         : expressionTemplate(expression.block)
@@ -223,7 +223,7 @@ function forOfStatementTemplate(statement: ForOfStatement): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`for`),
     ` (`,
-    t`${variableKindTempalte(statement.variable)} `,
+    t`${variableKindTemplate(statement.variable)} `,
     identifierOrDestructureTemplate(statement.name),
     ` of `,
     expressionTemplate(statement.iterable),
@@ -236,7 +236,7 @@ function forInStatementTemplate(statement: ForInStatement): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`for`),
     ` (`,
-    t`${variableKindTempalte(statement.variable)} `,
+    t`${variableKindTemplate(statement.variable)} `,
     identifierOrDestructureTemplate(statement.name),
     ` in `,
     expressionTemplate(statement.object),
@@ -245,7 +245,7 @@ function forInStatementTemplate(statement: ForInStatement): Interpolation {
   );
 }
 
-function variableKindTempalte(
+function variableKindTemplate(
   variable: [
     TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword,
     Span

@@ -48,7 +48,7 @@ function operatorKindToText(kind: OperatorKind): string {
     case OperatorKind.NotEqual:
       return "!=";
     case OperatorKind.NotEqualEqual:
-      return "!=="; 
+      return "!==";
     case OperatorKind.Or:
       return "||";
     case OperatorKind.RightShift:
@@ -71,5 +71,7 @@ function operatorKindToText(kind: OperatorKind): string {
       return "in";
     case OperatorKind.LogicalAnd:
       return "&&";
+    case OperatorKind.New:
+      return "new";
   }
 }

@@ -41,6 +41,7 @@ function declarationGuardTemplate(decl: DataDeclaration): Interpolation {
       {
         parameterVariance: false,
         functionDefaultValue: false,
+        constants: false,
       }
     )} => {`,
     t.newLine(),
@@ -81,12 +82,14 @@ function constructorGuardTemplate(
     typeParametersTemplate(decl.typeParameters, {
       parameterVariance: false,
       functionDefaultValue: true,
+      constants: true,
     }),
     t`(${paramName}: ${t.identifier(decl.name)}${typeParametersTemplate(
       decl.typeParameters,
       {
         parameterVariance: false,
         functionDefaultValue: false,
+        constants: false,
       }
     )}): `,
     t`${paramName} is ${t.identifier(constructor.name)}${typeParametersTemplate(
@@ -94,6 +97,7 @@ function constructorGuardTemplate(
       {
         parameterVariance: false,
         functionDefaultValue: false,
+        constants: false,
       }
     )}`,
     t` => `,

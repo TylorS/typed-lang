@@ -16,6 +16,7 @@ export function functionDeclarationTemplate(
     typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt), {
       parameterVariance: false,
       functionDefaultValue: false,
+      constants: true,
     }),
     t`(`,
     t.intercolate(t`, `)(

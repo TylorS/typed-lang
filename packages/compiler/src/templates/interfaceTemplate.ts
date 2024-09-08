@@ -18,6 +18,7 @@ export function interfaceTemplate({
     typeParametersTemplate(typeParams, {
       parameterVariance: true,
       functionDefaultValue: false,
+      constants: false,
     }),
     t` {`,
     t.indent(

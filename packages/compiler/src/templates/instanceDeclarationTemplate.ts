@@ -4,22 +4,32 @@ import { expressionTemplate } from "./expressionTemplate.js";
 import { typeParametersTemplate } from "./typeParametersTemplate.js";
 import { unwrapHkt } from "./unwrapHKT.js";
 
-
 // TODO: We need much better support for HKTs
 export function instanceDeclarationTemplate(
   decl: InstanceDeclaration
 ): Interpolation {
-  return t`export const ${t.identifier(decl.name)}${typeParametersTemplate(
-    decl.typeParameters.flatMap(unwrapHkt),
-    {
+  const exportName = decl.name.text.toLowerCase();
+
+  return t.many(
+    t`export const `,
+    exportName,
+    `: `,
+    t.identifier(decl.name),
+    typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt), {
       parameterVariance: false,
       functionDefaultValue: false,
-    }
-  )} = {
-    ${t.intercolate(t`,\n  `)(
-      decl.fields.map(
-        (f) => t`${t.identifier(f.name)}: ${expressionTemplate(f.expression)}`
+      constants: false,
+    }),
+    t` = {`,
+    t.newLine(),
+    t.indent(
+      t.intercolate(t`,${t.newLine()}`)(
+        decl.fields.map((f) =>
+          t.many(t.identifier(f.name), t`: `, expressionTemplate(f.expression))
+        )
       )
-    )}
-  }`;
+    ),
+    t.newLine(),
+    t`}`
+  );
 }

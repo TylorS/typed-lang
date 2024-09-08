@@ -8,9 +8,10 @@ export class VariableDeclaration {
   readonly _tag = "VariableDeclaration";
 
   constructor(
-    readonly keyword:
-      | readonly [TokenKind.ConstKeyword | TokenKind.LetKeyword, Span]
-      | readonly [TokenKind.VarKeyword, Span],
+    readonly keyword: readonly [
+      TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword,
+      Span
+    ],
     readonly name: Identifier | Destructure,
     readonly typeAnnotation: Type | undefined,
     readonly equals: Span,

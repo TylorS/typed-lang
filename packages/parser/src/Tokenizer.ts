@@ -304,10 +304,11 @@ export function tokenize(text: string): Array<Token> {
             );
             tokenizer.takeWhitespace();
             continue;
-          } else if (tokenizer.slice(2) === "in") {
+          } else if (tokenizer.slice(3) === "in ") {
             tokenizer.addToken(
               new Token(TokenKind.InKeyword, "in", new Span(loc, loc.offset(2)))
             );
+            tokenizer.move();
             tokenizer.takeWhitespace();
             continue;
           }
@@ -347,8 +348,16 @@ export function tokenize(text: string): Array<Token> {
           );
           tokenizer.takeWhitespace();
           continue;
+        } else if (char === "e" && tokenizer.slice(7) === "extends") {
+          tokenizer.addToken(
+            new Token(
+              TokenKind.ExtendsKeyword,
+              "extends",
+              new Span(loc, loc.offset(7))
+            )
+          );
+          continue;
         }
-
         const nextEightChars = tokenizer.slice(8);
 
         if (nextEightChars === "function") {

@@ -12,7 +12,7 @@ describe("MappedDocumentGenerator", () => {
   const outputFileName = fileName + extension;
   const code = `export data Maybe<A> = Nothing | Just(value: A)`;
   const sourceFile = parse(fileName, code);
-  const decl = sourceFile.declarations[0] as DataDeclaration;
+  const decl = sourceFile.statements[0] as DataDeclaration;
   const module = generateModule(sourceFile, extension, "single");
   const template = [
     templates.dataDeclarationTypeAliasTemplate(decl),

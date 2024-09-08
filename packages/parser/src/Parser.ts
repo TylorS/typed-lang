@@ -210,7 +210,7 @@ function parseTypeParametersOrHigherKindedType(
 }
 
 function parseTypeConstraint(parser: Parser): AST.Type | undefined {
-  if (parser.consumeTokenIf(TokenKind.Colon)) {
+  if (parser.consumeTokenIf(TokenKind.ExtendsKeyword)) {
     parser.skipWhitespace();
     const type = parseType(parser);
     parser.skipWhitespace();
@@ -1520,40 +1520,41 @@ function parseTypeClassDeclaration(
   parser.skipWhitespace();
   const openBrace = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
-  try {
-    const [fields, closeBrace] = parseNamedFields(
-      parser,
-      [TokenKind.Semicolon, TokenKind.Whitespace],
-      TokenKind.CloseBrace
-    );
+  const fields: AST.NamedField[] = [];
+
+  console.log();
+
+  do {
     parser.skipWhitespace();
-    return new AST.TypeClassDeclaration(
+    const name = consumeIdentifier(parser);
+    parser.consumeToken(TokenKind.Colon);
+    parser.skipWhitespace();
+    const type = parseType(parser);
+    const field = new AST.NamedField(
       name,
-      typeParameters,
-      openBrace.span,
-      fields,
-      closeBrace.span,
-      new Span(
-        exportKeyword ? exportKeyword.span.start : start,
-        closeBrace.span.end
-      ),
-      exportKeyword?.span
+      type,
+      new Span(name.span.start, type.span.end)
     );
-  } catch {
-    const closeBrace = parser.consumeToken(TokenKind.CloseBrace);
-    return new AST.TypeClassDeclaration(
-      name,
-      typeParameters,
-      openBrace.span,
-      [],
-      closeBrace.span,
-      new Span(
-        exportKeyword ? exportKeyword.span.start : start,
-        closeBrace.span.end
-      ),
-      exportKeyword?.span
-    );
-  }
+    fields.push(field);
+    parser.skipWhitespace();
+
+    console.log(parser.token(), parser.peek())
+  } while (parser.consumeTokenIf(TokenKind.Comma, TokenKind.Whitespace));
+  parser.skipWhitespace();
+  const closeBrace = parser.consumeToken(TokenKind.CloseBrace);
+  parser.skipWhitespace();
+  return new AST.TypeClassDeclaration(
+    name,
+    typeParameters,
+    openBrace.span,
+    fields,
+    closeBrace.span,
+    new Span(
+      exportKeyword ? exportKeyword.span.start : start,
+      closeBrace.span.end
+    ),
+    exportKeyword?.span
+  );
 }
 
 function parseInstanceDeclaration(

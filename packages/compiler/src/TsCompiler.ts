@@ -92,7 +92,9 @@ const sourceMappingUrlRegex = /\/\/# sourceMappingURL=(.*)/;
 
 function singleModuleTemplate(file: SourceFile): Interpolation {
   return t.span(file.span)(
-    file.statements.map(singleModuleDeclarationTemplate)
+    t.intercolate(t.newLine())(
+      file.statements.map(singleModuleDeclarationTemplate)
+    )
   );
 }
 
@@ -113,6 +115,10 @@ function runMultipleModuleTemplates(
         );
       } else {
         gen.runInterpolation(statementTemplate(decl));
+      }
+
+      if (i < file.statements.length - 1) {
+        gen.addNewLine();
       }
     }
   });

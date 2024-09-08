@@ -65,6 +65,7 @@ export enum TokenKind {
   OfKeyword = "OfKeyword",
   InstanceOfKeyword = "InstanceOfKeyword",
   NewKeyword = "NewKeyword",
+  ExtendsKeyword = "ExtendsKeyword",
 
   Identifier = "Identifier",
   StringLiteral = "StringLiteral",

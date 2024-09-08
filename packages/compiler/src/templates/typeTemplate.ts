@@ -10,6 +10,8 @@ import {
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { identiferOrPropertyAccess } from "./identifierOrPropertyAccessTemplate.js";
+import { typeParametersTemplate } from "./typeParametersTemplate.js";
+import { unwrapHkt } from "./unwrapHKT.js";
 
 export function typeTemplate(type: Type): Interpolation {
   switch (type._tag) {
@@ -87,7 +89,26 @@ function brandedTypeTemplate(type: BrandedType): Interpolation {
 }
 
 function functionTypeTemplate(type: FunctionType): Interpolation {
-  return t.span(type.span)(t``);
+  return t.span(type.span)(
+    t`${typeParametersTemplate(type.typeParameters.flatMap(unwrapHkt), {
+      parameterVariance: true,
+      functionDefaultValue: false,
+      constants: false,
+    })}(${t.intercolate(`, `)(
+      ...type.parameters.map((param) => {
+        if (param._tag === "PositionalField") {
+          return t`arg${String(param.index)}: ${typeTemplate(param.value)}`;
+        }
+
+        if (param.value) {
+          return t`${t.identifier(param.name)}: ${typeTemplate(param.value)}`;
+        }
+
+        const lowerCaseName = param.name.text.toLowerCase();
+        return t`${lowerCaseName}: ${t.identifier(param.name)}`;
+      })
+    )}) => ${typeTemplate(type.returnType)}`
+  );
 }
 
 function higherKindedTypeTemplate(type: HigherKindedType): Interpolation {
