@@ -6,6 +6,7 @@ import {
   ElseBlock,
   ElseIfBlock,
   Expression,
+  ForInStatement,
   ForOfStatement,
   FunctionCall,
   FunctionExpression,
@@ -16,8 +17,10 @@ import {
   NumberLiteral,
   ParenthesizedExpression,
   RecordLiteral,
+  Span,
   Statement,
   StringLiteral,
+  TokenKind,
   UnaryExpression,
   UndefinedLiteral,
   WhileStatement,
@@ -30,6 +33,7 @@ import { variableDeclarationTemplate } from "./variableDeclarationTemplate.js";
 import { functionDeclarationTemplate } from "./functionDeclarationTemplate.js";
 import { identifierOrDestructureTemplate } from "./identifierOrDestructureTemplate.js";
 import { unwrapHkt } from "./unwrapHKT.js";
+import { declarationTemplate } from "./declarationTemplate.js";
 
 export function statementTemplate(statement: Statement): Interpolation {
   switch (statement._tag) {
@@ -55,6 +59,10 @@ export function statementTemplate(statement: Statement): Interpolation {
       return variableDeclarationTemplate(statement);
     case "WhileStatement":
       return whileStatementTemplate(statement);
+    case "ForInStatement":
+      return forInStatementTemplate(statement);
+    default:
+      return declarationTemplate(statement);
   }
 }
 
@@ -215,12 +223,40 @@ function forOfStatementTemplate(statement: ForOfStatement): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`for`),
     ` (`,
-    `const `,
+    t`${variableKindTempalte(statement.variable)} `,
     identifierOrDestructureTemplate(statement.name),
     ` of `,
     expressionTemplate(statement.iterable),
-    `)`,
+    `) `,
     blockTemplate(statement.block)
+  );
+}
+
+function forInStatementTemplate(statement: ForInStatement): Interpolation {
+  return t.span(statement.span)(
+    t.span(statement.keyword)(`for`),
+    ` (`,
+    t`${variableKindTempalte(statement.variable)} `,
+    identifierOrDestructureTemplate(statement.name),
+    ` in `,
+    expressionTemplate(statement.object),
+    `) `,
+    blockTemplate(statement.block)
+  );
+}
+
+function variableKindTempalte(
+  variable: [
+    TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword,
+    Span
+  ]
+) {
+  return t.span(variable[1])(
+    variable[0] === TokenKind.ConstKeyword
+      ? `const`
+      : variable[0] === TokenKind.LetKeyword
+      ? `let`
+      : `var`
   );
 }
 

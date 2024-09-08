@@ -1,4 +1,5 @@
 import { Span } from "../Span.js";
+import { TokenKind } from "../Token.js";
 import { Destructure } from "./Declaration/VariableDeclaration.js";
 import { Expression } from "./Expression.js";
 import { Block } from "./Nodes/Block.js";
@@ -8,6 +9,7 @@ export type ControlFlow =
   | IfStatement
   | WhileStatement
   | ForOfStatement
+  | ForInStatement
   | BreakStatement
   | ContinueStatement
   | ReturnStatement;
@@ -72,8 +74,28 @@ export class ForOfStatement {
 
   constructor(
     readonly keyword: Span,
+    readonly variable: [
+      TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword,
+      Span
+    ],
     readonly name: Identifier | Destructure,
     readonly iterable: Expression,
+    readonly block: Block,
+    readonly span: Span
+  ) {}
+}
+
+export class ForInStatement {
+  readonly _tag = "ForInStatement";
+
+  constructor(
+    readonly keyword: Span,
+    readonly variable: [
+      TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword,
+      Span
+    ],
+    readonly name: Identifier | Destructure,
+    readonly object: Expression,
     readonly block: Block,
     readonly span: Span
   ) {}

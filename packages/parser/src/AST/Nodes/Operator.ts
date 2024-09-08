@@ -33,6 +33,7 @@ export enum OperatorKind {
   InstanceOf = "InstanceOf",
   NullishCoalescing = "NullishCoalescing",
   OptionalChaining = "OptionalChaining",
+  New = "New",
 }
 
 export class Operator {

@@ -1,5 +1,5 @@
 import { Span } from "../Span.js";
-import { Declaration } from "./Declaration.js";
+import { Statement } from "./Statement.js";
 
 export class SourceFile {
   readonly _tag = "SourceFile";
@@ -7,7 +7,7 @@ export class SourceFile {
   constructor(
     readonly fileName: string,
     readonly source: string,
-    readonly declarations: readonly Declaration[],
+    readonly statements: readonly Statement[],
     readonly span: Span
   ) {}
 }

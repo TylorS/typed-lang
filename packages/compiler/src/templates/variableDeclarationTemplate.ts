@@ -9,7 +9,7 @@ export function variableDeclarationTemplate(
 ): Interpolation {
   return t.span(decl.span)(
     decl.exported ? t`${t.span(decl.exported)(`export`)} ` : "",
-    `const `,
+    t.span(decl.keyword[1])(decl.keyword[0]),
     identifierOrDestructureTemplate(decl.name),
     decl.typeAnnotation ? typeTemplate(decl.typeAnnotation) : "",
     ` `,

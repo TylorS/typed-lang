@@ -4,8 +4,9 @@ import { TypedSnapshot } from "./snapshots.js";
 import remapping from "@ampproject/remapping";
 import { Interpolation, t } from "./Template.js";
 import { declarationTemplate } from "./templates/declarationTemplate.js";
-import { Declaration, SourceFile } from "@typed-lang/parser";
+import { SourceFile, Statement } from "@typed-lang/parser";
 import { MappedDocumentGenerator } from "./MappedDocumentGenerator.js";
+import { statementTemplate } from "./templates/expressionTemplate.js";
 
 const TYPED_SUB_MODULE_REGEX = /\.typed\.(.+)\.ts$/;
 const TYPED_EXTENSION = ".typed";
@@ -91,7 +92,7 @@ const sourceMappingUrlRegex = /\/\/# sourceMappingURL=(.*)/;
 
 function singleModuleTemplate(file: SourceFile): Interpolation {
   return t.span(file.span)(
-    file.declarations.map(singleModuleDeclarationTemplate)
+    file.statements.map(singleModuleDeclarationTemplate)
   );
 }
 
@@ -100,8 +101,8 @@ function runMultipleModuleTemplates(
   file: SourceFile
 ): void {
   gen.withSpan({ span: file.span }, (gen) => {
-    for (let i = 0; i < file.declarations.length; i++) {
-      const decl = file.declarations[i];
+    for (let i = 0; i < file.statements.length; i++) {
+      const decl = file.statements[i];
       if (decl._tag === "DataDeclaration") {
         gen.addModule(
           file.fileName + "." + decl.name.text + ".ts",
@@ -111,13 +112,13 @@ function runMultipleModuleTemplates(
           }
         );
       } else {
-        gen.runInterpolation(declarationTemplate(decl));
+        gen.runInterpolation(statementTemplate(decl));
       }
     }
   });
 }
 
-function singleModuleDeclarationTemplate(decl: Declaration): Interpolation {
+function singleModuleDeclarationTemplate(decl: Statement): Interpolation {
   switch (decl._tag) {
     case "DataDeclaration":
       return t.span(decl.span)(
@@ -131,6 +132,6 @@ function singleModuleDeclarationTemplate(decl: Declaration): Interpolation {
         `}`
       );
     default:
-      return declarationTemplate(decl);
+      return statementTemplate(decl);
   }
 }

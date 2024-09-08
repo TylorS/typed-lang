@@ -27,11 +27,13 @@ class Parser {
     return this.tokens[this.pos++];
   }
 
-  consumeToken(...kinds: TokenKind[]): Token {
+  consumeToken<const KINDS extends readonly TokenKind[]>(
+    ...kinds: KINDS
+  ): Token & { readonly kind: KINDS[number] } {
     const token = this.token();
 
     if (token && kinds.includes(token.kind)) {
-      return this.consume();
+      return this.consume() as Extract<Token, { readonly kind: KINDS[number] }>;
     }
 
     throw new Error(
@@ -62,88 +64,20 @@ class Parser {
 export function parse(fileName: string, source: string): AST.SourceFile {
   const tokens = tokenize(source);
   const parser = new Parser(source, tokens);
-  const declarations: AST.Declaration[] = [];
+  const statements: AST.Statement[] = [];
 
   while (!parser.isEOF) {
     parser.skipWhitespace();
-    declarations.push(parseDeclaration(parser));
+    statements.push(parseStatement(parser));
     parser.skipWhitespace();
   }
 
   return new AST.SourceFile(
     fileName,
     source,
-    declarations,
+    statements,
     new Span(tokens[0].span.start, tokens[tokens.length - 1].span.end)
   );
-}
-
-function parseDeclaration(parser: Parser): AST.Declaration {
-  const exportKeyword = parser.consumeTokenIf(TokenKind.ExportKeyword);
-  parser.skipWhitespace();
-  const current = parser.consumeTokenIf(
-    TokenKind.DataKeyword,
-    TokenKind.TypeKeyword,
-    TokenKind.BrandKeyword,
-    TokenKind.ConstKeyword,
-    TokenKind.FunctionKeyword,
-    TokenKind.TypeClassKeyword,
-    TokenKind.InstanceKeyword,
-    TokenKind.ImportKeyword,
-    TokenKind.Comment
-  );
-
-  if (current === undefined) {
-    throw new Error(
-      `Unexpected token in module scope: ${parser.token().kind} :: ${
-        parser.token().text
-      }`
-    );
-  }
-  parser.skipWhitespace();
-
-  switch (current.kind) {
-    case TokenKind.DataKeyword:
-      return parseDataDeclaration(parser, current.span.start, exportKeyword);
-    case TokenKind.TypeKeyword:
-      return parseTypeAlias(parser, current.span.start, exportKeyword);
-    case TokenKind.BrandKeyword:
-      return parseBrandDeclaration(parser, current.span.start, exportKeyword);
-    case TokenKind.FunctionKeyword:
-      return parseFunctionDeclaration(
-        parser,
-        current.span.start,
-        exportKeyword
-      );
-    case TokenKind.TypeClassKeyword:
-      return parseTypeClassDeclaration(
-        parser,
-        current.span.start,
-        exportKeyword
-      );
-    case TokenKind.InstanceKeyword:
-      return parseInstanceDeclaration(
-        parser,
-        current.span.start,
-        exportKeyword
-      );
-    case TokenKind.ConstKeyword:
-      return parseVariableDeclaration(
-        parser,
-        current.span.start,
-        exportKeyword
-      );
-    case TokenKind.ImportKeyword:
-      return parseImportDeclaration(parser, current.span.start);
-    case TokenKind.Comment: {
-      if (exportKeyword) {
-        throw new Error(`Unexpected export keyword before comment`);
-      }
-      return new AST.Comment(current.text, current.span);
-    }
-    default:
-      throw new Error(`Unexpected token: ${current.kind} :: ${current.text}`);
-  }
 }
 
 function parseDataDeclaration(
@@ -331,6 +265,7 @@ function parseConstructor(parser: Parser): AST.DataConstructor {
 }
 
 function consumeIdentifier(parser: Parser): AST.Identifier {
+  parser.skipWhitespace();
   const token = parser.consumeToken(
     TokenKind.Identifier,
     TokenKind.MatchKeyword
@@ -693,6 +628,7 @@ function parseTypeAlias(
   start: SpanLocation,
   exportKeyword: Token | undefined
 ): AST.TypeAliasDeclaration {
+  parser.skipWhitespace();
   const name = consumeIdentifier(parser);
   parser.skipWhitespace();
   const typeParameters = parseTypeParameters(parser);
@@ -791,13 +727,27 @@ function parseBlock(parser: Parser): AST.Block {
 }
 
 function parseStatement(parser: Parser): AST.Statement {
+  const exportKeyword = parser.consumeTokenIf(TokenKind.ExportKeyword);
+  if (exportKeyword) {
+    parser.skipWhitespace();
+  }
+
   const current = parser.consumeTokenIf(
     TokenKind.FunctionKeyword,
     TokenKind.ConstKeyword,
+    TokenKind.LetKeyword,
+    TokenKind.VarKeyword,
     TokenKind.IfKeyword,
     TokenKind.Comment,
     TokenKind.ReturnKeyword,
-    TokenKind.OpenParen
+    TokenKind.OpenParen,
+    TokenKind.ForKeyword,
+    TokenKind.DataKeyword,
+    TokenKind.TypeKeyword,
+    TokenKind.BrandKeyword,
+    TokenKind.TypeClassKeyword,
+    TokenKind.InstanceKeyword,
+    TokenKind.ImportKeyword
   );
 
   if (current === undefined) {
@@ -812,7 +762,18 @@ function parseStatement(parser: Parser): AST.Statement {
     case TokenKind.FunctionKeyword:
       return parseFunctionDeclaration(parser, current.span.start, undefined);
     case TokenKind.ConstKeyword:
-      return parseVariableDeclaration(parser, current.span.start);
+    case TokenKind.LetKeyword:
+    case TokenKind.VarKeyword:
+      return parseVariableDeclaration(
+        parser,
+        current as Token & {
+          kind:
+            | TokenKind.ConstKeyword
+            | TokenKind.LetKeyword
+            | TokenKind.VarKeyword;
+        },
+        exportKeyword
+      );
     case TokenKind.IfKeyword:
       return parseIfStatement(parser, current.span);
     case TokenKind.Comment:
@@ -826,6 +787,28 @@ function parseStatement(parser: Parser): AST.Statement {
         new Span(current.span.start, expr.span.end)
       );
     }
+    case TokenKind.ForKeyword:
+      return parseForStatement(parser, current.span);
+    case TokenKind.DataKeyword:
+      return parseDataDeclaration(parser, current.span.start, exportKeyword);
+    case TokenKind.TypeKeyword:
+      return parseTypeAlias(parser, current.span.start, exportKeyword);
+    case TokenKind.BrandKeyword:
+      return parseBrandDeclaration(parser, current.span.start, exportKeyword);
+    case TokenKind.TypeClassKeyword:
+      return parseTypeClassDeclaration(
+        parser,
+        current.span.start,
+        exportKeyword
+      );
+    case TokenKind.InstanceKeyword:
+      return parseInstanceDeclaration(
+        parser,
+        current.span.start,
+        exportKeyword
+      );
+    case TokenKind.ImportKeyword:
+      return parseImportDeclaration(parser, current.span.start);
     default:
       throw new Error(
         `Unexpected token in block: ${current.kind} :: ${
@@ -837,9 +820,54 @@ function parseStatement(parser: Parser): AST.Statement {
   }
 }
 
+function parseForStatement(
+  parser: Parser,
+  start: Span
+): AST.ForInStatement | AST.ForOfStatement {
+  parser.skipWhitespace();
+  parser.consumeToken(TokenKind.OpenParen);
+  const variable = parser.consumeToken(
+    TokenKind.ConstKeyword,
+    TokenKind.LetKeyword,
+    TokenKind.VarKeyword
+  );
+  parser.skipWhitespace();
+  const name = consumeIdentifier(parser);
+  parser.skipWhitespace();
+  const inOrOf = parser.consumeToken(TokenKind.InKeyword, TokenKind.OfKeyword);
+  parser.skipWhitespace();
+  const object = parseExpression(parser);
+  parser.skipWhitespace();
+  parser.consumeToken(TokenKind.CloseParen);
+  parser.skipWhitespace();
+  const block = parseBlock(parser);
+
+  if (inOrOf.kind === TokenKind.InKeyword) {
+    return new AST.ForInStatement(
+      start,
+      [variable.kind, variable.span],
+      name,
+      object,
+      block,
+      new Span(start.start, block.span.end)
+    );
+  } else {
+    return new AST.ForOfStatement(
+      start,
+      [variable.kind, variable.span],
+      name,
+      object,
+      block,
+      new Span(start.start, block.span.end)
+    );
+  }
+}
+
 function parseVariableDeclaration(
   parser: Parser,
-  start: SpanLocation,
+  keyword: Token & {
+    kind: TokenKind.ConstKeyword | TokenKind.LetKeyword | TokenKind.VarKeyword;
+  },
   exportKeyword: Token | undefined = undefined
 ): AST.VariableDeclaration {
   const name = consumeIdentifier(parser);
@@ -857,11 +885,15 @@ function parseVariableDeclaration(
   const value = parseExpression(parser);
   parser.skipWhitespace();
   return new AST.VariableDeclaration(
+    [keyword.kind, keyword.span],
     name,
     type,
     equals.span,
     value,
-    new Span(exportKeyword ? exportKeyword.span.start : start, value.span.end),
+    new Span(
+      exportKeyword ? exportKeyword.span.start : keyword.span.start,
+      value.span.end
+    ),
     exportKeyword?.span
   );
 }
@@ -1008,7 +1040,8 @@ function parseUnaryOperator(parser: Parser): AST.Operator | undefined {
     TokenKind.Plus,
     TokenKind.Minus,
     TokenKind.Exclamation,
-    TokenKind.Tilde
+    TokenKind.Tilde,
+    TokenKind.NewKeyword
   );
   if (token === undefined) return undefined;
 
@@ -1021,6 +1054,8 @@ function parseUnaryOperator(parser: Parser): AST.Operator | undefined {
       return new AST.Operator(AST.OperatorKind.Not, token.span);
     case TokenKind.Tilde:
       return new AST.Operator(AST.OperatorKind.BitwiseNot, token.span);
+    case TokenKind.NewKeyword:
+      return new AST.Operator(AST.OperatorKind.New, token.span);
   }
 }
 
@@ -1143,7 +1178,10 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
     TokenKind.GreaterThan,
     TokenKind.Tilde,
     TokenKind.QuestionMark,
-    TokenKind.Colon
+    TokenKind.Colon,
+    TokenKind.InKeyword,
+    TokenKind.InstanceOfKeyword,
+    TokenKind.NewKeyword
   );
   if (token === undefined) return undefined;
 
@@ -1256,6 +1294,12 @@ function parseOperator(parser: Parser): AST.Operator | undefined {
       return new AST.Operator(AST.OperatorKind.TernaryIf, token.span);
     case TokenKind.Colon:
       return new AST.Operator(AST.OperatorKind.TernaryElse, token.span);
+    case TokenKind.InKeyword:
+      return new AST.Operator(AST.OperatorKind.In, token.span);
+    case TokenKind.InstanceOfKeyword:
+      return new AST.Operator(AST.OperatorKind.InstanceOf, token.span);
+    case TokenKind.NewKeyword:
+      return new AST.Operator(AST.OperatorKind.New, token.span);
   }
 }
 
@@ -1470,7 +1514,6 @@ function parseTypeClassDeclaration(
   start: SpanLocation,
   exportKeyword: Token | undefined
 ): AST.TypeClassDeclaration {
-  parser.skipWhitespace();
   const name = consumeIdentifier(parser);
   parser.skipWhitespace();
   const typeParameters = parseTypeParametersOrHigherKindedType(parser);
@@ -1518,7 +1561,6 @@ function parseInstanceDeclaration(
   start: SpanLocation,
   exportKeyword: Token | undefined
 ): AST.InstanceDeclaration {
-  parser.skipWhitespace();
   const name = consumeIdentifier(parser);
   parser.skipWhitespace();
   const typeParameters = parseTypeParametersOrHigherKindedType(parser);
@@ -1660,7 +1702,6 @@ function parseImportSpecifier(parser: Parser): AST.ImportSpecifier {
   const identifier = consumeIdentifier(parser);
   parser.skipWhitespace();
   if (parser.consumeTokenIf(TokenKind.AsKeyword)) {
-    parser.skipWhitespace();
     const alias = consumeIdentifier(parser);
     return new AST.ImportSpecifier(
       identifier,

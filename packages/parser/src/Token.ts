@@ -43,6 +43,8 @@ export enum TokenKind {
   BrandKeyword = "BrandKeyword",
   BreakKeyword = "BreakKeyword",
   ConstKeyword = "ConstKeyword",
+  LetKeyword = "LetKeyword",
+  VarKeyword = "VarKeyword",
   ContinueKeyword = "ContinueKeyword",
   DataKeyword = "DataKeyword",
   ExportKeyword = "ExportKeyword",
@@ -57,6 +59,12 @@ export enum TokenKind {
   ImportKeyword = "ImportKeyword",
   FromKeyword = "FromKeyword",
   AsKeyword = "AsKeyword",
+  
+  ForKeyword = "ForKeyword",
+  InKeyword = "InKeyword",
+  OfKeyword = "OfKeyword",
+  InstanceOfKeyword = "InstanceOfKeyword",
+  NewKeyword = "NewKeyword",
 
   Identifier = "Identifier",
   StringLiteral = "StringLiteral",

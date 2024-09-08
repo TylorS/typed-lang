@@ -287,15 +287,63 @@ export function tokenize(text: string): Array<Token> {
         tokenizeStringLiteral(tokenizer);
         continue;
       default: {
-        if (char === "i" && ["if ", "if("].includes(tokenizer.slice(3))) {
-          tokenizer.addToken(
-            new Token(TokenKind.IfKeyword, "if", new Span(loc, loc.offset(2)))
-          );
-          tokenizer.takeWhitespace();
-          continue;
+        if (char === "i") {
+          if (["if ", "if("].includes(tokenizer.slice(3))) {
+            tokenizer.addToken(
+              new Token(TokenKind.IfKeyword, "if", new Span(loc, loc.offset(2)))
+            );
+            tokenizer.takeWhitespace();
+            continue;
+          } else if (tokenizer.slice(10) === "instanceof") {
+            tokenizer.addToken(
+              new Token(
+                TokenKind.InstanceOfKeyword,
+                "instanceof",
+                new Span(loc, loc.offset(10))
+              )
+            );
+            tokenizer.takeWhitespace();
+            continue;
+          } else if (tokenizer.slice(2) === "in") {
+            tokenizer.addToken(
+              new Token(TokenKind.InKeyword, "in", new Span(loc, loc.offset(2)))
+            );
+            tokenizer.takeWhitespace();
+            continue;
+          }
         } else if (char === "a" && tokenizer.slice(2) === "as") {
           tokenizer.addToken(
             new Token(TokenKind.AsKeyword, "as", new Span(loc, loc.offset(2)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (char === "o" && tokenizer.slice(2) === "of") {
+          tokenizer.addToken(
+            new Token(TokenKind.OfKeyword, "of", new Span(loc, loc.offset(2)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (char === "n" && tokenizer.slice(3) === "new") {
+          tokenizer.addToken(
+            new Token(TokenKind.NewKeyword, "new", new Span(loc, loc.offset(3)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (char === "f" && tokenizer.slice(3) === "for") {
+          tokenizer.addToken(
+            new Token(TokenKind.ForKeyword, "for", new Span(loc, loc.offset(3)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (char === "l" && tokenizer.slice(3) === "let") {
+          tokenizer.addToken(
+            new Token(TokenKind.LetKeyword, "let", new Span(loc, loc.offset(3)))
+          );
+          tokenizer.takeWhitespace();
+          continue;
+        } else if (char === "v" && tokenizer.slice(3) === "var") {
+          tokenizer.addToken(
+            new Token(TokenKind.VarKeyword, "var", new Span(loc, loc.offset(3)))
           );
           tokenizer.takeWhitespace();
           continue;
