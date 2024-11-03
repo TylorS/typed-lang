@@ -15,7 +15,8 @@ export type Expression =
   | Literal
   | ParenthesizedExpression
   | MemberExpression
-  | FunctionExpression;
+  | FunctionExpression
+  | MatchExpression;
 
 export class UnaryExpression {
   readonly _tag = "UnaryExpression";
@@ -83,4 +84,32 @@ export class FunctionExpression {
     readonly block: Block | Expression,
     readonly span: Span
   ) {}
+}
+
+export class MatchExpression {
+  readonly _tag = "MatchExpression";
+
+  constructor(
+    readonly matching: Expression,
+    readonly cases: readonly MatchCase[],
+    readonly span: Span
+  ) {}
+}
+
+export class MatchCase {
+  readonly _tag = "MatchCase";
+
+  constructor(
+    readonly pattern: Pattern,
+    readonly body: Block | Expression,
+    readonly span: Span
+  ) {}
+}
+
+export type Pattern = Identifier | Literal | ArrayPattern;
+
+export class ArrayPattern {
+  readonly _tag = "ArrayPattern";
+
+  constructor(readonly elements: readonly Pattern[], readonly span: Span) {}
 }

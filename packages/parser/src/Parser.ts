@@ -266,10 +266,7 @@ function parseConstructor(parser: Parser): AST.DataConstructor {
 
 function consumeIdentifier(parser: Parser): AST.Identifier {
   parser.skipWhitespace();
-  const token = parser.consumeToken(
-    TokenKind.Identifier,
-    TokenKind.MatchKeyword
-  );
+  const token = parser.consumeToken(TokenKind.Identifier);
   return new AST.Identifier(token.text, token.span);
 }
 
@@ -311,7 +308,7 @@ function consumeMemberExpressionFromIdentifier(
   const questionMark = parser.consumeTokenIf(TokenKind.QuestionMark);
   const dot = parser.consumeTokenIf(TokenKind.Period);
   if (dot === undefined) return object;
-  const property = consumeIdentifier(parser);
+  const property = consumeAsIdentifier(parser);
 
   return new AST.MemberExpression(
     object,
@@ -320,6 +317,11 @@ function consumeMemberExpressionFromIdentifier(
     property,
     new Span(object.span.start, property.span.end)
   );
+}
+
+function consumeAsIdentifier(parser: Parser): AST.Identifier {
+  const nextToken = parser.consume();
+  return new AST.Identifier(nextToken.text, nextToken.span);
 }
 
 function parseNamedFields(
@@ -780,7 +782,7 @@ function parseStatement(parser: Parser): AST.Statement {
       return new AST.Comment(current.text, current.span);
     case TokenKind.ReturnKeyword: {
       parser.skipWhitespace();
-      const expr = parseExpression(parser);
+      const expr = parseBinaryExpression(parser);
       return new AST.ReturnStatement(
         current.span,
         expr,
@@ -836,7 +838,7 @@ function parseForStatement(
   parser.skipWhitespace();
   const inOrOf = parser.consumeToken(TokenKind.InKeyword, TokenKind.OfKeyword);
   parser.skipWhitespace();
-  const object = parseExpression(parser);
+  const object = parseBinaryExpression(parser);
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.CloseParen);
   parser.skipWhitespace();
@@ -882,7 +884,7 @@ function parseVariableDeclaration(
 
   const equals = parser.consumeToken(TokenKind.EqualSign);
   parser.skipWhitespace();
-  const value = parseExpression(parser);
+  const value = parseBinaryExpression(parser);
   parser.skipWhitespace();
   return new AST.VariableDeclaration(
     [keyword.kind, keyword.span],
@@ -902,7 +904,7 @@ function parseIfStatement(parser: Parser, start: Span): AST.IfStatement {
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.OpenParen);
   parser.skipWhitespace();
-  const condition = parseExpression(parser);
+  const condition = parseBinaryExpression(parser);
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.CloseParen);
   parser.skipWhitespace();
@@ -964,7 +966,7 @@ function parseElseIfBlock(parser: Parser): AST.ElseIfBlock | undefined {
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.OpenParen);
   parser.skipWhitespace();
-  const condition = parseExpression(parser);
+  const condition = parseBinaryExpression(parser);
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.CloseParen);
   parser.skipWhitespace();
@@ -1012,6 +1014,8 @@ function parsePrimaryExpression(parser: Parser): AST.Expression {
       return parseExpressionFromOpenParen(parser);
     case TokenKind.LessThan:
       return parseExpressionFromLessThan(parser);
+    case TokenKind.MatchKeyword:
+      return parseExpressionFromMatchKeyword(parser);
     default: {
       const unaryOperator = parseUnaryOperator(parser);
       if (unaryOperator) {
@@ -1101,7 +1105,10 @@ function isRightAssociative(operator: AST.Operator): boolean {
   return operator.kind === AST.OperatorKind.Exponent;
 }
 
-function parseExpression(parser: Parser, minPrecedence = 0): AST.Expression {
+function parseBinaryExpression(
+  parser: Parser,
+  minPrecedence = 0
+): AST.Expression {
   parser.skipWhitespace();
   let left = parseUnaryExpression(parser);
 
@@ -1116,7 +1123,7 @@ function parseExpression(parser: Parser, minPrecedence = 0): AST.Expression {
       : getPrecedence(operator) + 1;
 
     parser.skipWhitespace();
-    const right = parseExpression(parser, nextMinPrecedence);
+    const right = parseBinaryExpression(parser, nextMinPrecedence);
 
     left = new AST.BinaryExpression(
       operator,
@@ -1131,8 +1138,8 @@ function parseExpressionFromIdentifier(parser: Parser): AST.Expression {
   const identifier = consumeIdentifierOrMemberExpression(parser);
   parser.skipWhitespace();
 
+  const typeArguments = parseTypeArguments(parser);
   if (parser.consumeTokenIf(TokenKind.OpenParen)) {
-    const typeArguments = parseTypeArguments(parser);
     const [params, close] = parseExpressions(
       parser,
       TokenKind.Comma,
@@ -1150,7 +1157,7 @@ function parseExpressionFromIdentifier(parser: Parser): AST.Expression {
   parser.skipWhitespace();
   if (operator === undefined) return identifier;
 
-  const nextExpression = parseExpression(parser);
+  const nextExpression = parsePrimaryExpression(parser);
   parser.skipWhitespace();
 
   return new AST.BinaryExpression(
@@ -1333,6 +1340,106 @@ function parseExpressionFromOpenBrace(parser: Parser): AST.RecordLiteral {
   );
 }
 
+function parseExpressionFromMatchKeyword(parser: Parser): AST.Expression {
+  const matchKeyword = parser.consumeToken(TokenKind.MatchKeyword);
+  parser.skipWhitespace();
+  const expression = parsePrimaryExpression(parser);
+  parser.skipWhitespace();
+  parser.consumeToken(TokenKind.OpenBrace);
+  parser.skipWhitespace();
+  const cases = parseMatchCases(parser);
+  parser.skipWhitespace();
+  const closeBrace = parser.consumeToken(TokenKind.CloseBrace);
+  return new AST.MatchExpression(
+    expression,
+    cases,
+    new Span(matchKeyword.span.start, closeBrace.span.end)
+  );
+}
+
+function parseMatchCases(parser: Parser): readonly AST.MatchCase[] {
+  const cases: AST.MatchCase[] = [];
+  while (parser.token().kind !== TokenKind.CloseBrace) {
+    const pattern = parsePattern(parser);
+    parser.skipWhitespace();
+    parser.consumeToken(TokenKind.Hyphen);
+    parser.consumeToken(TokenKind.GreaterThan);
+    parser.skipWhitespace();
+    const body = parseBlockOrExpression(parser);
+    cases.push(
+      new AST.MatchCase(
+        pattern,
+        body,
+        new Span(pattern.span.start, body.span.end)
+      )
+    );
+  }
+
+  return cases;
+}
+
+function parsePattern(parser: Parser): AST.Pattern {
+  const identifier = parser.consumeTokenIf(TokenKind.Identifier);
+  if (identifier !== undefined) {
+    return new AST.Identifier(identifier.text, identifier.span);
+  }
+
+  const literal = parser.consumeTokenIf(
+    TokenKind.StringLiteral,
+    TokenKind.BooleanLiteral,
+    TokenKind.NumberLiteral
+  );
+  if (literal !== undefined) {
+    switch (literal.kind) {
+      case TokenKind.StringLiteral:
+        return new AST.StringLiteral(literal.text, literal.span);
+      case TokenKind.BooleanLiteral:
+        return new AST.BooleanLiteral(literal.text === "true", literal.span);
+      case TokenKind.NumberLiteral:
+        return new AST.NumberLiteral(Number(literal.text), literal.span);
+    }
+  }
+
+  const openBracket = parser.consumeTokenIf(TokenKind.OpenBracket);
+  if (openBracket !== undefined) {
+    const [patterns, closeBracket] = parsePatternsSeparatedBy(
+      parser,
+      TokenKind.Comma,
+      TokenKind.CloseBracket
+    );
+
+    return new AST.ArrayPattern(
+      patterns,
+      new Span(openBracket.span.start, closeBracket.span.end)
+    );
+  }
+
+  throw new Error("Invalid pattern: " + parser.source.slice(parser.pos));
+}
+
+function parsePatternsSeparatedBy<EndToken extends TokenKind>(
+  parser: Parser,
+  separator: TokenKind,
+  endToken: EndToken
+): readonly [readonly AST.Pattern[], Token & { kind: typeof endToken }] {
+  const patterns: AST.Pattern[] = [];
+
+  const ending = parser.consumeTokenIf(endToken);
+  if (ending !== undefined) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return [patterns, ending as any];
+  }
+
+  do {
+    parser.skipWhitespace();
+    patterns.push(parsePattern(parser));
+    parser.skipWhitespace();
+  } while (parser.consumeTokenIf(separator));
+  parser.skipWhitespace();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return [patterns, parser.consumeToken(endToken) as any];
+}
+
 function parseRecordFields(
   parser: Parser,
   separators: readonly TokenKind[],
@@ -1354,7 +1461,7 @@ function parseRecordField(parser: Parser): AST.RecordField {
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.Colon);
   parser.skipWhitespace();
-  const value = parseExpression(parser);
+  const value = parsePrimaryExpression(parser);
   parser.skipWhitespace();
   return new AST.RecordField(
     name,
@@ -1382,7 +1489,7 @@ function parseExpressions(
   const expressions: AST.Expression[] = [];
   do {
     parser.skipWhitespace();
-    expressions.push(parseExpression(parser));
+    expressions.push(parsePrimaryExpression(parser));
     parser.skipWhitespace();
   } while (parser.consumeTokenIf(separator));
   const end = parser.consumeToken(terminator);
@@ -1416,7 +1523,8 @@ function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
 
   const isProbablyNamedFields =
     parser.token().kind === TokenKind.Identifier &&
-    (parser.peek(1)?.kind === TokenKind.Colon ||
+    (parser.peek(1)?.kind === TokenKind.CloseParen ||
+      parser.peek(1)?.kind === TokenKind.Colon ||
       parser.peek(2)?.kind === TokenKind.Colon);
 
   if (isProbablyNamedFields) {
@@ -1445,7 +1553,7 @@ function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
     }
   }
 
-  const expression = parseExpression(parser);
+  const expression = parseBinaryExpression(parser);
   parser.skipWhitespace();
   const closeParen = parser.consumeToken(TokenKind.CloseParen);
   parser.skipWhitespace();
@@ -1506,7 +1614,7 @@ function parseBlockOrExpression(parser: Parser): AST.Block | AST.Expression {
     return parseBlock(parser);
   }
 
-  return parseExpression(parser);
+  return parseBinaryExpression(parser);
 }
 
 function parseTypeClassDeclaration(
@@ -1521,6 +1629,23 @@ function parseTypeClassDeclaration(
   const openBrace = parser.consumeToken(TokenKind.OpenBrace);
   parser.skipWhitespace();
   const fields: AST.NamedField[] = [];
+
+  if (parser.token().kind === TokenKind.CloseBrace) {
+    const closeBrace = parser.consumeToken(TokenKind.CloseBrace);
+    parser.skipWhitespace();
+    return new AST.TypeClassDeclaration(
+      name,
+      typeParameters,
+      openBrace.span,
+      fields,
+      closeBrace.span,
+      new Span(
+        exportKeyword ? exportKeyword.span.start : start,
+        closeBrace.span.end
+      ),
+      exportKeyword?.span
+    );
+  }
 
   do {
     parser.skipWhitespace();
@@ -1605,7 +1730,7 @@ function parseInstanceField(parser: Parser): AST.InstanceField {
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.Colon);
   parser.skipWhitespace();
-  const expression = parseExpression(parser);
+  const expression = parseBinaryExpression(parser);
 
   return new AST.InstanceField(
     identifer,

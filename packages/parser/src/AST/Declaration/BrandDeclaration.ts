@@ -1,6 +1,6 @@
-import { Span } from "../../Span.js";
-import { Identifier } from "../Nodes/Identifier.js";
-import { Type } from "../Type.js";
+import type { Span } from "../../Span.js";
+import type { Identifier } from "../Nodes/Identifier.js";
+import type { Type } from "../Type.js";
 
 export class BrandDeclaration {
   readonly _tag = "BrandDeclaration";
