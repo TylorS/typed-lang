@@ -12,6 +12,8 @@ import {
   FunctionExpression,
   IfBlock,
   IfStatement,
+  MatchCase,
+  MatchExpression,
   MemberExpression,
   NullLiteral,
   NumberLiteral,
@@ -24,6 +26,7 @@ import {
   UnaryExpression,
   UndefinedLiteral,
   WhileStatement,
+  Pattern,
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { operatorTemplate } from "./operatorTemplate.js";
@@ -96,6 +99,8 @@ export function expressionTemplate(expression: Expression): Interpolation {
       return unaryExpressionTemplate(expression);
     case "UndefinedLiteral":
       return undefinedLiteralTemplate(expression);
+    case "MatchExpression":
+      return matchExpressionTemplate(expression);
   }
 }
 
@@ -306,4 +311,82 @@ function whileStatementTemplate(statement: WhileStatement): Interpolation {
     `)`,
     blockTemplate(statement.block)
   );
+}
+
+function matchExpressionTemplate(expression: MatchExpression): Interpolation {
+  const valueName = "__matchValue";
+  return t.span(expression.span)(
+    t`(() => {`,
+    t.newLine(),
+    t.indent(
+      t`const ${valueName} = `,
+      expressionTemplate(expression.matching),
+      t`;`,
+      t.newLine(),
+      t`switch (true) {`,
+      t.newLine(),
+      t.indent(
+        t.intercolate([t.newLine(), t.newLine()])(
+          expression.cases.map((c) => matchCaseTemplate(c, valueName))
+        )
+      ),
+      t.newLine(),
+      t`default: throw new Error("Unhandled match case");`,
+      t.newLine(),
+      t`}`,
+      t.newLine(),
+      t`})()`
+    )
+  );
+}
+
+function matchCaseTemplate(matchCase: MatchCase, valueName: string): Interpolation {
+  return t.span(matchCase.span)(
+    t`case `,
+    patternTestTemplate(matchCase.pattern, valueName),
+    t`:`,
+    t.newLine(),
+    t.indent(
+      matchCase.body._tag === "Block"
+        ? blockTemplate(matchCase.body)
+        : expressionTemplate(matchCase.body)
+    )
+  );
+}
+
+function patternTestTemplate(pattern: Pattern, valueName: string): Interpolation {
+  switch (pattern._tag) {
+    case "Identifier":
+      return t`${valueName} === ${t.identifier(pattern)}`;
+    case "StringLiteral":
+      return t`${valueName} === "${pattern.value}"`;
+    case "NumberLiteral":
+      return t`${valueName} === ${String(pattern.value)}`;
+    case "BooleanLiteral":
+      return t`${valueName} === ${String(pattern.value)}`;
+    case "NullLiteral":
+      return t`${valueName} === null`;
+    case "UndefinedLiteral":
+      return t`${valueName} === undefined`;
+    case "ArrayPattern":
+      return t`${valueName} && Array.isArray(${valueName}) && ${valueName}.length === ${String(pattern.elements.length)} && ${t.intercolate(" && ")(
+        pattern.elements.map((element, index) => 
+          patternTestTemplate(element, `${valueName}[${index}]`)
+        )
+      )}`;
+    case 'ArrayLiteral':
+      return t`${valueName} && Array.isArray(${valueName}) && ${valueName}.length === ${String(pattern.values.length)} && ${t.intercolate(" && ")(
+        pattern.values.map((value, index) => 
+          t`${valueName}[${String(index)}] === ${expressionTemplate(value)}`
+        )
+      )}`;
+    case 'RecordLiteral':
+      return t`${valueName} && typeof ${valueName} === "object" && Object.keys(${valueName}).length === ${String(pattern.fields.length)} && ${t.intercolate(" && ")(
+        pattern.fields.map(field => 
+          t`${valueName}.${t.identifier(field.name)} === ${expressionTemplate(field.value)}`
+        )
+      )}`;
+    default:
+      throw new Error(`Unhandled pattern type: ${(pattern as any)._tag}`);
+  }
 }
