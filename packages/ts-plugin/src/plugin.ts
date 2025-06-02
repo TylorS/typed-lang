@@ -12,9 +12,7 @@ import { TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
 const typedLanguageId = "typed";
 const extension = "." + typedLanguageId;
 
-export function getLanguagePlugin(): LanguagePlugin<string, TypedVirtualCode> {
-  const compiler = new TsCompiler({ outputMode: "single" });
-
+export function getLanguagePlugin(compiler: TsCompiler): LanguagePlugin<string, TypedVirtualCode> {
   return {
     getLanguageId(uri) {
       if (uri.endsWith(extension)) {
@@ -69,22 +67,7 @@ export class TypedVirtualCode implements VirtualCode {
 
     this.embeddedCodes = [typedSnapshotToVirtualCode(this.typed, "typescript")];
 
-    this.mappings = [
-      {
-        sourceOffsets: [0],
-        generatedOffsets: [0],
-        lengths: [this.snapshot.getLength()],
-        generatedLengths: [this.typed.getText().length],
-        data: {
-          verification: true,
-          completion: true,
-          semantic: true,
-          navigation: true,
-          structure: false,
-          format: false,
-        },
-      },
-    ];
+    this.mappings = this.typed.mappings
   }
 }
 

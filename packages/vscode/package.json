@@ -20,18 +20,18 @@
     "@typed-lang/compiler": "workspace:*",
     "@typed-lang/parser": "workspace:*",
     "@typed-lang/ts-plugin": "workspace:*",
-    "@volar/language-core": "~2.3.4",
-    "@volar/language-server": "^2.3.4",
-    "@volar/typescript": "~2.3.4",
-    "@volar/vscode": "^2.3.4",
+    "@volar/language-core": "~2.4.14",
+    "@volar/language-server": "^2.4.14",
+    "@volar/typescript": "~2.4.14",
+    "@volar/vscode": "^2.4.14",
     "vscode-languageclient": "^9.0.1"
   },
   "peerDependencies": {
     "typescript": "^5.5.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11",
-    "esbuild": "^0.23.0",
+    "@types/node": "^22.15.29",
+    "esbuild": "^0.25.5",
     "vsce": "^2.15.0",
     "vscode": "^1.1.37"
   },

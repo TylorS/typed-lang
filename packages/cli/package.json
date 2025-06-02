@@ -26,18 +26,18 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^20.14.11"
+    "@types/node": "^22.15.29"
   },
   "dependencies": {
-    "@effect/cli": "^0.38.2",
-    "@effect/platform": "^0.59.2",
-    "@effect/platform-node": "^0.54.3",
-    "@effect/printer-ansi": "^0.33.50",
-    "@effect/printer": "^0.33.50",
-    "@effect/schema": "^0.68.26",
-    "@effect/typeclass": "^0.24.50",
+    "@effect/cli": "^0.63.4",
+    "@effect/platform": "^0.84.4",
+    "@effect/platform-node": "^0.84.2",
+    "@effect/printer": "^0.44.3",
+    "@effect/printer-ansi": "^0.44.3",
+    "@effect/schema": "^0.75.5",
+    "@effect/typeclass": "^0.35.3",
     "@typed-lang/compiler": "workspace:*",
-    "effect": "^3.5.7",
-    "fast-glob": "^3.3.2"
+    "effect": "^3.16.3",
+    "fast-glob": "^3.3.3"
   }
 }

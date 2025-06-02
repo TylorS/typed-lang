@@ -13,16 +13,16 @@
   "dependencies": {
     "@jridgewell/sourcemap-codec": "^1.5.0",
     "@typed-lang/compiler": "workspace:*",
-    "@typed-lang/typedlib": "workspace:*",
     "@typed-lang/parser": "workspace:*",
-    "@volar/language-core": "~2.3.4",
-    "@volar/typescript": "~2.3.4"
+    "@typed-lang/typedlib": "workspace:*",
+    "@volar/language-core": "~2.4.14",
+    "@volar/typescript": "~2.4.14"
   },
   "peerDependencies": {
     "typescript": "^5.5.3"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11"
+    "@types/node": "^22.15.29"
   },
   "exports": {
     ".": {

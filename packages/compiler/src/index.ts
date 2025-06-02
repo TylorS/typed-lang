@@ -4,3 +4,4 @@ export * from "./MappedDocumentGenerator.js";
 export * from "./ModuleCompiler.js";
 export * from './TsCompiler.js';
 export * from "./snapshots.js";
+export * from "./TypedLanguageService/TypedLanguageService.js";
