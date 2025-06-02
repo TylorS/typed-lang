@@ -15,19 +15,15 @@ const TYPED_TS_EXTENSION = TYPED_EXTENSION + ".ts";
 export interface TsCompilerOptions {
   // Determines if the output should be a single module or multiple modules
   readonly outputMode: "single" | "multiple";
-  // Determines if the output should include declaration files
-  readonly declaration: boolean;
 }
 
 const defaultOptions: TsCompilerOptions = {
   outputMode: "multiple",
-  declaration: false,
 };
 
 export class TsCompiler extends CompilerService {
   constructor({
     outputMode = defaultOptions.outputMode,
-    declaration = defaultOptions.declaration,
   }: Partial<TsCompilerOptions> = {}) {
     super(
       (m, f) => {
@@ -35,10 +31,6 @@ export class TsCompiler extends CompilerService {
           m.runInterpolation(singleModuleTemplate(f));
         } else {
           runMultipleModuleTemplates(m, f);
-        }
-
-        if (declaration) {
-          // TODO: Generate DTS files
         }
       },
       ".ts",
