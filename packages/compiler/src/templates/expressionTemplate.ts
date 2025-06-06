@@ -30,7 +30,7 @@ import {
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { operatorTemplate } from "./operatorTemplate.js";
-import { typeArgumentsTemplate, typeTemplate } from "./typeTemplate.js";
+import { HktsByName, typeArgumentsTemplate, typeTemplate } from "./typeTemplate.js";
 import { typeParametersTemplate } from "./typeParametersTemplate.js";
 import { variableDeclarationTemplate } from "./variableDeclarationTemplate.js";
 import { functionDeclarationTemplate } from "./functionDeclarationTemplate.js";
@@ -133,10 +133,11 @@ function functionCallTemplate(expression: FunctionCall): Interpolation {
 
 // TODO: WE NEED MUCH BETTER SUPPORT FOR HKT's
 function functionExpressionTemplate(
-  expression: FunctionExpression
+  expression: FunctionExpression,
+  hktsByName?: HktsByName
 ): Interpolation {
   return t.span(expression.span)(
-    typeParametersTemplate(expression.typeParameters.flatMap(unwrapHkt), {
+    typeParametersTemplate(expression.typeParameters.flatMap(t => unwrapHkt(t, hktsByName)), {
       parameterVariance: false,
       functionDefaultValue: true,
       constants: true,
@@ -150,7 +151,7 @@ function functionExpressionTemplate(
           }`
       )
     )})`,
-    expression.returnType ? t`: ${typeTemplate(expression.returnType)} ` : "",
+    expression.returnType ? t`: ${typeTemplate(expression.returnType)}` : "",
     t` => ${
       expression.block._tag === "Block"
         ? blockTemplate(expression.block)
@@ -387,6 +388,6 @@ function patternTestTemplate(pattern: Pattern, valueName: string): Interpolation
         )
       )}`;
     default:
-      throw new Error(`Unhandled pattern type: ${(pattern as any)._tag}`);
+      throw new Error(`Unhandled pattern type: ${JSON.stringify(pattern, null, 2)}`);
   }
 }

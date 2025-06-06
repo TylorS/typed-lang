@@ -10,12 +10,14 @@ import {
 } from "./typeParametersTemplate";
 import { unwrapHkt } from "./unwrapHKT";
 import { getTypeParametersFromFields } from "./getTypeParametersFromFields";
+import { HktsByName } from "./typeTemplate";
 
 export function dataDeclarationMatchTemplate(
-  decl: DataDeclaration
+  decl: DataDeclaration,
+  hktsByName?: HktsByName
 ): Interpolation {
   const paramName = decl.name.text.toLowerCase();
-  const typeParams = decl.typeParameters.flatMap(unwrapHkt);
+  const typeParams = decl.typeParameters.flatMap(t => unwrapHkt(t, hktsByName));
   const typeParamsForReturnTypes = Array.from(
     { length: decl.constructors.length },
     (_, i) => `Return${i + 1}`

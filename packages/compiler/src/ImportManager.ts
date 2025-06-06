@@ -35,7 +35,9 @@ export class FileImport {
 
   addNamedImport = (name: string, alias?: string) => { 
     if (this.imports._tag === 'NamedImports') {
-      this.imports.imports.push(new NamedImport(name, alias));
+      if (!this.imports.imports.some(i => i.name === name)) {
+        this.imports.imports.push(new NamedImport(name, alias));
+      }
     }  
   }
 
@@ -56,7 +58,10 @@ export class FileImport {
 
   toCode = () => { 
     if (this.imports._tag === 'NamedImports') {
-      return `import { ${this.imports.imports.map(i => i.alias ? `${i.name} as ${i.alias}` : i.name).join(', ')} } from "${this.specifier}"`;
+      return `import { ${this.imports.imports
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(i => i.alias ? `${i.name} as ${i.alias}` : i.name)
+        .join(', ')} } from "${this.specifier}"`;
     } else {
       return `import * as ${this.imports.namespace} from "${this.specifier}";`;
     }

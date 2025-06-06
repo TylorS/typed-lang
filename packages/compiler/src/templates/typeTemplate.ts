@@ -10,15 +10,22 @@ import {
 } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
 import { identiferOrPropertyAccess } from "./identifierOrPropertyAccessTemplate.js";
-import { typeParametersTemplate } from "./typeParametersTemplate.js";
+import { typeParametersTemplate, typeParameterTemplate } from "./typeParametersTemplate.js";
 import { unwrapHkt } from "./unwrapHKT.js";
 
-export function typeTemplate(type: Type): Interpolation {
+export type HktsByName = Map<string, { hkt: HigherKindedType, params: string[] }>
+
+// Add a context flag to indicate if we're in a typeclass method context
+export type TypeTemplateContext = {
+  inTypeclassProperty?: boolean;
+}
+
+export function typeTemplate(type: Type, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
   switch (type._tag) {
     case "AnyType":
       return t.span(type.span)(`any`);
     case "ArrayType":
-      return t.span(type.span)(t`ReadonlyArray<${typeTemplate(type.element)}>`);
+      return t.span(type.span)(t`ReadonlyArray<${typeTemplate(type.element, hktsByName, context)}>`);
     case "BooleanType":
       return t.span(type.span)(t`boolean`);
     case "BigIntType":
@@ -31,7 +38,7 @@ export function typeTemplate(type: Type): Interpolation {
       return t.span(type.span)(t`Function`);
     case "MapType":
       return t.span(type.span)(
-        t`ReadonlyMap<${typeTemplate(type.key)}, ${typeTemplate(type.value)}>`
+        t`ReadonlyMap<${typeTemplate(type.key, hktsByName, context)}, ${typeTemplate(type.value, hktsByName, context)}>`
       );
     case "NeverType":
       return t.span(type.span)(t`never`);
@@ -44,7 +51,7 @@ export function typeTemplate(type: Type): Interpolation {
     case "ObjectType":
       return t.span(type.span)(t`object`);
     case "SetType":
-      return t.span(type.span)(t`ReadonlySet<${typeTemplate(type.value)}>`);
+      return t.span(type.span)(t`ReadonlySet<${typeTemplate(type.value, hktsByName, context)}>`);
     case "StringType":
       return t.span(type.span)(t`string`);
     case "StringLiteralType":
@@ -52,7 +59,7 @@ export function typeTemplate(type: Type): Interpolation {
     case "SymbolType":
       return t.span(type.span)(t`symbol`);
     case "TypeReference":
-      return typeReferenceTemplate(type);
+      return typeReferenceTemplate(type, hktsByName, context);
     case "UndefinedType":
       return t.span(type.span)(t`undefined`);
     case "UnknownType":
@@ -60,78 +67,179 @@ export function typeTemplate(type: Type): Interpolation {
     case "VoidType":
       return t.span(type.span)(t`void`);
     case "BrandedType":
-      return brandedTypeTemplate(type);
+      return brandedTypeTemplate(type, hktsByName, context);
     case "FunctionType":
-      return functionTypeTemplate(type);
+      return functionTypeTemplate(type, hktsByName, context);
     case "HigherKindedType":
-      return higherKindedTypeTemplate(type);
+      return higherKindedTypeTemplate(type, hktsByName);
     case "RecordType":
-      return recordTypeTemplate(type);
+      return recordTypeTemplate(type, hktsByName, context);
     case "RestType":
-      return restTypeTemplate(type);
+      return restTypeTemplate(type, hktsByName, context);
     case "TupleType":
-      return tupleTypeTemplate(type);
+      return tupleTypeTemplate(type, hktsByName, context);
     default:
       throw new Error(`Unhandled type: ${JSON.stringify(type, null, 2)}`);
   }
 }
 
-function typeReferenceTemplate(type: TypeReference): Interpolation {
+function typeReferenceTemplate(type: TypeReference, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
+  // Check if this is a higher-kinded type reference
+  if (hktsByName && type.name._tag === "Identifier" && hktsByName.has(type.name.text)) {
+    const hktInfo = hktsByName.get(type.name.text)!;
+    
+    // Use the same parameter logic as in function type parameters
+    const hktLevel = hktInfo.params.length;
+    const additionalParamsCount = hktLevel - 1;
+    const startPosition = 10 - hktLevel;
+    const allPossibleParams = ['Z', 'Y', 'X', 'W', 'V', 'U', 'S', 'R', 'E'];
+    const hktParams = allPossibleParams.slice(startPosition, startPosition + additionalParamsCount);
+    
+    
+    // Build the Kind type: Kind<F, ...hktParams, A>
+    const allParams = [
+      identiferOrPropertyAccess(type.name),
+      ...hktParams.map(param => param),
+      ...type.typeArguments.map(arg => typeTemplate(arg, hktsByName, context))
+    ];
+
+    const arity = allParams.length - 1
+
+    const Kind = t.import(`@typed-lang/typedlib`, `Kind${arity === 1 ? '' : arity}`);
+
+    
+    return t.span(type.span)(
+      Kind.asNamedImport(),
+      t`${Kind}<${t.intercolate(', ')(...allParams)}>`
+    );
+  }
+  
   return t.span(type.span)(
     t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
-      type.typeArguments
+      type.typeArguments,
+      hktsByName,
+      context
     )}`
   );
 }
 
-function brandedTypeTemplate(type: BrandedType): Interpolation {
-  return t.span(type.span)(t``);
-}
+// TODO: FInish
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function brandedTypeTemplate(type: BrandedType, _hktsByName?: HktsByName, _context?: TypeTemplateContext): Interpolation {
+  const Branded = t.import(`@typed-lang/typedlib`, `Branded`)
+  const Brand = t.import(`@typed-lang/typedlib`, `Brand`)
 
-function functionTypeTemplate(type: FunctionType): Interpolation {
+  const BRAND_NAME = type.name.text.toUpperCase()
+
   return t.span(type.span)(
-    t`${typeParametersTemplate(type.typeParameters.flatMap(unwrapHkt), {
-      parameterVariance: true,
-      functionDefaultValue: false,
-      constants: false,
-    })}(${t.intercolate(`, `)(
-      ...type.parameters.map((param) => {
-        if (param._tag === "PositionalField") {
-          return t`arg${String(param.index)}: ${typeTemplate(param.value)}`;
-        }
-
-        if (param.value) {
-          return t`${t.identifier(param.name)}: ${typeTemplate(param.value)}`;
-        }
-
-        const lowerCaseName = param.name.text.toLowerCase();
-        return t`${lowerCaseName}: ${t.identifier(param.name)}`;
-      })
-    )}) => ${typeTemplate(type.returnType)}`
+    Branded.asNamespaceImport('TypedLib'),
+    Brand.asNamespaceImport('TypedLib'),
+    t`export type `,
+    t.span(type.name.span)(BRAND_NAME),
+    t` = ${t.intercolate(' & ')(...type.brands.map((brand) => t`${Brand}<'${t.identifier(brand)}'>`))}`,
+    t.newLine(),
+    t``
   );
 }
 
-function higherKindedTypeTemplate(type: HigherKindedType): Interpolation {
-  return t.span(type.span)(t``);
+function functionTypeTemplate(type: FunctionType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
+  // Only apply HKT expansion if we're in a typeclass method context
+  if (context?.inTypeclassProperty && hktsByName) {
+    // Collect all type parameters including HKT parameters
+    const allTypeParams: string[] = [];
+    
+    // Add original type parameters
+    type.typeParameters.forEach(param => {
+      if (param._tag === "TypeParameter") {
+        allTypeParams.push(param.name.text);
+      }
+    });
+    
+    // Add HKT parameters in the correct order
+    for (const hktInfo of hktsByName.values()) {
+      // For HKTn, we need n-1 parameters starting from position (10-n)
+      const hktLevel = hktInfo.params.length;
+      const additionalParamsCount = hktLevel - 1;
+      const startPosition = 10 - hktLevel;
+      
+      // Get the correct parameters: for HKT10 start at 0 (Z), for HKT9 start at 1 (Y), etc.
+      const allPossibleParams = ['Z', 'Y', 'X', 'W', 'V', 'U', 'S', 'R', 'E'];
+      const hktParams = allPossibleParams.slice(startPosition, startPosition + additionalParamsCount);
+      allTypeParams.push(...hktParams);
+    }
+
+    const typeParamsStr = allTypeParams.length > 0 ? `<${allTypeParams.join(', ')}>` : '';
+
+    return t.span(type.span)(
+      t`${typeParamsStr}(${t.intercolate(`, `)(
+        ...type.parameters.map((param) => {
+          if (param._tag === "PositionalField") {
+            // Pass context but not inTypeclassMethod to avoid nested HKT expansion
+            return t`arg${String(param.index)}: ${typeTemplate(param.value, hktsByName, {})}`;
+          }
+
+          if (param.value) {
+            // Pass context but not inTypeclassMethod to avoid nested HKT expansion  
+            return t`${t.identifier(param.name)}: ${typeTemplate(param.value, hktsByName, {})}`;
+          }
+
+          const lowerCaseName = param.name.text.toLowerCase();
+          return t`${lowerCaseName}: ${t.identifier(param.name)}`;
+        })
+      )}) => ${typeTemplate(type.returnType, hktsByName, {})}`
+    );
+  } else {
+    // Regular function type without HKT expansion
+    return t.span(type.span)(
+      t`${typeParametersTemplate(type.typeParameters.flatMap(t => unwrapHkt(t, hktsByName)), {
+        parameterVariance: true,
+        functionDefaultValue: false,
+        constants: false,
+      })}(${t.intercolate(`, `)(
+        ...type.parameters.map((param) => {
+          if (param._tag === "PositionalField") {
+            return t`arg${String(param.index)}: ${typeTemplate(param.value, hktsByName, context)}`;
+          }
+
+          if (param.value) {
+            return t`${t.identifier(param.name)}: ${typeTemplate(param.value, hktsByName, context)}`;
+          }
+
+          const lowerCaseName = param.name.text.toLowerCase();
+          return t`${lowerCaseName}: ${t.identifier(param.name)}`;
+        })
+      )}) => ${typeTemplate(type.returnType, hktsByName, context)}`
+    );
+  }
 }
 
-function recordTypeTemplate(type: RecordType): Interpolation {
-  return t.span(type.span)(t``);
+function higherKindedTypeTemplate(type: HigherKindedType, hktsByName?: HktsByName): Interpolation {
+  return t.many(...unwrapHkt(type, hktsByName).map(t => typeParameterTemplate(t, {
+    parameterVariance: false,
+    functionDefaultValue: false,
+    constants: false,
+  })))
 }
 
-function restTypeTemplate(type: RestType): Interpolation {
-  return t.span(type.span)(t``);
+function recordTypeTemplate(type: RecordType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
+  return t.span(type.span)(t`Readonly<Record<string, ${typeTemplate(type, hktsByName, context)}>>`);
 }
 
-function tupleTypeTemplate(type: TupleType): Interpolation {
-  return t.span(type.span)(t``);
+function restTypeTemplate(type: RestType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
+  return t.span(type.span)(t`...${typeTemplate(type.element, hktsByName, context)}`);
+}
+
+function tupleTypeTemplate(type: TupleType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
+  return t.span(type.span)(t`[${t.intercolate(', ')(...type.members.map(type => typeTemplate(type, hktsByName, context)))}]`);
 }
 
 export function typeArgumentsTemplate(
-  typeArguments: ReadonlyArray<Type>
+  typeArguments: ReadonlyArray<Type>,
+  hktsByName?: HktsByName,
+  context?: TypeTemplateContext
 ): Interpolation {
   if (typeArguments.length === 0) {
     return "";
   }
-  return t`<${typeArguments.map(typeTemplate)}>`;
+  return t`<${t.intercolate(', ')(...typeArguments.map((type) => typeTemplate(type, hktsByName, context)))}>`;
 }

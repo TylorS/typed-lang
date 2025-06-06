@@ -172,7 +172,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a + b`;
     const result = compiler.compile(`functionExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a + b
+      "export const add = (a: Int, b: Int): Int => a + b
       //# sourceMappingURL=functionExpression.typed.ts.map"
     `);
   });
@@ -181,7 +181,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => (a + b) * 2`;
     const result = compiler.compile(`parenthesizedExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => (a + b) * 2
+      "export const add = (a: Int, b: Int): Int => (a + b) * 2
       //# sourceMappingURL=parenthesizedExpression.typed.ts.map"
     `);
   });
@@ -190,7 +190,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a > b ? a : b`;
     const result = compiler.compile(`ternaryExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a > b ? a : b
+      "export const add = (a: Int, b: Int): Int => a > b ? a : b
       //# sourceMappingURL=ternaryExpression.typed.ts.map"
     `);
   });
@@ -199,7 +199,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a || b`;
     const result = compiler.compile(`logicalOrExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a || b
+      "export const add = (a: Int, b: Int): Int => a || b
       //# sourceMappingURL=logicalOrExpression.typed.ts.map"
     `);
   });
@@ -208,7 +208,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a && b`;
     const result = compiler.compile(`logicalAndExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a && b
+      "export const add = (a: Int, b: Int): Int => a && b
       //# sourceMappingURL=logicalAndExpression.typed.ts.map"
     `);
   });
@@ -217,7 +217,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a & b`;
     const result = compiler.compile(`bitwiseAndExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a & b
+      "export const add = (a: Int, b: Int): Int => a & b
       //# sourceMappingURL=bitwiseAndExpression.typed.ts.map"
     `);
   });
@@ -226,7 +226,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a | b`;
     const result = compiler.compile(`bitwiseOrExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a | b
+      "export const add = (a: Int, b: Int): Int => a | b
       //# sourceMappingURL=bitwiseOrExpression.typed.ts.map"
     `);
   });
@@ -235,7 +235,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a ^ b`;
     const result = compiler.compile(`bitwiseXorExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a ^ b
+      "export const add = (a: Int, b: Int): Int => a ^ b
       //# sourceMappingURL=bitwiseXorExpression.typed.ts.map"
     `);
   });
@@ -244,7 +244,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => ~a`;
     const result = compiler.compile(`bitwiseNotExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => ~a
+      "export const add = (a: Int, b: Int): Int => ~a
       //# sourceMappingURL=bitwiseNotExpression.typed.ts.map"
     `);
   });
@@ -253,7 +253,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): boolean => !a`;
     const result = compiler.compile(`unaryExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): boolean  => !a
+      "export const add = (a: Int, b: Int): boolean => !a
       //# sourceMappingURL=unaryExpression.typed.ts.map"
     `);
   });
@@ -262,7 +262,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a + b`;
     const result = compiler.compile(`binaryExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a + b
+      "export const add = (a: Int, b: Int): Int => a + b
       //# sourceMappingURL=binaryExpression.typed.ts.map"
     `);
   });
@@ -271,7 +271,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a = b`;
     const result = compiler.compile(`assignmentExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a = b
+      "export const add = (a: Int, b: Int): Int => a = b
       //# sourceMappingURL=assignmentExpression.typed.ts.map"
     `);
   });
@@ -280,7 +280,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a << b`;
     const result = compiler.compile(`bitwiseShiftLeftExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a << b
+      "export const add = (a: Int, b: Int): Int => a << b
       //# sourceMappingURL=bitwiseShiftLeftExpression.typed.ts.map"
     `);
   });
@@ -289,7 +289,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a >> b`;
     const result = compiler.compile(`bitwiseShiftRightExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a >> b
+      "export const add = (a: Int, b: Int): Int => a >> b
       //# sourceMappingURL=bitwiseShiftRightExpression.typed.ts.map"
     `);
   });
@@ -301,7 +301,7 @@ describe("TsCompiler", () => {
       code
     );
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a >>> b
+      "export const add = (a: Int, b: Int): Int => a >>> b
       //# sourceMappingURL=bitwiseUnsignedShiftRightExpression.typed.ts.map"
     `);
   });
@@ -310,7 +310,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a ?? b`;
     const result = compiler.compile(`nullishCoalescingExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a ?? b
+      "export const add = (a: Int, b: Int): Int => a ?? b
       //# sourceMappingURL=nullishCoalescingExpression.typed.ts.map"
     `);
   });
@@ -319,7 +319,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: Int, b: Int): Int => a?.b`;
     const result = compiler.compile(`optionalChainingExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: Int, b: Int): Int  => a?.b
+      "export const add = (a: Int, b: Int): Int => a?.b
       //# sourceMappingURL=optionalChainingExpression.typed.ts.map"
     `);
   });
@@ -328,7 +328,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: { b: Int }): Int => a.b`;
     const result = compiler.compile(`memberExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: ): Int  => a.b
+      "export const add = (a: ): Int => a.b
       //# sourceMappingURL=memberExpression.typed.ts.map"
     `);
   });
@@ -337,7 +337,7 @@ describe("TsCompiler", () => {
     const code = `export const and = (a: boolean, b: boolean): boolean => a && b`;
     const result = compiler.compile(`logicalAndExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const and = (a: boolean, b: boolean): boolean  => a && b
+      "export const and = (a: boolean, b: boolean): boolean => a && b
       //# sourceMappingURL=logicalAndExpression.typed.ts.map"
     `);
   });
@@ -346,7 +346,7 @@ describe("TsCompiler", () => {
     const code = `export const or = (a: boolean, b: boolean): boolean => a || b`;
     const result = compiler.compile(`logicalOrExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const or = (a: boolean, b: boolean): boolean  => a || b
+      "export const or = (a: boolean, b: boolean): boolean => a || b
       //# sourceMappingURL=logicalOrExpression.typed.ts.map"
     `);
   });
@@ -355,7 +355,7 @@ describe("TsCompiler", () => {
     const code = `export const bitwiseAnd = (a: Int, b: Int): Int => a & b`;
     const result = compiler.compile(`bitwiseAndExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const bitwiseAnd = (a: Int, b: Int): Int  => a & b
+      "export const bitwiseAnd = (a: Int, b: Int): Int => a & b
       //# sourceMappingURL=bitwiseAndExpression.typed.ts.map"
     `);
   });
@@ -364,7 +364,7 @@ describe("TsCompiler", () => {
     const code = `export const bitwiseOr = (a: Int, b: Int): Int => a | b`;
     const result = compiler.compile(`bitwiseOrExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const bitwiseOr = (a: Int, b: Int): Int  => a | b
+      "export const bitwiseOr = (a: Int, b: Int): Int => a | b
       //# sourceMappingURL=bitwiseOrExpression.typed.ts.map"
     `);
   });
@@ -373,7 +373,7 @@ describe("TsCompiler", () => {
     const code = `export const bitwiseXor = (a: Int, b: Int): Int => a ^ b`;
     const result = compiler.compile(`bitwiseXorExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const bitwiseXor = (a: Int, b: Int): Int  => a ^ b
+      "export const bitwiseXor = (a: Int, b: Int): Int => a ^ b
       //# sourceMappingURL=bitwiseXorExpression.typed.ts.map"
     `);
   });
@@ -382,7 +382,7 @@ describe("TsCompiler", () => {
     const code = `export const ternary = (condition: boolean, a: Int, b: Int): Int => condition ? a : b`;
     const result = compiler.compile(`ternaryExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const ternary = (condition: boolean, a: Int, b: Int): Int  => condition ? a : b
+      "export const ternary = (condition: boolean, a: Int, b: Int): Int => condition ? a : b
       //# sourceMappingURL=ternaryExpression.typed.ts.map"
     `);
   });
@@ -391,7 +391,7 @@ describe("TsCompiler", () => {
     const code = `export const i = (a: Object, b: Object): boolean => a instanceof b`;
     const result = compiler.compile(`instanceofExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const i = (a: object, b: object): boolean  => a instanceof b
+      "export const i = (a: object, b: object): boolean => a instanceof b
       //# sourceMappingURL=instanceofExpression.typed.ts.map"
     `);
   });
@@ -469,4 +469,90 @@ export const a = 1`;
       //# sourceMappingURL=instanceDeclaration.typed.ts.map"
     `);
   });
+
+  it.only('compiles higher-kinded typeclass declarations', () => {
+    const code = `export typeclass Covariant<F<_>> { 
+      map: <A, B>(f: (a: A) => B, fa: F<A>) => F<B>
+    }`
+
+    const result = compiler.compile(`typeClassDeclaration.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "import { Kind, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
+
+      export interface Covariant10<F extends HKT10> {
+        map: <A, B, Z, Y, X, W, V, U, S, R, E>(f: (a: A) => B, fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant9<F extends HKT9> {
+        map: <A, B, Y, X, W, V, U, S, R, E>(f: (a: A) => B, fa: Kind9<F, Y, X, W, V, U, S, R, E, A>) => Kind9<F, Y, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant8<F extends HKT8> {
+        map: <A, B, X, W, V, U, S, R, E>(f: (a: A) => B, fa: Kind8<F, X, W, V, U, S, R, E, A>) => Kind8<F, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant7<F extends HKT7> {
+        map: <A, B, W, V, U, S, R, E>(f: (a: A) => B, fa: Kind7<F, W, V, U, S, R, E, A>) => Kind7<F, W, V, U, S, R, E, B>
+      }
+      export interface Covariant6<F extends HKT6> {
+        map: <A, B, V, U, S, R, E>(f: (a: A) => B, fa: Kind6<F, V, U, S, R, E, A>) => Kind6<F, V, U, S, R, E, B>
+      }
+      export interface Covariant5<F extends HKT5> {
+        map: <A, B, U, S, R, E>(f: (a: A) => B, fa: Kind5<F, U, S, R, E, A>) => Kind5<F, U, S, R, E, B>
+      }
+      export interface Covariant4<F extends HKT4> {
+        map: <A, B, S, R, E>(f: (a: A) => B, fa: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, B>
+      }
+      export interface Covariant3<F extends HKT3> {
+        map: <A, B, R, E>(f: (a: A) => B, fa: Kind3<F, R, E, A>) => Kind3<F, R, E, B>
+      }
+      export interface Covariant2<F extends HKT2> {
+        map: <A, B, E>(f: (a: A) => B, fa: Kind2<F, E, A>) => Kind2<F, E, B>
+      }
+      export interface Covariant<F extends HKT> {
+        map: <A, B>(f: (a: A) => B, fa: Kind<F, A>) => Kind<F, B>
+      }
+      //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
+    `)
+  })
+
+  it.only('compiles higher-kinded typeclass declarations, respecting existing parameter order', () => {
+    const code = `export typeclass Covariant<F<_>> { 
+      map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+    }`
+
+    const result = compiler.compile(`typeClassDeclaration.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "import { Kind, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
+
+      export interface Covariant10<F extends HKT10> {
+        map: <Z, Y, X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant9<F extends HKT9> {
+        map: <Y, X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind9<F, Y, X, W, V, U, S, R, E, A>) => Kind9<F, Y, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant8<F extends HKT8> {
+        map: <X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind8<F, X, W, V, U, S, R, E, A>) => Kind8<F, X, W, V, U, S, R, E, B>
+      }
+      export interface Covariant7<F extends HKT7> {
+        map: <W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind7<F, W, V, U, S, R, E, A>) => Kind7<F, W, V, U, S, R, E, B>
+      }
+      export interface Covariant6<F extends HKT6> {
+        map: <V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind6<F, V, U, S, R, E, A>) => Kind6<F, V, U, S, R, E, B>
+      }
+      export interface Covariant5<F extends HKT5> {
+        map: <U, S, R, E, A, B>(f: (a: A) => B, fa: Kind5<F, U, S, R, E, A>) => Kind5<F, U, S, R, E, B>
+      }
+      export interface Covariant4<F extends HKT4> {
+        map: <S, R, E, A, B>(f: (a: A) => B, fa: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, B>
+      }
+      export interface Covariant3<F extends HKT3> {
+        map: <R, E, A, B>(f: (a: A) => B, fa: Kind3<F, R, E, A>) => Kind3<F, R, E, B>
+      }
+      export interface Covariant2<F extends HKT2> {
+        map: <E, A, B>(f: (a: A) => B, fa: Kind2<F, E, A>) => Kind2<F, E, B>
+      }
+      export interface Covariant<F extends HKT> {
+        map: <A, B>(f: (a: A) => B, fa: Kind<F, A>) => Kind<F, B>
+      }
+      //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
+    `)
+  })
 });

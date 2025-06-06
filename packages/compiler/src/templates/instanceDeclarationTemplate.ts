@@ -3,10 +3,12 @@ import { Interpolation, t } from "../Template.js";
 import { expressionTemplate } from "./expressionTemplate.js";
 import { typeParametersTemplate } from "./typeParametersTemplate.js";
 import { unwrapHkt } from "./unwrapHKT.js";
+import { HktsByName } from "./typeTemplate.js";
 
 // TODO: We need much better support for HKTs
 export function instanceDeclarationTemplate(
-  decl: InstanceDeclaration
+  decl: InstanceDeclaration,
+  hktsByName?: HktsByName
 ): Interpolation {
   const exportName = decl.name.text.toLowerCase();
 
@@ -15,7 +17,7 @@ export function instanceDeclarationTemplate(
     exportName,
     `: `,
     t.identifier(decl.name),
-    typeParametersTemplate(decl.typeParameters.flatMap(unwrapHkt), {
+    typeParametersTemplate(decl.typeParameters.flatMap(t => unwrapHkt(t, hktsByName)), {
       parameterVariance: false,
       functionDefaultValue: false,
       constants: false,

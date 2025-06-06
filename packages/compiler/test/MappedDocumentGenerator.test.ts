@@ -4,7 +4,7 @@ import { generateModule } from "../src/MappedDocumentGenerator";
 import { compileModule } from "../src/ModuleCompiler";
 import { writeFileSync } from "node:fs";
 import * as templates from "../src/templates/index";
-import { t, templateToString } from "../src/Template";
+import { t } from "../src/Template";
 
 describe("MappedDocumentGenerator", () => {
   const fileName = "test.typed";
@@ -19,8 +19,6 @@ describe("MappedDocumentGenerator", () => {
     t.newLine(),
     templates.dataDeclarationConstructorsTemplate(decl)
   ]
-
-  console.log(templateToString(template));
 
   it("does things", () => {
     module.runInterpolation(template);
