@@ -114,9 +114,12 @@ function typeClassDeclarationWithParams(decl: TypeClassDeclaration, hktsByName: 
 			} else {
 				const hkt = hktsByName.get(param.name.text)!
 				const length = hkt.params.length
+				const name = `HKT${length <= 1 ? "" : String(length)}`
+				const HKT = t.import('@typed-lang/typedlib', name)
 
 				return t.span(param.span)(
-					t`${t.identifier(param.name)} extends HKT${length <= 1 ? "" : String(length)}`
+					HKT.asNamedImport(),
+					t`${t.identifier(param.name)} extends ${HKT}`
 				)
 			}
 		})), '>'),

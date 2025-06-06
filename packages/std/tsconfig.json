@@ -3,7 +3,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    "plugins": [
+      {
+        "name": "@typed-lang/ts-plugin"
+      }
+    ]
   },
   "include": ["src"],
   "references": [

@@ -505,6 +505,7 @@ export function tokenize(text: string): Array<Token> {
             )
           );
           tokenizer.takeWhitespace();
+          continue;
         } else if (nextSixChars === "import") {
           tokenizer.addToken(
             new Token(
@@ -572,9 +573,11 @@ function tokenizeIdentifier(tokenizer: Tokenizer): void {
     tokenizer.move();
   }
 
-  tokenizer.addToken(
-    new Token(TokenKind.Identifier, text, new Span(start, tokenizer.location))
-  );
+  if (text.length > 0) {
+    tokenizer.addToken(
+      new Token(TokenKind.Identifier, text, new Span(start, tokenizer.location))
+    );
+  }
   tokenizer.takeWhitespace();
 }
 

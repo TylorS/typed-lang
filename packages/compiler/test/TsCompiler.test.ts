@@ -477,7 +477,7 @@ export const a = 1`;
 
     const result = compiler.compile(`typeClassDeclaration.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "import { Kind, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
+      "import { HKT, HKT10, HKT2, HKT3, HKT4, HKT5, HKT6, HKT7, HKT8, HKT9, Kind1, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
 
       export interface Covariant10<F extends HKT10> {
         map: <A, B, Z, Y, X, W, V, U, S, R, E>(f: (a: A) => B, fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
@@ -507,7 +507,7 @@ export const a = 1`;
         map: <A, B, E>(f: (a: A) => B, fa: Kind2<F, E, A>) => Kind2<F, E, B>
       }
       export interface Covariant<F extends HKT> {
-        map: <A, B>(f: (a: A) => B, fa: Kind<F, A>) => Kind<F, B>
+        map: <A, B>(f: (a: A) => B, fa: Kind1<F, A>) => Kind1<F, B>
       }
       //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
     `)
@@ -520,7 +520,7 @@ export const a = 1`;
 
     const result = compiler.compile(`typeClassDeclaration.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "import { Kind, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
+      "import { HKT, HKT10, HKT2, HKT3, HKT4, HKT5, HKT6, HKT7, HKT8, HKT9, Kind1, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
 
       export interface Covariant10<F extends HKT10> {
         map: <Z, Y, X, W, V, U, S, R, E, A, B>(fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>, f: (a: A) => B) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
@@ -550,7 +550,7 @@ export const a = 1`;
         map: <E, A, B>(fa: Kind2<F, E, A>, f: (a: A) => B) => Kind2<F, E, B>
       }
       export interface Covariant<F extends HKT> {
-        map: <A, B>(fa: Kind<F, A>, f: (a: A) => B) => Kind<F, B>
+        map: <A, B>(fa: Kind1<F, A>, f: (a: A) => B) => Kind1<F, B>
       }
       //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
     `)

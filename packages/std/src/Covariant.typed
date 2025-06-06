@@ -1,0 +1,7 @@
+export typeclass Covariant<F<_>> {
+  map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+}
+
+export function mapTo<F<_>>(F: Covariant<F>) {
+  return <A, B>(fa: F<A>, value: B): F<B> => F.map(fa, () => value)
+}

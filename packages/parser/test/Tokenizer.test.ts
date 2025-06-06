@@ -1182,4 +1182,2531 @@ describe("Tokenizer", () => {
       ]
     `)
   })
+
+  it('tokenizes referencees to typeclasses', () => {
+    const tokens = tokenize(`export typeclass Covariant<F<_>> {
+  map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+}
+export function mapTo<F<_>>(F: Covariant<F>) {
+  return <A, B>(fa: F<A>, value: B): F<B> => F.map(fa, () => value)
+}`)
+    
+    expect(tokens).toMatchInlineSnapshot(`
+      [
+        Token {
+          "kind": "ExportKeyword",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 1,
+              "position": 6,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 1,
+              "position": 0,
+            },
+          },
+          "text": "export",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 1,
+              "position": 7,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 1,
+              "position": 6,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "TypeClassKeyword",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 1,
+              "position": 16,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 1,
+              "position": 7,
+            },
+          },
+          "text": "typeclass",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 17,
+              "line": 1,
+              "position": 17,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 1,
+              "position": 16,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 1,
+              "position": 26,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 17,
+              "line": 1,
+              "position": 17,
+            },
+          },
+          "text": "Covariant",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 1,
+              "position": 27,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 1,
+              "position": 26,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 1,
+              "position": 28,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 1,
+              "position": 27,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 1,
+              "position": 29,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 1,
+              "position": 28,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Underscore",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 1,
+              "position": 30,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 1,
+              "position": 29,
+            },
+          },
+          "text": "_",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 1,
+              "position": 31,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 1,
+              "position": 30,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 1,
+              "position": 32,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 1,
+              "position": 31,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 1,
+              "position": 33,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 1,
+              "position": 32,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "OpenBrace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 1,
+              "position": 34,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 1,
+              "position": 33,
+            },
+          },
+          "text": "{",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 2,
+              "line": 2,
+              "position": 37,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 1,
+              "position": 34,
+            },
+          },
+          "text": "
+        ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 5,
+              "line": 2,
+              "position": 40,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 2,
+              "line": 2,
+              "position": 37,
+            },
+          },
+          "text": "map",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 2,
+              "position": 41,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 5,
+              "line": 2,
+              "position": 40,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 2,
+              "position": 42,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 2,
+              "position": 41,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 8,
+              "line": 2,
+              "position": 43,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 2,
+              "position": 42,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 9,
+              "line": 2,
+              "position": 44,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 8,
+              "line": 2,
+              "position": 43,
+            },
+          },
+          "text": "A",
+        },
+        Token {
+          "kind": "Comma",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 10,
+              "line": 2,
+              "position": 45,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 9,
+              "line": 2,
+              "position": 44,
+            },
+          },
+          "text": ",",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 11,
+              "line": 2,
+              "position": 46,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 10,
+              "line": 2,
+              "position": 45,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 12,
+              "line": 2,
+              "position": 47,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 11,
+              "line": 2,
+              "position": 46,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 13,
+              "line": 2,
+              "position": 48,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 12,
+              "line": 2,
+              "position": 47,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 14,
+              "line": 2,
+              "position": 49,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 13,
+              "line": 2,
+              "position": 48,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 2,
+              "position": 51,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 14,
+              "line": 2,
+              "position": 49,
+            },
+          },
+          "text": "fa",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 17,
+              "line": 2,
+              "position": 52,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 2,
+              "position": 51,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 18,
+              "line": 2,
+              "position": 53,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 17,
+              "line": 2,
+              "position": 52,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 19,
+              "line": 2,
+              "position": 54,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 18,
+              "line": 2,
+              "position": 53,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 20,
+              "line": 2,
+              "position": 55,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 19,
+              "line": 2,
+              "position": 54,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 2,
+              "position": 56,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 20,
+              "line": 2,
+              "position": 55,
+            },
+          },
+          "text": "A",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 2,
+              "position": 57,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 2,
+              "position": 56,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Comma",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 2,
+              "position": 58,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 2,
+              "position": 57,
+            },
+          },
+          "text": ",",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 2,
+              "position": 59,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 2,
+              "position": 58,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 2,
+              "position": 60,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 2,
+              "position": 59,
+            },
+          },
+          "text": "f",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 2,
+              "position": 61,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 2,
+              "position": 60,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 2,
+              "position": 62,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 2,
+              "position": 61,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 2,
+              "position": 63,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 2,
+              "position": 62,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 2,
+              "position": 64,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 2,
+              "position": 63,
+            },
+          },
+          "text": "a",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 2,
+              "position": 65,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 2,
+              "position": 64,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 2,
+              "position": 66,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 2,
+              "position": 65,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 2,
+              "position": 67,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 2,
+              "position": 66,
+            },
+          },
+          "text": "A",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 2,
+              "position": 68,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 2,
+              "position": 67,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 2,
+              "position": 69,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 2,
+              "position": 68,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "EqualSign",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 35,
+              "line": 2,
+              "position": 70,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 2,
+              "position": 69,
+            },
+          },
+          "text": "=",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 36,
+              "line": 2,
+              "position": 71,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 35,
+              "line": 2,
+              "position": 70,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 37,
+              "line": 2,
+              "position": 72,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 36,
+              "line": 2,
+              "position": 71,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 38,
+              "line": 2,
+              "position": 73,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 37,
+              "line": 2,
+              "position": 72,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 39,
+              "line": 2,
+              "position": 74,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 38,
+              "line": 2,
+              "position": 73,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 2,
+              "position": 75,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 39,
+              "line": 2,
+              "position": 74,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "EqualSign",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 2,
+              "position": 76,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 2,
+              "position": 75,
+            },
+          },
+          "text": "=",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 2,
+              "position": 77,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 2,
+              "position": 76,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 2,
+              "position": 78,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 2,
+              "position": 77,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 2,
+              "position": 79,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 2,
+              "position": 78,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 2,
+              "position": 80,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 2,
+              "position": 79,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 2,
+              "position": 81,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 2,
+              "position": 80,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 47,
+              "line": 2,
+              "position": 82,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 2,
+              "position": 81,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 3,
+              "position": 83,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 47,
+              "line": 2,
+              "position": 82,
+            },
+          },
+          "text": "
+      ",
+        },
+        Token {
+          "kind": "CloseBrace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 1,
+              "line": 3,
+              "position": 84,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 3,
+              "position": 83,
+            },
+          },
+          "text": "}",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 4,
+              "position": 85,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 1,
+              "line": 3,
+              "position": 84,
+            },
+          },
+          "text": "
+      ",
+        },
+        Token {
+          "kind": "ExportKeyword",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 4,
+              "position": 91,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 4,
+              "position": 85,
+            },
+          },
+          "text": "export",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 4,
+              "position": 92,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 4,
+              "position": 91,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "FunctionKeyword",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 15,
+              "line": 4,
+              "position": 100,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 7,
+              "line": 4,
+              "position": 92,
+            },
+          },
+          "text": "function",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 4,
+              "position": 101,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 15,
+              "line": 4,
+              "position": 100,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 4,
+              "position": 106,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 4,
+              "position": 101,
+            },
+          },
+          "text": "mapTo",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 4,
+              "position": 107,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 4,
+              "position": 106,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 4,
+              "position": 108,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 4,
+              "position": 107,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 4,
+              "position": 109,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 4,
+              "position": 108,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Underscore",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 4,
+              "position": 110,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 4,
+              "position": 109,
+            },
+          },
+          "text": "_",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 4,
+              "position": 111,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 4,
+              "position": 110,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 4,
+              "position": 112,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 4,
+              "position": 111,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 4,
+              "position": 113,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 4,
+              "position": 112,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 4,
+              "position": 114,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 4,
+              "position": 113,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 4,
+              "position": 115,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 29,
+              "line": 4,
+              "position": 114,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 4,
+              "position": 116,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 4,
+              "position": 115,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 4,
+              "position": 125,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 4,
+              "position": 116,
+            },
+          },
+          "text": "Covariant",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 4,
+              "position": 126,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 4,
+              "position": 125,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 4,
+              "position": 127,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 4,
+              "position": 126,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 4,
+              "position": 128,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 4,
+              "position": 127,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 4,
+              "position": 129,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 4,
+              "position": 128,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 4,
+              "position": 130,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 4,
+              "position": 129,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "OpenBrace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 4,
+              "position": 131,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 4,
+              "position": 130,
+            },
+          },
+          "text": "{",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 2,
+              "line": 5,
+              "position": 134,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 4,
+              "position": 131,
+            },
+          },
+          "text": "
+        ",
+        },
+        Token {
+          "kind": "ReturnKeyword",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 8,
+              "line": 5,
+              "position": 140,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 2,
+              "line": 5,
+              "position": 134,
+            },
+          },
+          "text": "return",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 9,
+              "line": 5,
+              "position": 141,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 8,
+              "line": 5,
+              "position": 140,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 10,
+              "line": 5,
+              "position": 142,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 9,
+              "line": 5,
+              "position": 141,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 11,
+              "line": 5,
+              "position": 143,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 10,
+              "line": 5,
+              "position": 142,
+            },
+          },
+          "text": "A",
+        },
+        Token {
+          "kind": "Comma",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 12,
+              "line": 5,
+              "position": 144,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 11,
+              "line": 5,
+              "position": 143,
+            },
+          },
+          "text": ",",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 13,
+              "line": 5,
+              "position": 145,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 12,
+              "line": 5,
+              "position": 144,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 14,
+              "line": 5,
+              "position": 146,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 13,
+              "line": 5,
+              "position": 145,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 15,
+              "line": 5,
+              "position": 147,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 14,
+              "line": 5,
+              "position": 146,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 5,
+              "position": 148,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 15,
+              "line": 5,
+              "position": 147,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 18,
+              "line": 5,
+              "position": 150,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 16,
+              "line": 5,
+              "position": 148,
+            },
+          },
+          "text": "fa",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 19,
+              "line": 5,
+              "position": 151,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 18,
+              "line": 5,
+              "position": 150,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 20,
+              "line": 5,
+              "position": 152,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 19,
+              "line": 5,
+              "position": 151,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 5,
+              "position": 153,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 20,
+              "line": 5,
+              "position": 152,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 5,
+              "position": 154,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 21,
+              "line": 5,
+              "position": 153,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 5,
+              "position": 155,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 5,
+              "position": 154,
+            },
+          },
+          "text": "A",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 5,
+              "position": 156,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 23,
+              "line": 5,
+              "position": 155,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Comma",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 5,
+              "position": 157,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 24,
+              "line": 5,
+              "position": 156,
+            },
+          },
+          "text": ",",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 5,
+              "position": 158,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 5,
+              "position": 157,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 5,
+              "position": 163,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 26,
+              "line": 5,
+              "position": 158,
+            },
+          },
+          "text": "value",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 5,
+              "position": 164,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 31,
+              "line": 5,
+              "position": 163,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 5,
+              "position": 165,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 32,
+              "line": 5,
+              "position": 164,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 5,
+              "position": 166,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 33,
+              "line": 5,
+              "position": 165,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 35,
+              "line": 5,
+              "position": 167,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 34,
+              "line": 5,
+              "position": 166,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Colon",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 36,
+              "line": 5,
+              "position": 168,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 35,
+              "line": 5,
+              "position": 167,
+            },
+          },
+          "text": ":",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 37,
+              "line": 5,
+              "position": 169,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 36,
+              "line": 5,
+              "position": 168,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 38,
+              "line": 5,
+              "position": 170,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 37,
+              "line": 5,
+              "position": 169,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "LessThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 39,
+              "line": 5,
+              "position": 171,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 38,
+              "line": 5,
+              "position": 170,
+            },
+          },
+          "text": "<",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 5,
+              "position": 172,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 39,
+              "line": 5,
+              "position": 171,
+            },
+          },
+          "text": "B",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 5,
+              "position": 173,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 40,
+              "line": 5,
+              "position": 172,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 5,
+              "position": 174,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 41,
+              "line": 5,
+              "position": 173,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "EqualSign",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 5,
+              "position": 175,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 5,
+              "position": 174,
+            },
+          },
+          "text": "=",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 5,
+              "position": 176,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 43,
+              "line": 5,
+              "position": 175,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 5,
+              "position": 177,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 44,
+              "line": 5,
+              "position": 176,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 5,
+              "position": 178,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 45,
+              "line": 5,
+              "position": 177,
+            },
+          },
+          "text": "F",
+        },
+        Token {
+          "kind": "Period",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 47,
+              "line": 5,
+              "position": 179,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 5,
+              "position": 178,
+            },
+          },
+          "text": ".",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 50,
+              "line": 5,
+              "position": 182,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 47,
+              "line": 5,
+              "position": 179,
+            },
+          },
+          "text": "map",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 51,
+              "line": 5,
+              "position": 183,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 50,
+              "line": 5,
+              "position": 182,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 53,
+              "line": 5,
+              "position": 185,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 51,
+              "line": 5,
+              "position": 183,
+            },
+          },
+          "text": "fa",
+        },
+        Token {
+          "kind": "Comma",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 54,
+              "line": 5,
+              "position": 186,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 53,
+              "line": 5,
+              "position": 185,
+            },
+          },
+          "text": ",",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 55,
+              "line": 5,
+              "position": 187,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 54,
+              "line": 5,
+              "position": 186,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "OpenParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 56,
+              "line": 5,
+              "position": 188,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 55,
+              "line": 5,
+              "position": 187,
+            },
+          },
+          "text": "(",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 57,
+              "line": 5,
+              "position": 189,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 56,
+              "line": 5,
+              "position": 188,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 58,
+              "line": 5,
+              "position": 190,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 57,
+              "line": 5,
+              "position": 189,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "EqualSign",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 59,
+              "line": 5,
+              "position": 191,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 58,
+              "line": 5,
+              "position": 190,
+            },
+          },
+          "text": "=",
+        },
+        Token {
+          "kind": "GreaterThan",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 60,
+              "line": 5,
+              "position": 192,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 59,
+              "line": 5,
+              "position": 191,
+            },
+          },
+          "text": ">",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 61,
+              "line": 5,
+              "position": 193,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 60,
+              "line": 5,
+              "position": 192,
+            },
+          },
+          "text": " ",
+        },
+        Token {
+          "kind": "Identifier",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 66,
+              "line": 5,
+              "position": 198,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 61,
+              "line": 5,
+              "position": 193,
+            },
+          },
+          "text": "value",
+        },
+        Token {
+          "kind": "CloseParen",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 67,
+              "line": 5,
+              "position": 199,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 66,
+              "line": 5,
+              "position": 198,
+            },
+          },
+          "text": ")",
+        },
+        Token {
+          "kind": "Whitespace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 6,
+              "position": 200,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 67,
+              "line": 5,
+              "position": 199,
+            },
+          },
+          "text": "
+      ",
+        },
+        Token {
+          "kind": "CloseBrace",
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 1,
+              "line": 6,
+              "position": 201,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 6,
+              "position": 200,
+            },
+          },
+          "text": "}",
+        },
+      ]
+    `)
+  })
 });

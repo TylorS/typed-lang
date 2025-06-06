@@ -8,8 +8,9 @@ import { importDeclarationTemplate } from "./importDeclarationTemplate.js";
 import { typeAliasDeclarationTemplate } from "./typeAliasDeclarationTemplate.js";
 import { typeClassDeclarationTemplate } from "./typeClassDeclarationTemplate.js";
 import { instanceDeclarationTemplate } from "./instanceDeclarationTemplate.js";
+import { HktsByName } from "./typeTemplate.js";
 
-export function declarationTemplate(decl: Declaration): Interpolation {
+export function declarationTemplate(decl: Declaration, hktsByName?: HktsByName): Interpolation {
   switch (decl._tag) {
     case "BrandDeclaration":
       return brandDeclarationTemplate(decl);
@@ -18,16 +19,16 @@ export function declarationTemplate(decl: Declaration): Interpolation {
     case "DataDeclaration":
       return dataDeclarationTemplate(decl);
     case "FunctionDeclaration":
-      return functionDeclarationTemplate(decl);
+      return functionDeclarationTemplate(decl, hktsByName);
     case "ImportDeclaration":
       return importDeclarationTemplate(decl);
     case "TypeAliasDeclaration":
-      return typeAliasDeclarationTemplate(decl);
+      return typeAliasDeclarationTemplate(decl, hktsByName);
     case "TypeClassDeclaration":
-      return typeClassDeclarationTemplate(decl);
+      return typeClassDeclarationTemplate(decl, hktsByName);
     case "VariableDeclaration":
-      return variableDeclarationTemplate(decl);
+      return variableDeclarationTemplate(decl, hktsByName);
     case "InstanceDeclaration":
-      return instanceDeclarationTemplate(decl);
+      return instanceDeclarationTemplate(decl, hktsByName);
   }
 }

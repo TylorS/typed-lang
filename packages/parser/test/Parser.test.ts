@@ -738,7 +738,21 @@ export type D = Unknown
               },
             ],
           },
-          "exported": undefined,
+          "exported": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 1,
+              "position": 6,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 1,
+              "position": 0,
+            },
+          },
           "name": Identifier {
             "_tag": "Identifier",
             "span": Span {
@@ -898,9 +912,9 @@ export type D = Unknown
             },
             "start": SpanLocation {
               "_tag": "SpanLocation",
-              "column": 7,
+              "column": 0,
               "line": 1,
-              "position": 7,
+              "position": 0,
             },
           },
           "typeParameters": [],
@@ -991,7 +1005,21 @@ export type D = Unknown
               },
             ],
           },
-          "exported": undefined,
+          "exported": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 6,
+              "line": 1,
+              "position": 6,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 0,
+              "line": 1,
+              "position": 0,
+            },
+          },
           "name": Identifier {
             "_tag": "Identifier",
             "span": Span {
@@ -1136,9 +1164,9 @@ export type D = Unknown
             },
             "start": SpanLocation {
               "_tag": "SpanLocation",
-              "column": 7,
+              "column": 0,
               "line": 1,
-              "position": 7,
+              "position": 0,
             },
           },
           "typeParameters": [
@@ -3659,4 +3687,1509 @@ export instance Covariant<Maybe> {
       ]
     `);
   });
+
+  it("parses funtions with reference to typeclasess", () => {
+    const fileName = "test.typed";
+    const source = `export typeclass Covariant<F<_>> {
+  map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
+}
+
+export function mapTo<F<_>>(F: Covariant<F>) {
+  return <A, B>(fa: F<A>, value: B): F<B> => F.map(fa, () => value)
+}`
+    
+const sourceFile = parse(fileName, source);
+
+expect(sourceFile.statements).toMatchInlineSnapshot(`
+  [
+    TypeClassDeclaration {
+      "_tag": "TypeClassDeclaration",
+      "closeBrace": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 1,
+          "line": 3,
+          "position": 84,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 0,
+          "line": 3,
+          "position": 83,
+        },
+      },
+      "exported": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 6,
+          "line": 1,
+          "position": 6,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 0,
+          "line": 1,
+          "position": 0,
+        },
+      },
+      "fields": [
+        NamedField {
+          "_tag": "NamedField",
+          "name": Identifier {
+            "_tag": "Identifier",
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 5,
+                "line": 2,
+                "position": 40,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 2,
+                "line": 2,
+                "position": 37,
+              },
+            },
+            "text": "map",
+          },
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 46,
+              "line": 2,
+              "position": 81,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 2,
+              "line": 2,
+              "position": 37,
+            },
+          },
+          "value": FunctionType {
+            "_tag": "FunctionType",
+            "parameters": [
+              NamedField {
+                "_tag": "NamedField",
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 16,
+                      "line": 2,
+                      "position": 51,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 14,
+                      "line": 2,
+                      "position": 49,
+                    },
+                  },
+                  "text": "fa",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 21,
+                    "line": 2,
+                    "position": 56,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 14,
+                    "line": 2,
+                    "position": 49,
+                  },
+                },
+                "value": TypeReference {
+                  "_tag": "TypeReference",
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 19,
+                        "line": 2,
+                        "position": 54,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 18,
+                        "line": 2,
+                        "position": 53,
+                      },
+                    },
+                    "text": "F",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 21,
+                      "line": 2,
+                      "position": 56,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 18,
+                      "line": 2,
+                      "position": 53,
+                    },
+                  },
+                  "typeArguments": [
+                    TypeReference {
+                      "_tag": "TypeReference",
+                      "name": Identifier {
+                        "_tag": "Identifier",
+                        "span": Span {
+                          "_tag": "Span",
+                          "end": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 21,
+                            "line": 2,
+                            "position": 56,
+                          },
+                          "start": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 20,
+                            "line": 2,
+                            "position": 55,
+                          },
+                        },
+                        "text": "A",
+                      },
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 21,
+                          "line": 2,
+                          "position": 56,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 20,
+                          "line": 2,
+                          "position": 55,
+                        },
+                      },
+                      "typeArguments": [],
+                    },
+                  ],
+                },
+              },
+              NamedField {
+                "_tag": "NamedField",
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 25,
+                      "line": 2,
+                      "position": 60,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 24,
+                      "line": 2,
+                      "position": 59,
+                    },
+                  },
+                  "text": "f",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 38,
+                    "line": 2,
+                    "position": 73,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 24,
+                    "line": 2,
+                    "position": 59,
+                  },
+                },
+                "value": FunctionType {
+                  "_tag": "FunctionType",
+                  "parameters": [
+                    NamedField {
+                      "_tag": "NamedField",
+                      "name": Identifier {
+                        "_tag": "Identifier",
+                        "span": Span {
+                          "_tag": "Span",
+                          "end": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 29,
+                            "line": 2,
+                            "position": 64,
+                          },
+                          "start": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 28,
+                            "line": 2,
+                            "position": 63,
+                          },
+                        },
+                        "text": "a",
+                      },
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 32,
+                          "line": 2,
+                          "position": 67,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 28,
+                          "line": 2,
+                          "position": 63,
+                        },
+                      },
+                      "value": TypeReference {
+                        "_tag": "TypeReference",
+                        "name": Identifier {
+                          "_tag": "Identifier",
+                          "span": Span {
+                            "_tag": "Span",
+                            "end": SpanLocation {
+                              "_tag": "SpanLocation",
+                              "column": 32,
+                              "line": 2,
+                              "position": 67,
+                            },
+                            "start": SpanLocation {
+                              "_tag": "SpanLocation",
+                              "column": 31,
+                              "line": 2,
+                              "position": 66,
+                            },
+                          },
+                          "text": "A",
+                        },
+                        "span": Span {
+                          "_tag": "Span",
+                          "end": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 32,
+                            "line": 2,
+                            "position": 67,
+                          },
+                          "start": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 31,
+                            "line": 2,
+                            "position": 66,
+                          },
+                        },
+                        "typeArguments": [],
+                      },
+                    },
+                  ],
+                  "returnType": TypeReference {
+                    "_tag": "TypeReference",
+                    "name": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 38,
+                          "line": 2,
+                          "position": 73,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 37,
+                          "line": 2,
+                          "position": 72,
+                        },
+                      },
+                      "text": "B",
+                    },
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 38,
+                        "line": 2,
+                        "position": 73,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 37,
+                        "line": 2,
+                        "position": 72,
+                      },
+                    },
+                    "typeArguments": [],
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 38,
+                      "line": 2,
+                      "position": 73,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 27,
+                      "line": 2,
+                      "position": 62,
+                    },
+                  },
+                  "typeParameters": [],
+                },
+              },
+            ],
+            "returnType": TypeReference {
+              "_tag": "TypeReference",
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 44,
+                    "line": 2,
+                    "position": 79,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 43,
+                    "line": 2,
+                    "position": 78,
+                  },
+                },
+                "text": "F",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 46,
+                  "line": 2,
+                  "position": 81,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 43,
+                  "line": 2,
+                  "position": 78,
+                },
+              },
+              "typeArguments": [
+                TypeReference {
+                  "_tag": "TypeReference",
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 46,
+                        "line": 2,
+                        "position": 81,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 45,
+                        "line": 2,
+                        "position": 80,
+                      },
+                    },
+                    "text": "B",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 46,
+                      "line": 2,
+                      "position": 81,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 45,
+                      "line": 2,
+                      "position": 80,
+                    },
+                  },
+                  "typeArguments": [],
+                },
+              ],
+            },
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 46,
+                "line": 2,
+                "position": 81,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 13,
+                "line": 2,
+                "position": 48,
+              },
+            },
+            "typeParameters": [
+              TypeParameter {
+                "_tag": "TypeParameter",
+                "constraint": undefined,
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 9,
+                      "line": 2,
+                      "position": 44,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 8,
+                      "line": 2,
+                      "position": 43,
+                    },
+                  },
+                  "text": "A",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 9,
+                    "line": 2,
+                    "position": 44,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 8,
+                    "line": 2,
+                    "position": 43,
+                  },
+                },
+                "variance": undefined,
+              },
+              TypeParameter {
+                "_tag": "TypeParameter",
+                "constraint": undefined,
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 12,
+                      "line": 2,
+                      "position": 47,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 11,
+                      "line": 2,
+                      "position": 46,
+                    },
+                  },
+                  "text": "B",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 12,
+                    "line": 2,
+                    "position": 47,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 11,
+                    "line": 2,
+                    "position": 46,
+                  },
+                },
+                "variance": undefined,
+              },
+            ],
+          },
+        },
+      ],
+      "name": Identifier {
+        "_tag": "Identifier",
+        "span": Span {
+          "_tag": "Span",
+          "end": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 26,
+            "line": 1,
+            "position": 26,
+          },
+          "start": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 17,
+            "line": 1,
+            "position": 17,
+          },
+        },
+        "text": "Covariant",
+      },
+      "openBrace": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 34,
+          "line": 1,
+          "position": 34,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 33,
+          "line": 1,
+          "position": 33,
+        },
+      },
+      "span": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 1,
+          "line": 3,
+          "position": 84,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 0,
+          "line": 1,
+          "position": 0,
+        },
+      },
+      "typeParameters": [
+        HigherKindedType {
+          "_tag": "HigherKindedType",
+          "constraint": undefined,
+          "name": Identifier {
+            "_tag": "Identifier",
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 28,
+                "line": 1,
+                "position": 28,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 27,
+                "line": 1,
+                "position": 27,
+              },
+            },
+            "text": "F",
+          },
+          "parameters": [
+            TypeParameter {
+              "_tag": "TypeParameter",
+              "constraint": undefined,
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 30,
+                    "line": 1,
+                    "position": 30,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 29,
+                    "line": 1,
+                    "position": 29,
+                  },
+                },
+                "text": "_",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 30,
+                  "line": 1,
+                  "position": 30,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 29,
+                  "line": 1,
+                  "position": 29,
+                },
+              },
+              "variance": undefined,
+            },
+          ],
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 30,
+              "line": 1,
+              "position": 30,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 27,
+              "line": 1,
+              "position": 27,
+            },
+          },
+        },
+      ],
+    },
+    FunctionDeclaration {
+      "_tag": "FunctionDeclaration",
+      "block": Block {
+        "_tag": "Block",
+        "span": Span {
+          "_tag": "Span",
+          "end": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 67,
+            "line": 6,
+            "position": 200,
+          },
+          "start": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 45,
+            "line": 5,
+            "position": 131,
+          },
+        },
+        "statements": [
+          ReturnStatement {
+            "_tag": "ReturnStatement",
+            "expression": FunctionExpression {
+              "_tag": "FunctionExpression",
+              "block": FunctionCall {
+                "_tag": "FunctionCall",
+                "callee": MemberExpression {
+                  "_tag": "MemberExpression",
+                  "dot": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 47,
+                      "line": 6,
+                      "position": 180,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 46,
+                      "line": 6,
+                      "position": 179,
+                    },
+                  },
+                  "object": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 46,
+                        "line": 6,
+                        "position": 179,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 45,
+                        "line": 6,
+                        "position": 178,
+                      },
+                    },
+                    "text": "F",
+                  },
+                  "property": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 50,
+                        "line": 6,
+                        "position": 183,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 47,
+                        "line": 6,
+                        "position": 180,
+                      },
+                    },
+                    "text": "map",
+                  },
+                  "questionMark": null,
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 50,
+                      "line": 6,
+                      "position": 183,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 45,
+                      "line": 6,
+                      "position": 178,
+                    },
+                  },
+                },
+                "parameters": [
+                  Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 53,
+                        "line": 6,
+                        "position": 186,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 51,
+                        "line": 6,
+                        "position": 184,
+                      },
+                    },
+                    "text": "fa",
+                  },
+                  FunctionExpression {
+                    "_tag": "FunctionExpression",
+                    "block": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 66,
+                          "line": 6,
+                          "position": 199,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 61,
+                          "line": 6,
+                          "position": 194,
+                        },
+                      },
+                      "text": "value",
+                    },
+                    "name": null,
+                    "parameters": [],
+                    "returnType": null,
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 66,
+                        "line": 6,
+                        "position": 199,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 55,
+                        "line": 6,
+                        "position": 188,
+                      },
+                    },
+                    "typeParameters": [],
+                  },
+                ],
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 67,
+                    "line": 6,
+                    "position": 200,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 45,
+                    "line": 6,
+                    "position": 178,
+                  },
+                },
+                "typeArguments": [],
+              },
+              "name": null,
+              "parameters": [
+                NamedField {
+                  "_tag": "NamedField",
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 18,
+                        "line": 6,
+                        "position": 151,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 16,
+                        "line": 6,
+                        "position": 149,
+                      },
+                    },
+                    "text": "fa",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 23,
+                      "line": 6,
+                      "position": 156,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 16,
+                      "line": 6,
+                      "position": 149,
+                    },
+                  },
+                  "value": TypeReference {
+                    "_tag": "TypeReference",
+                    "name": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 21,
+                          "line": 6,
+                          "position": 154,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 20,
+                          "line": 6,
+                          "position": 153,
+                        },
+                      },
+                      "text": "F",
+                    },
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 23,
+                        "line": 6,
+                        "position": 156,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 20,
+                        "line": 6,
+                        "position": 153,
+                      },
+                    },
+                    "typeArguments": [
+                      TypeReference {
+                        "_tag": "TypeReference",
+                        "name": Identifier {
+                          "_tag": "Identifier",
+                          "span": Span {
+                            "_tag": "Span",
+                            "end": SpanLocation {
+                              "_tag": "SpanLocation",
+                              "column": 23,
+                              "line": 6,
+                              "position": 156,
+                            },
+                            "start": SpanLocation {
+                              "_tag": "SpanLocation",
+                              "column": 22,
+                              "line": 6,
+                              "position": 155,
+                            },
+                          },
+                          "text": "A",
+                        },
+                        "span": Span {
+                          "_tag": "Span",
+                          "end": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 23,
+                            "line": 6,
+                            "position": 156,
+                          },
+                          "start": SpanLocation {
+                            "_tag": "SpanLocation",
+                            "column": 22,
+                            "line": 6,
+                            "position": 155,
+                          },
+                        },
+                        "typeArguments": [],
+                      },
+                    ],
+                  },
+                },
+                NamedField {
+                  "_tag": "NamedField",
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 31,
+                        "line": 6,
+                        "position": 164,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 26,
+                        "line": 6,
+                        "position": 159,
+                      },
+                    },
+                    "text": "value",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 34,
+                      "line": 6,
+                      "position": 167,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 26,
+                      "line": 6,
+                      "position": 159,
+                    },
+                  },
+                  "value": TypeReference {
+                    "_tag": "TypeReference",
+                    "name": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 34,
+                          "line": 6,
+                          "position": 167,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 33,
+                          "line": 6,
+                          "position": 166,
+                        },
+                      },
+                      "text": "B",
+                    },
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 34,
+                        "line": 6,
+                        "position": 167,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 33,
+                        "line": 6,
+                        "position": 166,
+                      },
+                    },
+                    "typeArguments": [],
+                  },
+                },
+              ],
+              "returnType": TypeReference {
+                "_tag": "TypeReference",
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 38,
+                      "line": 6,
+                      "position": 171,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 37,
+                      "line": 6,
+                      "position": 170,
+                    },
+                  },
+                  "text": "F",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 40,
+                    "line": 6,
+                    "position": 173,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 37,
+                    "line": 6,
+                    "position": 170,
+                  },
+                },
+                "typeArguments": [
+                  TypeReference {
+                    "_tag": "TypeReference",
+                    "name": Identifier {
+                      "_tag": "Identifier",
+                      "span": Span {
+                        "_tag": "Span",
+                        "end": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 40,
+                          "line": 6,
+                          "position": 173,
+                        },
+                        "start": SpanLocation {
+                          "_tag": "SpanLocation",
+                          "column": 39,
+                          "line": 6,
+                          "position": 172,
+                        },
+                      },
+                      "text": "B",
+                    },
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 40,
+                        "line": 6,
+                        "position": 173,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 39,
+                        "line": 6,
+                        "position": 172,
+                      },
+                    },
+                    "typeArguments": [],
+                  },
+                ],
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 67,
+                  "line": 6,
+                  "position": 200,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 10,
+                  "line": 6,
+                  "position": 143,
+                },
+              },
+              "typeParameters": [
+                TypeParameter {
+                  "_tag": "TypeParameter",
+                  "constraint": undefined,
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 11,
+                        "line": 6,
+                        "position": 144,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 10,
+                        "line": 6,
+                        "position": 143,
+                      },
+                    },
+                    "text": "A",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 11,
+                      "line": 6,
+                      "position": 144,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 10,
+                      "line": 6,
+                      "position": 143,
+                    },
+                  },
+                  "variance": undefined,
+                },
+                TypeParameter {
+                  "_tag": "TypeParameter",
+                  "constraint": undefined,
+                  "name": Identifier {
+                    "_tag": "Identifier",
+                    "span": Span {
+                      "_tag": "Span",
+                      "end": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 14,
+                        "line": 6,
+                        "position": 147,
+                      },
+                      "start": SpanLocation {
+                        "_tag": "SpanLocation",
+                        "column": 13,
+                        "line": 6,
+                        "position": 146,
+                      },
+                    },
+                    "text": "B",
+                  },
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 14,
+                      "line": 6,
+                      "position": 147,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 13,
+                      "line": 6,
+                      "position": 146,
+                    },
+                  },
+                  "variance": undefined,
+                },
+              ],
+            },
+            "keyword": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 8,
+                "line": 6,
+                "position": 141,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 2,
+                "line": 6,
+                "position": 135,
+              },
+            },
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 67,
+                "line": 6,
+                "position": 200,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 2,
+                "line": 6,
+                "position": 135,
+              },
+            },
+          },
+        ],
+      },
+      "exported": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 6,
+          "line": 5,
+          "position": 92,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 0,
+          "line": 5,
+          "position": 86,
+        },
+      },
+      "name": Identifier {
+        "_tag": "Identifier",
+        "span": Span {
+          "_tag": "Span",
+          "end": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 21,
+            "line": 5,
+            "position": 107,
+          },
+          "start": SpanLocation {
+            "_tag": "SpanLocation",
+            "column": 16,
+            "line": 5,
+            "position": 102,
+          },
+        },
+        "text": "mapTo",
+      },
+      "parameters": [
+        NamedField {
+          "_tag": "NamedField",
+          "name": Identifier {
+            "_tag": "Identifier",
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 29,
+                "line": 5,
+                "position": 115,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 28,
+                "line": 5,
+                "position": 114,
+              },
+            },
+            "text": "F",
+          },
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 42,
+              "line": 5,
+              "position": 128,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 28,
+              "line": 5,
+              "position": 114,
+            },
+          },
+          "value": TypeReference {
+            "_tag": "TypeReference",
+            "name": Identifier {
+              "_tag": "Identifier",
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 40,
+                  "line": 5,
+                  "position": 126,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 31,
+                  "line": 5,
+                  "position": 117,
+                },
+              },
+              "text": "Covariant",
+            },
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 42,
+                "line": 5,
+                "position": 128,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 31,
+                "line": 5,
+                "position": 117,
+              },
+            },
+            "typeArguments": [
+              TypeReference {
+                "_tag": "TypeReference",
+                "name": Identifier {
+                  "_tag": "Identifier",
+                  "span": Span {
+                    "_tag": "Span",
+                    "end": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 42,
+                      "line": 5,
+                      "position": 128,
+                    },
+                    "start": SpanLocation {
+                      "_tag": "SpanLocation",
+                      "column": 41,
+                      "line": 5,
+                      "position": 127,
+                    },
+                  },
+                  "text": "F",
+                },
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 42,
+                    "line": 5,
+                    "position": 128,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 41,
+                    "line": 5,
+                    "position": 127,
+                  },
+                },
+                "typeArguments": [],
+              },
+            ],
+          },
+        },
+      ],
+      "returnType": undefined,
+      "span": Span {
+        "_tag": "Span",
+        "end": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 67,
+          "line": 6,
+          "position": 200,
+        },
+        "start": SpanLocation {
+          "_tag": "SpanLocation",
+          "column": 0,
+          "line": 5,
+          "position": 86,
+        },
+      },
+      "typeParameters": [
+        HigherKindedType {
+          "_tag": "HigherKindedType",
+          "constraint": undefined,
+          "name": Identifier {
+            "_tag": "Identifier",
+            "span": Span {
+              "_tag": "Span",
+              "end": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 23,
+                "line": 5,
+                "position": 109,
+              },
+              "start": SpanLocation {
+                "_tag": "SpanLocation",
+                "column": 22,
+                "line": 5,
+                "position": 108,
+              },
+            },
+            "text": "F",
+          },
+          "parameters": [
+            TypeParameter {
+              "_tag": "TypeParameter",
+              "constraint": undefined,
+              "name": Identifier {
+                "_tag": "Identifier",
+                "span": Span {
+                  "_tag": "Span",
+                  "end": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 25,
+                    "line": 5,
+                    "position": 111,
+                  },
+                  "start": SpanLocation {
+                    "_tag": "SpanLocation",
+                    "column": 24,
+                    "line": 5,
+                    "position": 110,
+                  },
+                },
+                "text": "_",
+              },
+              "span": Span {
+                "_tag": "Span",
+                "end": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 25,
+                  "line": 5,
+                  "position": 111,
+                },
+                "start": SpanLocation {
+                  "_tag": "SpanLocation",
+                  "column": 24,
+                  "line": 5,
+                  "position": 110,
+                },
+              },
+              "variance": undefined,
+            },
+          ],
+          "span": Span {
+            "_tag": "Span",
+            "end": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 25,
+              "line": 5,
+              "position": 111,
+            },
+            "start": SpanLocation {
+              "_tag": "SpanLocation",
+              "column": 22,
+              "line": 5,
+              "position": 108,
+            },
+          },
+        },
+      ],
+    },
+  ]
+`)
+  })
 });

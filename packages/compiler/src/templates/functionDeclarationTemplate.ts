@@ -24,12 +24,12 @@ export function functionDeclarationTemplate(
       // TODO: Need to support replacing of HKTs
       decl.parameters.map(
         (p) =>
-          t`${t.identifier(p.name)}: ${p.value ? typeTemplate(p.value) : t.identifier(p.name)
+          t`${t.identifier(p.name)}: ${p.value ? typeTemplate(p.value, hktsByName) : t.identifier(p.name)
             }`
       )
     ),
     t`)`,
-    decl.returnType ? t`${t`: ${typeTemplate(decl.returnType)}`} ` : "",
+    decl.returnType ? t`${t`: ${typeTemplate(decl.returnType, hktsByName)}`} ` : "",
     blockTemplate(decl.block)
   );
 }

@@ -749,7 +749,12 @@ function parseStatement(parser: Parser): AST.Statement {
     TokenKind.BrandKeyword,
     TokenKind.TypeClassKeyword,
     TokenKind.InstanceKeyword,
-    TokenKind.ImportKeyword
+    TokenKind.ImportKeyword,
+
+    // Not really expected, but potentially recoverable via backtracking
+
+    // Possibly because we have type
+    TokenKind.Comma,
   );
 
   if (current === undefined) {
@@ -762,7 +767,7 @@ function parseStatement(parser: Parser): AST.Statement {
 
   switch (current.kind) {
     case TokenKind.FunctionKeyword:
-      return parseFunctionDeclaration(parser, current.span.start, undefined);
+      return parseFunctionDeclaration(parser, current.span.start, exportKeyword);
     case TokenKind.ConstKeyword:
     case TokenKind.LetKeyword:
     case TokenKind.VarKeyword:
@@ -811,6 +816,7 @@ function parseStatement(parser: Parser): AST.Statement {
       );
     case TokenKind.ImportKeyword:
       return parseImportDeclaration(parser, current.span.start);
+    case TokenKind.Comma:
     default:
       throw new Error(
         `Unexpected token in block: ${current.kind} :: ${
@@ -982,8 +988,10 @@ function parseElseIfBlock(parser: Parser): AST.ElseIfBlock | undefined {
 
 function parseUnaryExpression(parser: Parser): AST.Expression {
   const operator = parseUnaryOperator(parser);
+
   if (operator) {
     parser.skipWhitespace();
+
     const expression = parseUnaryExpression(parser);
     return new AST.UnaryExpression(
       operator,
@@ -991,6 +999,7 @@ function parseUnaryExpression(parser: Parser): AST.Expression {
       new Span(operator.span.start, expression.span.end)
     );
   }
+
   return parsePrimaryExpression(parser);
 }
 
@@ -1114,10 +1123,10 @@ function parseBinaryExpression(
 
   while (true) {
     const operator = parseOperator(parser);
+
     if (!operator || getPrecedence(operator) < minPrecedence) {
       return left;
     }
-
     const nextMinPrecedence = isRightAssociative(operator)
       ? getPrecedence(operator)
       : getPrecedence(operator) + 1;

@@ -105,7 +105,7 @@ function typeReferenceTemplate(type: TypeReference, hktsByName?: HktsByName, con
 
     const arity = allParams.length - 1
 
-    const Kind = t.import(`@typed-lang/typedlib`, `Kind${arity === 1 ? '' : arity}`);
+    const Kind = t.import(`@typed-lang/typedlib`, `Kind${arity}`);
 
 
     return t.span(type.span)(

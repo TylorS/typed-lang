@@ -1,21 +1,22 @@
 import { Span, TokenKind, VariableDeclaration } from "@typed-lang/parser";
 import { Interpolation, t } from "../Template.js";
-import { typeTemplate } from "./typeTemplate.js";
+import { HktsByName, typeTemplate } from "./typeTemplate.js";
 import { expressionTemplate } from "./expressionTemplate.js";
 import { identifierOrDestructureTemplate } from "./identifierOrDestructureTemplate.js";
 
 export function variableDeclarationTemplate(
-  decl: VariableDeclaration
+  decl: VariableDeclaration,
+  hktsByName?: HktsByName
 ): Interpolation {
   return t.span(decl.span)(
     decl.exported ? t`${t.span(decl.exported)(`export`)} ` : "",
     t`${variableKindTemplate(decl.keyword)} `,
     identifierOrDestructureTemplate(decl.name),
-    decl.typeAnnotation ? typeTemplate(decl.typeAnnotation) : "",
+    decl.typeAnnotation ? typeTemplate(decl.typeAnnotation, hktsByName) : "",
     ` `,
     t.span(decl.equals)(`=`),
     ` `,
-    expressionTemplate(decl.expression)
+    expressionTemplate(decl.expression, hktsByName)
   );
 }
 

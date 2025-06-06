@@ -38,7 +38,7 @@ import { identifierOrDestructureTemplate } from "./identifierOrDestructureTempla
 import { unwrapHkt } from "./unwrapHKT.js";
 import { declarationTemplate } from "./declarationTemplate.js";
 
-export function statementTemplate(statement: Statement): Interpolation {
+export function statementTemplate(statement: Statement, hktsByName?: HktsByName): Interpolation {
   switch (statement._tag) {
     case "BreakStatement":
       return t.span(statement.span)(`break`);
@@ -47,75 +47,75 @@ export function statementTemplate(statement: Statement): Interpolation {
     case "ContinueStatement":
       return t.span(statement.span)(`continue`);
     case "ForOfStatement":
-      return forOfStatementTemplate(statement);
+      return forOfStatementTemplate(statement, hktsByName);
     case "FunctionDeclaration":
-      return functionDeclarationTemplate(statement);
+      return functionDeclarationTemplate(statement, hktsByName);
     case "IfStatement":
-      return ifStatementTemplate(statement);
+      return ifStatementTemplate(statement, hktsByName);
     case "ReturnStatement":
       return t.span(statement.span)(
         t.span(statement.keyword)(`return`),
         ` `,
-        expressionTemplate(statement.expression)
+        expressionTemplate(statement.expression, hktsByName)
       );
     case "VariableDeclaration":
-      return variableDeclarationTemplate(statement);
+      return variableDeclarationTemplate(statement, hktsByName);
     case "WhileStatement":
-      return whileStatementTemplate(statement);
+      return whileStatementTemplate(statement, hktsByName);
     case "ForInStatement":
-      return forInStatementTemplate(statement);
+      return forInStatementTemplate(statement, hktsByName);
     default:
-      return declarationTemplate(statement);
+      return declarationTemplate(statement, hktsByName);
   }
 }
 
-export function expressionTemplate(expression: Expression): Interpolation {
+export function expressionTemplate(expression: Expression, hktsByName?: HktsByName): Interpolation {
   switch (expression._tag) {
     case "ArrayLiteral":
-      return arrayLiteralTemplate(expression);
+      return arrayLiteralTemplate(expression, hktsByName);
     case "BinaryExpression":
-      return binaryExpressionTemplate(expression);
+      return binaryExpressionTemplate(expression, hktsByName);
     case "BooleanLiteral":
       return booleanLiteralTemplate(expression);
     case "FunctionCall":
-      return functionCallTemplate(expression);
+      return functionCallTemplate(expression, hktsByName);
     case "FunctionExpression":
-      return functionExpressionTemplate(expression);
+      return functionExpressionTemplate(expression, hktsByName);
     case "Identifier":
       return t.identifier(expression);
     case "MemberExpression":
-      return memberExpressionTemplate(expression);
+      return memberExpressionTemplate(expression, hktsByName);
     case "NullLiteral":
       return nullLiteralTemplate(expression);
     case "NumberLiteral":
       return numberLiteralTemplate(expression);
     case "ParenthesizedExpression":
-      return parenthesizedExpressionTemplate(expression);
+      return parenthesizedExpressionTemplate(expression, hktsByName);
     case "RecordLiteral":
-      return recordLiteralTemplate(expression);
+      return recordLiteralTemplate(expression, hktsByName);
     case "StringLiteral":
       return stringLiteralTemplate(expression);
     case "UnaryExpression":
-      return unaryExpressionTemplate(expression);
+      return unaryExpressionTemplate(expression, hktsByName);
     case "UndefinedLiteral":
       return undefinedLiteralTemplate(expression);
     case "MatchExpression":
-      return matchExpressionTemplate(expression);
+      return matchExpressionTemplate(expression, hktsByName);
   }
 }
 
 // TODO: Support multi-line array literals
-function arrayLiteralTemplate(expression: ArrayLiteral): Interpolation {
+function arrayLiteralTemplate(expression: ArrayLiteral, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
-    t`[${t.intercolate(`, `)(expression.values.map(expressionTemplate))}]`
+    t`[${t.intercolate(`, `)(expression.values.map(ex => expressionTemplate(ex, hktsByName)))}]`
   );
 }
 
-function binaryExpressionTemplate(expression: BinaryExpression): Interpolation {
+function binaryExpressionTemplate(expression: BinaryExpression, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
-    t`${expressionTemplate(expression.left)} ${operatorTemplate(
+    t`${expressionTemplate(expression.left, hktsByName)} ${operatorTemplate(
       expression.operator
-    )} ${expressionTemplate(expression.right)}`
+    )} ${expressionTemplate(expression.right, hktsByName)}`
   );
 }
 
@@ -123,11 +123,12 @@ function booleanLiteralTemplate(expression: BooleanLiteral): Interpolation {
   return t.span(expression.span)(String(expression.value));
 }
 
-function functionCallTemplate(expression: FunctionCall): Interpolation {
+function functionCallTemplate(expression: FunctionCall, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
-    t`${expressionTemplate(expression.callee)}${typeArgumentsTemplate(
-      expression.typeArguments
-    )}(${t.intercolate(`, `)(expression.parameters.map(expressionTemplate))})`
+    t`${expressionTemplate(expression.callee, hktsByName)}${typeArgumentsTemplate(
+      expression.typeArguments,
+      hktsByName
+    )}(${t.intercolate(`, `)(expression.parameters.map(e => expressionTemplate(e, hktsByName)))})`
   );
 }
 
@@ -146,25 +147,22 @@ function functionExpressionTemplate(
       expression.parameters.map(
         (f) =>
           // TODO: Need to support replacing of HKTs
-          t`${t.identifier(f.name)}: ${
-            f.value === undefined ? t.identifier(f.name) : typeTemplate(f.value)
-          }`
+          t`${t.identifier(f.name)}: ${f.value === undefined ? t.identifier(f.name) : typeTemplate(f.value, hktsByName)
+            }`
       )
     )})`,
-    expression.returnType ? t`: ${typeTemplate(expression.returnType)}` : "",
-    t` => ${
-      expression.block._tag === "Block"
-        ? blockTemplate(expression.block)
-        : expressionTemplate(expression.block)
-    }`
+    expression.returnType ? t`: ${typeTemplate(expression.returnType, hktsByName)}` : "",
+    t` => ${expression.block._tag === "Block"
+      ? blockTemplate(expression.block, hktsByName)
+      : expressionTemplate(expression.block, hktsByName)
+      }`
   );
 }
 
-function memberExpressionTemplate(expression: MemberExpression): Interpolation {
+function memberExpressionTemplate(expression: MemberExpression, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
-    t`${expressionTemplate(expression.object)}${
-      expression.questionMark ? t.span(expression.questionMark)(`?`) : ""
-    }.${t.identifier(expression.property)}`
+    t`${expressionTemplate(expression.object, hktsByName)}${expression.questionMark ? t.span(expression.questionMark)(`?`) : ""
+      }.${t.identifier(expression.property)}`
   );
 }
 
@@ -177,19 +175,20 @@ function numberLiteralTemplate(expression: NumberLiteral): Interpolation {
 }
 
 function parenthesizedExpressionTemplate(
-  expression: ParenthesizedExpression
+  expression: ParenthesizedExpression,
+  hktsByName?: HktsByName
 ): Interpolation {
   return t.span(expression.span)(
-    t`(${expressionTemplate(expression.expression)})`
+    t`(${expressionTemplate(expression.expression, hktsByName)})`
   );
 }
 
-function recordLiteralTemplate(expression: RecordLiteral): Interpolation {
+function recordLiteralTemplate(expression: RecordLiteral, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
     t`{ ${t.intercolate([`,`, t.newLine()])(
       expression.fields.map(
         (field) =>
-          t`${t.identifier(field.name)}: ${expressionTemplate(field.value)}`
+          t`${t.identifier(field.name)}: ${expressionTemplate(field.value, hktsByName)}`
       )
     )} }`
   );
@@ -199,10 +198,11 @@ function stringLiteralTemplate(expression: StringLiteral): Interpolation {
   return t.span(expression.span)(`"${expression.value}"`);
 }
 
-function unaryExpressionTemplate(expression: UnaryExpression): Interpolation {
+function unaryExpressionTemplate(expression: UnaryExpression, hktsByName?: HktsByName): Interpolation {
   return t.span(expression.span)(
     t`${operatorTemplate(expression.operator)}${expressionTemplate(
-      expression.argument
+      expression.argument,
+      hktsByName
     )}`
   );
 }
@@ -211,13 +211,13 @@ function undefinedLiteralTemplate(expression: UndefinedLiteral): Interpolation {
   return t.span(expression.span)(`undefined`);
 }
 
-export function blockTemplate(block: Block): Interpolation {
+export function blockTemplate(block: Block, hktsByName?: HktsByName): Interpolation {
   return t.span(block.span)(
     t`{`,
     t.newLine(),
     t.indent(
       t.intercolate([t.newLine(), t.newLine()])(
-        block.statements.map(statementTemplate)
+        block.statements.map(stmt => statementTemplate(stmt, hktsByName))
       )
     ),
     t.newLine(),
@@ -225,29 +225,29 @@ export function blockTemplate(block: Block): Interpolation {
   );
 }
 
-function forOfStatementTemplate(statement: ForOfStatement): Interpolation {
+function forOfStatementTemplate(statement: ForOfStatement, hktsByName?: HktsByName): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`for`),
     ` (`,
     t`${variableKindTemplate(statement.variable)} `,
     identifierOrDestructureTemplate(statement.name),
     ` of `,
-    expressionTemplate(statement.iterable),
+    expressionTemplate(statement.iterable, hktsByName),
     `) `,
-    blockTemplate(statement.block)
+    blockTemplate(statement.block, hktsByName)
   );
 }
 
-function forInStatementTemplate(statement: ForInStatement): Interpolation {
+function forInStatementTemplate(statement: ForInStatement, hktsByName?: HktsByName): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`for`),
     ` (`,
     t`${variableKindTemplate(statement.variable)} `,
     identifierOrDestructureTemplate(statement.name),
     ` in `,
-    expressionTemplate(statement.object),
+    expressionTemplate(statement.object, hktsByName),
     `) `,
-    blockTemplate(statement.block)
+    blockTemplate(statement.block, hktsByName)
   );
 }
 
@@ -261,74 +261,74 @@ function variableKindTemplate(
     variable[0] === TokenKind.ConstKeyword
       ? `const`
       : variable[0] === TokenKind.LetKeyword
-      ? `let`
-      : `var`
+        ? `let`
+        : `var`
   );
 }
 
-function ifStatementTemplate(statement: IfStatement): Interpolation {
+function ifStatementTemplate(statement: IfStatement, hktsByName?: HktsByName): Interpolation {
   return t.span(statement.span)(
-    ifBlockTemplate(statement.ifBlock),
-    t.intercolate(t.newLine())(statement.elseIfBlocks.map(elseIfBlockTemplate)),
-    statement.elseBlock ? elseBlockTemplate(statement.elseBlock) : ""
-  );
+    ifBlockTemplate(statement.ifBlock, hktsByName),
+    t.intercolate(t.newLine())(statement.elseIfBlocks.map(b => elseIfBlockTemplate(b, hktsByName)),
+      statement.elseBlock ? elseBlockTemplate(statement.elseBlock, hktsByName) : ""
+    ))
 }
 
-function ifBlockTemplate(block: IfBlock): Interpolation {
+function ifBlockTemplate(block: IfBlock, hktsByName?: HktsByName): Interpolation {
   return t.span(block.span)(
     t.span(block.keyword)(`if`),
     ` (`,
-    expressionTemplate(block.condition),
+    expressionTemplate(block.condition, hktsByName),
     `) `,
-    blockTemplate(block.block)
+    blockTemplate(block.block, hktsByName)
   );
 }
 
-function elseIfBlockTemplate(block: ElseIfBlock): Interpolation {
+function elseIfBlockTemplate(block: ElseIfBlock, hktsByName?: HktsByName): Interpolation {
   return t.span(block.span)(
     t.span(block.elseKeyword)(`else`),
     ` `,
     t.span(block.ifKeyword)(`if`),
     ` (`,
-    expressionTemplate(block.condition),
+    expressionTemplate(block.condition, hktsByName),
     `) `,
-    blockTemplate(block.block)
+    blockTemplate(block.block, hktsByName)
   );
 }
 
-function elseBlockTemplate(block: ElseBlock): Interpolation {
+function elseBlockTemplate(block: ElseBlock, hktsByName?: HktsByName): Interpolation {
   return t.span(block.span)(
     t.span(block.keyword)(`else`),
     ` `,
-    blockTemplate(block.block)
+    blockTemplate(block.block, hktsByName)
   );
 }
 
-function whileStatementTemplate(statement: WhileStatement): Interpolation {
+function whileStatementTemplate(statement: WhileStatement, hktsByName?: HktsByName): Interpolation {
   return t.span(statement.span)(
     t.span(statement.keyword)(`while`),
     ` (`,
-    expressionTemplate(statement.condition),
+    expressionTemplate(statement.condition, hktsByName),
     `)`,
-    blockTemplate(statement.block)
+    blockTemplate(statement.block, hktsByName)
   );
 }
 
-function matchExpressionTemplate(expression: MatchExpression): Interpolation {
+function matchExpressionTemplate(expression: MatchExpression, hktsByName?: HktsByName): Interpolation {
   const valueName = "__matchValue";
   return t.span(expression.span)(
     t`(() => {`,
     t.newLine(),
     t.indent(
       t`const ${valueName} = `,
-      expressionTemplate(expression.matching),
+      expressionTemplate(expression.matching, hktsByName),
       t`;`,
       t.newLine(),
       t`switch (true) {`,
       t.newLine(),
       t.indent(
         t.intercolate([t.newLine(), t.newLine()])(
-          expression.cases.map((c) => matchCaseTemplate(c, valueName))
+          expression.cases.map((c) => matchCaseTemplate(c, valueName, hktsByName))
         )
       ),
       t.newLine(),
@@ -341,7 +341,7 @@ function matchExpressionTemplate(expression: MatchExpression): Interpolation {
   );
 }
 
-function matchCaseTemplate(matchCase: MatchCase, valueName: string): Interpolation {
+function matchCaseTemplate(matchCase: MatchCase, valueName: string, hktsByName?: HktsByName): Interpolation {
   return t.span(matchCase.span)(
     t`case `,
     patternTestTemplate(matchCase.pattern, valueName),
@@ -349,8 +349,8 @@ function matchCaseTemplate(matchCase: MatchCase, valueName: string): Interpolati
     t.newLine(),
     t.indent(
       matchCase.body._tag === "Block"
-        ? blockTemplate(matchCase.body)
-        : expressionTemplate(matchCase.body)
+        ? blockTemplate(matchCase.body, hktsByName)
+        : expressionTemplate(matchCase.body, hktsByName)
     )
   );
 }
@@ -371,19 +371,19 @@ function patternTestTemplate(pattern: Pattern, valueName: string): Interpolation
       return t`${valueName} === undefined`;
     case "ArrayPattern":
       return t`${valueName} && Array.isArray(${valueName}) && ${valueName}.length === ${String(pattern.elements.length)} && ${t.intercolate(" && ")(
-        pattern.elements.map((element, index) => 
+        pattern.elements.map((element, index) =>
           patternTestTemplate(element, `${valueName}[${index}]`)
         )
       )}`;
     case 'ArrayLiteral':
       return t`${valueName} && Array.isArray(${valueName}) && ${valueName}.length === ${String(pattern.values.length)} && ${t.intercolate(" && ")(
-        pattern.values.map((value, index) => 
+        pattern.values.map((value, index) =>
           t`${valueName}[${String(index)}] === ${expressionTemplate(value)}`
         )
       )}`;
     case 'RecordLiteral':
       return t`${valueName} && typeof ${valueName} === "object" && Object.keys(${valueName}).length === ${String(pattern.fields.length)} && ${t.intercolate(" && ")(
-        pattern.fields.map(field => 
+        pattern.fields.map(field =>
           t`${valueName}.${t.identifier(field.name)} === ${expressionTemplate(field.value)}`
         )
       )}`;
