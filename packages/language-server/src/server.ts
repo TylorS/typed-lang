@@ -32,19 +32,18 @@ connection.onInitialize((params) => {
     createTypeScriptProject(
       typescript,
       diagnosticMessages,
-      () => [getLanguagePlugin()],
+      () => ({ languagePlugins: [getLanguagePlugin()] })
     ),
     [
       ...createTypeScriptServices(typescript),
       /* TODO: ADD LANGUAGE SERVICE PLUGINS */
     ],
-    { pullModelDiagnostics: params.initializationOptions?.pullModelDiagnostics }
   );
 });
 
 connection.onInitialized(() => {
   server.initialized();
-  server.watchFiles([
+  server.fileWatcher.watchFiles([
     `**/*.{${[
       "js",
       "cjs",
