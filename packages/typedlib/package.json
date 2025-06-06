@@ -5,8 +5,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
-    "test": "vitest --dir test"
+    "build": "tsc -b tsconfig.json"
   },
   "keywords": [],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",

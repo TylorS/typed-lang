@@ -2,7 +2,9 @@
   "name": "typed-lang",
   "version": "1.0.0",
   "description": "TypeScript extension language for web applications",
+  "type": "module",
   "scripts": {
+    "lint": "eslint --config eslint.config.js packages/*/src/**/*.ts --fix",
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "test-local-ts-plugin": "pnpm build && rm -rf ./node_modules/@typed-lang && mkdir ./node_modules/@typed-lang && cp -r packages/ ./node_modules/@typed-lang"

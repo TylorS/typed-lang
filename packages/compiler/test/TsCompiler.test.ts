@@ -328,7 +328,7 @@ describe("TsCompiler", () => {
     const code = `export const add = (a: { b: Int }): Int => a.b`;
     const result = compiler.compile(`memberExpression.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "export const add = (a: ): Int => a.b
+      "export const add = (a: {b: Int}): Int => a.b
       //# sourceMappingURL=memberExpression.typed.ts.map"
     `);
   });
@@ -470,7 +470,7 @@ export const a = 1`;
     `);
   });
 
-  it.only('compiles higher-kinded typeclass declarations', () => {
+  it('compiles higher-kinded typeclass declarations', () => {
     const code = `export typeclass Covariant<F<_>> { 
       map: <A, B>(f: (a: A) => B, fa: F<A>) => F<B>
     }`
@@ -513,7 +513,7 @@ export const a = 1`;
     `)
   })
 
-  it.only('compiles higher-kinded typeclass declarations, respecting existing parameter order', () => {
+  it('compiles higher-kinded typeclass declarations, respecting existing parameter order', () => {
     const code = `export typeclass Covariant<F<_>> { 
       map: <A, B>(fa: F<A>, f: (a: A) => B) => F<B>
     }`
@@ -523,34 +523,34 @@ export const a = 1`;
       "import { Kind, Kind10, Kind2, Kind3, Kind4, Kind5, Kind6, Kind7, Kind8, Kind9 } from "@typed-lang/typedlib"
 
       export interface Covariant10<F extends HKT10> {
-        map: <Z, Y, X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
+        map: <Z, Y, X, W, V, U, S, R, E, A, B>(fa: Kind10<F, Z, Y, X, W, V, U, S, R, E, A>, f: (a: A) => B) => Kind10<F, Z, Y, X, W, V, U, S, R, E, B>
       }
       export interface Covariant9<F extends HKT9> {
-        map: <Y, X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind9<F, Y, X, W, V, U, S, R, E, A>) => Kind9<F, Y, X, W, V, U, S, R, E, B>
+        map: <Y, X, W, V, U, S, R, E, A, B>(fa: Kind9<F, Y, X, W, V, U, S, R, E, A>, f: (a: A) => B) => Kind9<F, Y, X, W, V, U, S, R, E, B>
       }
       export interface Covariant8<F extends HKT8> {
-        map: <X, W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind8<F, X, W, V, U, S, R, E, A>) => Kind8<F, X, W, V, U, S, R, E, B>
+        map: <X, W, V, U, S, R, E, A, B>(fa: Kind8<F, X, W, V, U, S, R, E, A>, f: (a: A) => B) => Kind8<F, X, W, V, U, S, R, E, B>
       }
       export interface Covariant7<F extends HKT7> {
-        map: <W, V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind7<F, W, V, U, S, R, E, A>) => Kind7<F, W, V, U, S, R, E, B>
+        map: <W, V, U, S, R, E, A, B>(fa: Kind7<F, W, V, U, S, R, E, A>, f: (a: A) => B) => Kind7<F, W, V, U, S, R, E, B>
       }
       export interface Covariant6<F extends HKT6> {
-        map: <V, U, S, R, E, A, B>(f: (a: A) => B, fa: Kind6<F, V, U, S, R, E, A>) => Kind6<F, V, U, S, R, E, B>
+        map: <V, U, S, R, E, A, B>(fa: Kind6<F, V, U, S, R, E, A>, f: (a: A) => B) => Kind6<F, V, U, S, R, E, B>
       }
       export interface Covariant5<F extends HKT5> {
-        map: <U, S, R, E, A, B>(f: (a: A) => B, fa: Kind5<F, U, S, R, E, A>) => Kind5<F, U, S, R, E, B>
+        map: <U, S, R, E, A, B>(fa: Kind5<F, U, S, R, E, A>, f: (a: A) => B) => Kind5<F, U, S, R, E, B>
       }
       export interface Covariant4<F extends HKT4> {
-        map: <S, R, E, A, B>(f: (a: A) => B, fa: Kind4<F, S, R, E, A>) => Kind4<F, S, R, E, B>
+        map: <S, R, E, A, B>(fa: Kind4<F, S, R, E, A>, f: (a: A) => B) => Kind4<F, S, R, E, B>
       }
       export interface Covariant3<F extends HKT3> {
-        map: <R, E, A, B>(f: (a: A) => B, fa: Kind3<F, R, E, A>) => Kind3<F, R, E, B>
+        map: <R, E, A, B>(fa: Kind3<F, R, E, A>, f: (a: A) => B) => Kind3<F, R, E, B>
       }
       export interface Covariant2<F extends HKT2> {
-        map: <E, A, B>(f: (a: A) => B, fa: Kind2<F, E, A>) => Kind2<F, E, B>
+        map: <E, A, B>(fa: Kind2<F, E, A>, f: (a: A) => B) => Kind2<F, E, B>
       }
       export interface Covariant<F extends HKT> {
-        map: <A, B>(f: (a: A) => B, fa: Kind<F, A>) => Kind<F, B>
+        map: <A, B>(fa: Kind<F, A>, f: (a: A) => B) => Kind<F, B>
       }
       //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
     `)

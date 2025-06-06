@@ -87,15 +87,15 @@ function typeReferenceTemplate(type: TypeReference, hktsByName?: HktsByName, con
   // Check if this is a higher-kinded type reference
   if (hktsByName && type.name._tag === "Identifier" && hktsByName.has(type.name.text)) {
     const hktInfo = hktsByName.get(type.name.text)!;
-    
+
     // Use the same parameter logic as in function type parameters
     const hktLevel = hktInfo.params.length;
     const additionalParamsCount = hktLevel - 1;
     const startPosition = 10 - hktLevel;
     const allPossibleParams = ['Z', 'Y', 'X', 'W', 'V', 'U', 'S', 'R', 'E'];
     const hktParams = allPossibleParams.slice(startPosition, startPosition + additionalParamsCount);
-    
-    
+
+
     // Build the Kind type: Kind<F, ...hktParams, A>
     const allParams = [
       identiferOrPropertyAccess(type.name),
@@ -107,13 +107,13 @@ function typeReferenceTemplate(type: TypeReference, hktsByName?: HktsByName, con
 
     const Kind = t.import(`@typed-lang/typedlib`, `Kind${arity === 1 ? '' : arity}`);
 
-    
+
     return t.span(type.span)(
       Kind.asNamedImport(),
       t`${Kind}<${t.intercolate(', ')(...allParams)}>`
     );
   }
-  
+
   return t.span(type.span)(
     t`${identiferOrPropertyAccess(type.name)}${typeArgumentsTemplate(
       type.typeArguments,
@@ -143,29 +143,48 @@ function brandedTypeTemplate(type: BrandedType, _hktsByName?: HktsByName, _conte
 }
 
 function functionTypeTemplate(type: FunctionType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
-  // Only apply HKT expansion if we're in a typeclass method context
+  // Only apply HKT expansion if we're in a typeclass property context
   if (context?.inTypeclassProperty && hktsByName) {
-    // Collect all type parameters including HKT parameters
-    const allTypeParams: string[] = [];
-    
-    // Add original type parameters
+    // Collect original type parameters
+    const originalTypeParams: string[] = [];
     type.typeParameters.forEach(param => {
       if (param._tag === "TypeParameter") {
-        allTypeParams.push(param.name.text);
+        originalTypeParams.push(param.name.text);
       }
     });
-    
-    // Add HKT parameters in the correct order
+
+    // Collect HKT parameters
+    const hktParams: string[] = [];
     for (const hktInfo of hktsByName.values()) {
       // For HKTn, we need n-1 parameters starting from position (10-n)
       const hktLevel = hktInfo.params.length;
       const additionalParamsCount = hktLevel - 1;
       const startPosition = 10 - hktLevel;
-      
+
       // Get the correct parameters: for HKT10 start at 0 (Z), for HKT9 start at 1 (Y), etc.
       const allPossibleParams = ['Z', 'Y', 'X', 'W', 'V', 'U', 'S', 'R', 'E'];
-      const hktParams = allPossibleParams.slice(startPosition, startPosition + additionalParamsCount);
-      allTypeParams.push(...hktParams);
+      const levelHktParams = allPossibleParams.slice(startPosition, startPosition + additionalParamsCount);
+      hktParams.push(...levelHktParams);
+    }
+
+    // Find where HKT types first appear in the function signature
+    let firstHktParamIndex = -1;
+    for (let i = 0; i < type.parameters.length; i++) {
+      const param = type.parameters[i];
+      if (param.value && containsHktType(param.value, hktsByName)) {
+        firstHktParamIndex = i;
+        break;
+      }
+    }
+
+    // Determine type parameter order based on where HKT types first appear
+    let allTypeParams: string[];
+    if (firstHktParamIndex === 0) {
+      // HKT type appears in first parameter, put HKT params first
+      allTypeParams = [...hktParams, ...originalTypeParams];
+    } else {
+      // HKT type appears later or not at all, put original params first
+      allTypeParams = [...originalTypeParams, ...hktParams];
     }
 
     const typeParamsStr = allTypeParams.length > 0 ? `<${allTypeParams.join(', ')}>` : '';
@@ -174,12 +193,12 @@ function functionTypeTemplate(type: FunctionType, hktsByName?: HktsByName, conte
       t`${typeParamsStr}(${t.intercolate(`, `)(
         ...type.parameters.map((param) => {
           if (param._tag === "PositionalField") {
-            // Pass context but not inTypeclassMethod to avoid nested HKT expansion
+            // Pass context but not inTypeclassProperty to avoid nested HKT expansion
             return t`arg${String(param.index)}: ${typeTemplate(param.value, hktsByName, {})}`;
           }
 
           if (param.value) {
-            // Pass context but not inTypeclassMethod to avoid nested HKT expansion  
+            // Pass context but not inTypeclassProperty to avoid nested HKT expansion  
             return t`${t.identifier(param.name)}: ${typeTemplate(param.value, hktsByName, {})}`;
           }
 
@@ -213,6 +232,34 @@ function functionTypeTemplate(type: FunctionType, hktsByName?: HktsByName, conte
   }
 }
 
+// Helper function to check if a type contains HKT types
+function containsHktType(type: Type, hktsByName: HktsByName): boolean {
+  if (type._tag === "TypeReference" && type.name._tag === "Identifier" && hktsByName.has(type.name.text)) {
+    return true;
+  }
+
+  // Check recursively in type arguments, function parameters, etc.
+  switch (type._tag) {
+    case "ArrayType":
+      return containsHktType(type.element, hktsByName);
+    case "MapType":
+      return containsHktType(type.key, hktsByName) || containsHktType(type.value, hktsByName);
+    case "SetType":
+      return containsHktType(type.value, hktsByName);
+    case "TypeReference":
+      return type.typeArguments.some(arg => containsHktType(arg, hktsByName));
+    case "FunctionType":
+      return type.parameters.some(param => param.value && containsHktType(param.value, hktsByName)) ||
+        containsHktType(type.returnType, hktsByName);
+    case "TupleType":
+      return type.members.some(member => containsHktType(member, hktsByName));
+    case "RestType":
+      return containsHktType(type.element, hktsByName);
+    default:
+      return false;
+  }
+}
+
 function higherKindedTypeTemplate(type: HigherKindedType, hktsByName?: HktsByName): Interpolation {
   return t.many(...unwrapHkt(type, hktsByName).map(t => typeParameterTemplate(t, {
     parameterVariance: false,
@@ -222,7 +269,11 @@ function higherKindedTypeTemplate(type: HigherKindedType, hktsByName?: HktsByNam
 }
 
 function recordTypeTemplate(type: RecordType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {
-  return t.span(type.span)(t`Readonly<Record<string, ${typeTemplate(type, hktsByName, context)}>>`);
+  return t.span(type.span)(
+    t`{${t.intercolate(', ')(...type.fields.map(field =>
+      t`${t.identifier(field.name)}: ${field.value ? typeTemplate(field.value, hktsByName, context) : t.identifier(field.name)}`
+    ))}}`
+  );
 }
 
 function restTypeTemplate(type: RestType, hktsByName?: HktsByName, context?: TypeTemplateContext): Interpolation {

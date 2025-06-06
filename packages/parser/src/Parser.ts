@@ -37,9 +37,9 @@ class Parser {
     }
 
     throw new Error(
-      `Expected token of kind ${kinds.join(", ")} but got ${token.kind}:: ${
-        token.text
-      } at ${JSON.stringify(this.source.slice(token.span.start.position))}`
+      `Expected token of kind ${kinds.join(", ")} but got ${token?.kind}:: ${
+        token?.text
+      } at ${JSON.stringify(this.source.slice(token?.span.start.position ?? 0))}`
     );
   }
 
@@ -1137,25 +1137,26 @@ function parseBinaryExpression(
 function parseExpressionFromIdentifier(parser: Parser): AST.Expression {
   const identifier = consumeIdentifierOrMemberExpression(parser);
   parser.skipWhitespace();
-
-  const typeArguments = parseTypeArguments(parser);
-  if (parser.consumeTokenIf(TokenKind.OpenParen)) {
-    const [params, close] = parseExpressions(
-      parser,
-      TokenKind.Comma,
-      TokenKind.CloseParen
-    );
-    return new AST.FunctionCall(
-      identifier,
-      typeArguments,
-      params,
-      new Span(identifier.span.start, close.span.end)
-    );
-  }
-
   const operator = parseOperator(parser);
   parser.skipWhitespace();
-  if (operator === undefined) return identifier;
+  if (operator === undefined) {
+    const typeArguments = parseTypeArguments(parser);
+    if (parser.consumeTokenIf(TokenKind.OpenParen)) {
+      const [params, close] = parseExpressions(
+        parser,
+        TokenKind.Comma,
+        TokenKind.CloseParen
+      );
+      return new AST.FunctionCall(
+        identifier,
+        typeArguments,
+        params,
+        new Span(identifier.span.start, close.span.end)
+      );
+    }
+
+    return identifier;
+  }
 
   const nextExpression = parsePrimaryExpression(parser);
   parser.skipWhitespace();
@@ -1568,7 +1569,7 @@ function parseExpressionFromOpenParen(parser: Parser): AST.Expression {
   return parenthesizedExpression;
 }
 
-function parseExpressionFromLessThan(parser: Parser): AST.FunctionExpression {
+function parseExpressionFromLessThan(parser: Parser): AST.Expression {
   const typeParameters = parseTypeParametersOrHigherKindedType(parser);
   parser.skipWhitespace();
   parser.consumeToken(TokenKind.OpenParen);

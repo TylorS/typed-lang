@@ -6,8 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "pnpm typed-lang --dir ./src",
-    "typed-lang": "pnpx tsx ../cli/src/index.ts",
-    "test": "vitest --dir test"
+    "typed-lang": "pnpx tsx ../cli/src/index.ts"
   },
   "keywords": [],
   "author": "Tylor Steinberger <tlsteinberger167@gmail.com>",
