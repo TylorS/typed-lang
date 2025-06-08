@@ -118,7 +118,7 @@ describe("TsCompiler", () => {
     }`;
     const result = compiler.compile(`function.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "function add(a: Int, b: Int): Int {
+      "export function add(a: Int, b: Int): Int {
         return a + b
       }
       //# sourceMappingURL=function.typed.ts.map"
@@ -131,7 +131,7 @@ describe("TsCompiler", () => {
     }`;
     const result = compiler.compile(`function.typed`, code);
     expect(result.getText()).toMatchInlineSnapshot(`
-      "function add<const A, const B>(a: A, b: B): Int {
+      "export function add<const A, const B>(a: A, b: B): Int {
         return a + b
       }
       //# sourceMappingURL=function.typed.ts.map"
@@ -553,6 +553,15 @@ export const a = 1`;
         map: <A, B>(fa: Kind1<F, A>, f: (a: A) => B) => Kind1<F, B>
       }
       //# sourceMappingURL=typeClassDeclaration.typed.ts.map"
+    `)
+  })
+
+  it('enables looking up virtual files', () => {
+    const code = `import { Maybe } from "./Maybe.typed"`
+    const result = compiler.compile(`virtualFile.typed`, code);
+    expect(result.getText()).toMatchInlineSnapshot(`
+      "import { Maybe } from "./Maybe.typed"
+      //# sourceMappingURL=virtualFile.typed.ts.map"
     `)
   })
 });

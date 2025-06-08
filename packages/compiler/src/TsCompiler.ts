@@ -7,6 +7,7 @@ import { declarationTemplate } from "./templates/declarationTemplate.js";
 import { SourceFile, Statement } from "@typed-lang/parser";
 import { MappedDocumentGenerator } from "./MappedDocumentGenerator.js";
 import { statementTemplate } from "./templates/expressionTemplate.js";
+import { EncodedSourceMap } from "@jridgewell/gen-mapping";
 
 const TYPED_SUB_MODULE_REGEX = /\.typed\.(.+)\.ts$/;
 const TYPED_EXTENSION = ".typed";
@@ -38,6 +39,18 @@ export class TsCompiler extends CompilerService {
     );
   }
 
+  isTypedLikeFile(fileName: string) {
+    return this.isTypedFile(fileName) || this.isVirtualFile(fileName)
+  }
+
+  isTypedFile(fileName: string) {
+    return fileName.endsWith(TYPED_EXTENSION);
+  }
+
+  getVirtualFileName(fileName: string) {
+    return this.toTypedFileName(fileName).replace(TYPED_EXTENSION, TYPED_TS_EXTENSION);
+  }
+
   isVirtualFile(fileName: string) {
     return (
       fileName.endsWith(TYPED_TS_EXTENSION) ||
@@ -51,6 +64,18 @@ export class TsCompiler extends CompilerService {
 
   isTypedSubModule(fileName: string) {
     return TYPED_SUB_MODULE_REGEX.test(fileName);
+  }
+
+  toTypedFileName(fileName: string) { 
+    if (this.isTypedTsFile(fileName)) {
+      return fileName.replace(TYPED_TS_EXTENSION, TYPED_EXTENSION)
+    } else if (this.isTypedSubModule(fileName)) {
+      return fileName.replace(TYPED_SUB_MODULE_REGEX, TYPED_EXTENSION)
+    } else if (this.isTypedFile(fileName)) {
+      return fileName
+    } else {
+      return fileName
+    }
   }
 
   transpile(snapshot: TypedSnapshot, fileName: string) {
@@ -77,6 +102,12 @@ export class TsCompiler extends CompilerService {
       code: root.outputText,
       map: JSON.stringify(remapped),
     };
+  }
+
+  remapSourceMap(oldMap: EncodedSourceMap, newMap: EncodedSourceMap) {
+    newMap.sourcesContent = oldMap.sourcesContent;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return JSON.stringify((remapping as any)([newMap, oldMap], () => null));
   }
 }
 

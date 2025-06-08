@@ -6,6 +6,7 @@ import * as ts from "typescript"
 import { TsCompiler } from "../../TsCompiler.js"
 import { ExternalFileCache, ProjectFileCache } from "./cache.js"
 import type { DiagnosticWriter } from "./diagnostics.js"
+import * as path from "node:path"
 
 /**
  * @since 1.0.0
@@ -47,6 +48,7 @@ export class Project {
     readonly compiler: TsCompiler,
     readonly diagnosticWriter: DiagnosticWriter,
     readonly params: {
+      rootDir: string
       outDir?: string
       documentRegistry: ts.DocumentRegistry,
       cmdLine: ts.ParsedCommandLine,
@@ -62,10 +64,13 @@ export class Project {
     const languageServiceHost: ts.LanguageServiceHost = (this.languageServiceHost = {
       getCompilationSettings: () => {
         return {
+          module: ts.ModuleKind.ESNext,
+          moduleResolution: ts.ModuleResolutionKind.Bundler,
           ...this.cmdLine.options,
           sourceMap: true,
           declaration: true,
           declarationMap: true,
+          rootDir: this.params.rootDir,
           outDir: this.params.outDir ?? this.cmdLine.options.outDir ?? 'dist',
         }
       },
@@ -73,7 +78,7 @@ export class Project {
       // getProjectVersion?(): string;
       getScriptFileNames: () => [...this.projectFiles.getFileNames(), ...this.compiler.getScriptFileNames()],
       getScriptKind: (fileName) => {
-        if (this.compiler.isVirtualFile(fileName)) {
+        if (this.compiler.isTypedLikeFile(fileName)) {
           return ts.ScriptKind.TS
         }
 
@@ -101,7 +106,7 @@ export class Project {
       },
       getScriptVersion: (fileName) => this.projectFiles.getVersion(fileName) ?? String(this.compiler.getSnapshot(fileName)?.version ?? 0),
       getScriptSnapshot: (fileName) =>
-        this.compiler.isVirtualFile(fileName) ? this.compiler.getSnapshot(fileName)?.snapshot : this.projectFiles.getSnapshot(fileName) ?? this.externalFiles.getSnapshot(fileName),
+        this.compiler.isTypedLikeFile(fileName) ? this.compiler.getSnapshot(fileName)?.snapshot : this.projectFiles.getSnapshot(fileName) ?? this.externalFiles.getSnapshot(fileName),
       getProjectReferences: ():
         | ReadonlyArray<ts.ProjectReference>
         | undefined => params.cmdLine.projectReferences,
@@ -120,7 +125,7 @@ export class Project {
        */
       readDirectory: ts.sys.readDirectory,
       readFile: ts.sys.readFile,
-      realpath: ts.sys.realpath || ((x) => x),
+      realpath: ts.sys.realpath,
       fileExists: ts.sys.fileExists,
 
       /*
@@ -179,8 +184,9 @@ export class Project {
    * @since 1.0.0
    */
   addFile(filePath: string) {
-    if (filePath.endsWith(".typed")) {
-      this.compiler.compile(filePath, ts.sys.readFile(filePath)!)
+    if (this.compiler.isTypedLikeFile(filePath)) {
+      const typedSnapshot = this.compiler.compile(filePath, ts.sys.readFile(filePath)!)
+      this.projectFiles.set(typedSnapshot.fileName, typedSnapshot.snapshot)
     } else {
       this.projectFiles.getSnapshot(filePath)
     }
@@ -245,7 +251,25 @@ export class Project {
       return []
     }
 
-    return output.outputFiles
+    return output.outputFiles.map((f) => {
+      // Re-map the sourcemaps to the .typed source files
+      if (f.name.endsWith('.typed.js.map') || f.name.endsWith('.typed.d.ts.map')) {
+        const outDir = this.languageServiceHost.getCompilationSettings().outDir!
+        const relativeName = path.relative(outDir, f.name)
+        const relativeTypedName = relativeName.replace(/\.typed.+/, '.typed')
+        const typedName = this.compiler.toTypedFileName(path.join(this.params.rootDir, relativeTypedName))
+        const typedSnapshot = this.compiler.getSnapshot(typedName)!
+        const oldMap = typedSnapshot.map
+        const newMap = JSON.parse(f.text)
+        const remappedMap = this.compiler.remapSourceMap(oldMap, newMap)
+        return {
+          ...f,
+          text: remappedMap
+        }
+      }
+
+      return f
+    })
   }
 
   emit() {

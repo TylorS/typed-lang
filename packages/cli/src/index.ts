@@ -2,7 +2,7 @@ import { Options, Command } from "@effect/cli";
 import { NodeContext, NodeRuntime } from "@effect/platform-node";
 import { Effect } from "effect";
 import { version } from "../package.json";
-import { makeProject, TsCompiler, TypedSnapshot } from "@typed-lang/compiler";
+import { makeProject, TypedSnapshot } from "@typed-lang/compiler";
 import { FileSystem } from "@effect/platform";
 import { resolve, dirname } from "node:path";
 

@@ -24,7 +24,7 @@ export class TypedSnapshots {
   }
 
   get(fileName: string): TypedSnapshot | undefined {
-    return this.snapshots.get(fileName);
+    return this.snapshots.get(fileName) ?? this.snapshots.get(fileName + '.ts')
   }
 
   set(
